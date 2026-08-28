@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+﻿import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import MobileLogin from './pages/mobile/MobileLogin';
 import MobileSignup from './pages/mobile/MobileSignup';
 import MobileHome from './pages/mobile/MobileHome';
@@ -12,6 +12,8 @@ import MobileResetPassword from './pages/mobile/MobileResetPassword';
 import { MobileToastProvider } from './components/MobileToastProvider';
 import FcmBannerOverlay from './components/FcmBannerOverlay';
 import ErrorBoundary from './components/ErrorBoundary';
+import WebBrowserBlocked from './components/WebBrowserBlocked';
+import { Capacitor } from '@capacitor/core';
 import { useState, useEffect } from 'react';
 import { registerPushNavigate, unregisterPushNavigate, consumePendingRoute } from './utils/pushNotificationHelper';
 import './App.css';
@@ -68,6 +70,10 @@ function ScrollToTop() {
 }
 
 function App() {
+  const isNative =
+    Capacitor.isNativePlatform() ||
+    (typeof navigator !== 'undefined' && navigator.userAgent.includes('SendResQPls-App'));
+
   useEffect(() => {
     try {
       const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -78,12 +84,18 @@ function App() {
     }
   }, []);
 
+  // Block web browsers from accessing the citizen emergency app
+  if (!isNative) {
+    return <WebBrowserBlocked />;
+  }
+
   return (
     <ErrorBoundary>
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
-          <Route path="/mobile/*"
+          <Route
+            path="/mobile/*"
             element={
               <MobileToastProvider>
                 <FcmBannerOverlay />
