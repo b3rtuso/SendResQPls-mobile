@@ -7,10 +7,10 @@ const config: CapacitorConfig = {
   // Live-update mode: loads your deployed Vercel URL
   // This means the APK always gets the latest version automatically
   server: {
-    url: 'https://send-res-q-pls.vercel.app/mobile',
+    url: 'https://sendresqpls-mobile.vercel.app/mobile',
     cleartext: false,
     allowNavigation: [
-      'send-res-q-pls.vercel.app',
+      'sendresqpls-mobile.vercel.app',
     ],
   },
   android: {
