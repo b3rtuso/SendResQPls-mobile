@@ -1,4 +1,3 @@
-﻿import React from 'react';
 import { ShieldAlert, Smartphone, ExternalLink } from 'lucide-react';
 
 export default function WebBrowserBlocked() {
