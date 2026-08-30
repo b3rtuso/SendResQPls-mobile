@@ -60,6 +60,13 @@ export default function BottomNav() {
           position: relative;
           flex: 1;
           cursor: pointer;
+          -webkit-touch-callout: none !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          user-select: none !important;
+          -webkit-user-drag: none !important;
+          -webkit-tap-highlight-color: transparent !important;
         }
 
         /* Active state — default blue */
@@ -105,6 +112,10 @@ export default function BottomNav() {
           justify-content: center;
           transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
           position: relative;
+          -webkit-touch-callout: none !important;
+          -webkit-user-select: none !important;
+          user-select: none !important;
+          -webkit-user-drag: none !important;
         }
         .bn-tab.active .bn-icon-wrap {
           background: rgba(37, 99, 235, 0.12);
@@ -163,6 +174,8 @@ export default function BottomNav() {
           key={to}
           to={to}
           end={end}
+          draggable={false}
+          onContextMenu={(e) => e.preventDefault()}
           className={({ isActive }) =>
             `bn-tab${isReport ? ' bn-report-tab' : ''}${isActive ? ' active' : ''}`
           }
@@ -171,7 +184,7 @@ export default function BottomNav() {
           <span className="bn-dot" />
 
           {/* Icon with optional badge */}
-          <div className="bn-icon-wrap">
+          <div className="bn-icon-wrap" draggable={false}>
             <Icon size={20} strokeWidth={2} />
             {isBell && unread > 0 && (
               <span className="bn-badge">{unread > 9 ? '9+' : unread}</span>
