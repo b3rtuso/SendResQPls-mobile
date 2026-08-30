@@ -589,12 +589,7 @@ export default function MobileReport() {
             }}>
               <ShieldCheck size={18} />
             </div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Automatic AI Routing</div>
-              <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5, marginTop: 2 }}>
-                Our Gemini AI model analyzes the hazard type in seconds and dispatches the nearest response unit (BFP, PNP, EMS, Rescue).
-              </div>
-            </div>
+            
           </div>
         </div>
 
