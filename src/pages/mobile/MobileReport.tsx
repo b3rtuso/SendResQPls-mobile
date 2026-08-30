@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, AlertTriangle, Camera, Loader, WifiOff, Clock,
-  RotateCcw, MapPin, ArrowRight, ShieldCheck,
+  RotateCcw, MapPin, ArrowRight, 
   MessageSquare, ChevronDown, Lock, Navigation
 } from 'lucide-react';
 import { reportIncident } from '../../api/client';
