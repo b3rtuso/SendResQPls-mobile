@@ -157,12 +157,12 @@ export default function MobileHome() {
           display: flex;
           gap: 14px;
           padding: 16px;
-          background: white;
-          border-radius: 18px;
+          background: #FFFFFF;
+          border-radius: 16px;
           align-items: flex-start;
-          box-shadow: 0 2px 10px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.03);
-          border: 1px solid rgba(226,232,240,0.7);
-          transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+          box-shadow: 0 1px 3px rgba(15,23,42,0.03), 0 4px 12px rgba(15,23,42,0.02);
+          border: 1px solid #E2E8F0;
+          transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
           animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
         .srq-tip-card:active {
@@ -476,14 +476,6 @@ export default function MobileHome() {
                     {t.tip}
                   </div>
                 </div>
-                {/* Right accent bar */}
-                <div style={{
-                  width: 3,
-                  borderRadius: 4,
-                  background: `linear-gradient(to bottom, ${t.color}, ${t.color}44)`,
-                  alignSelf: 'stretch', flexShrink: 0,
-                  marginLeft: 4,
-                }} />
               </div>
             ))}
           </div>
