@@ -575,23 +575,7 @@ export default function MobileReport() {
           onChange={handlePhotoChange}
         />
 
-        {/* Info Card */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: '16px 18px',
-          border: '1px solid #E2E8F0', marginBottom: 24,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 10,
-              background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#2563EB', flexShrink: 0,
-            }}>
-              <ShieldCheck size={18} />
-            </div>
-            
-          </div>
-        </div>
+        
 
         {/* Submit Button */}
         <Button
