@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, AlertTriangle, Wind, Waves, Siren, Stethoscope, ChevronDown, WifiOff, Navigation, Lock } from 'lucide-react';
+import { Phone, AlertTriangle, Wind, ChevronDown, WifiOff, Navigation, Lock } from 'lucide-react';
+import { FaFire, FaHouseFloodWater } from 'react-icons/fa6';
+import { FaBriefcaseMedical } from 'react-icons/fa';
+import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
+import { MdLandslide } from 'react-icons/md';
 import BottomNav from '../../components/BottomNav';
 import { getMyIncidents, cachedGet } from '../../api/client';
 import { setupPushNotifications } from '../../utils/pushNotificationHelper';
@@ -17,10 +21,13 @@ const hotlines = [
 ];
 
 const safetyTips = [
-  { icon: Wind,        color: '#2563EB', bg: '#EFF6FF', title: 'Stay Calm',    tip: 'Take deep breaths. Panicking makes it harder to think clearly.' },
-  { icon: Waves,       color: '#0EA5E9', bg: '#F0F9FF', title: 'Flood Safety', tip: 'Move to high ground immediately. Do not walk or drive through floodwaters.' },
-  { icon: Siren,       color: '#EF4444', bg: '#FEF2F2', title: 'Fire Safety',  tip: 'Stay away from smoke. Cover your nose with a damp cloth and evacuate immediately.' },
-  { icon: Stethoscope, color: '#8B5CF6', bg: '#F5F3FF', title: 'First Aid',   tip: 'Apply pressure to wounds with a clean cloth to stop bleeding. Do not move injured persons unless necessary.' },
+  { icon: Wind,             color: '#2563EB', bg: '#EFF6FF', title: 'Stay Calm',       tip: 'Take deep breaths. Panicking makes it harder to think clearly.' },
+  { icon: FaHouseFloodWater,color: '#0EA5E9', bg: '#F0F9FF', title: 'Flood Safety',    tip: 'Move to high ground immediately. Do not walk or drive through floodwaters.' },
+  { icon: FaFire,           color: '#EF4444', bg: '#FEF2F2', title: 'Fire Safety',     tip: 'Stay away from smoke. Cover your nose with a damp cloth and evacuate immediately.' },
+  { icon: FaBriefcaseMedical,color: '#8B5CF6', bg: '#F5F3FF', title: 'First Aid',      tip: 'Apply pressure to wounds with a clean cloth to stop bleeding. Do not move injured persons unless necessary.' },
+  { icon: RiCriminalFill,  color: '#7C3AED', bg: '#EDE9FE', title: 'Crime Safety',    tip: 'Stay in a safe location and lock your doors. Call emergency services immediately — do not confront threats alone.' },
+  { icon: RiTyphoonFill,   color: '#0284C7', bg: '#E0F2FE', title: 'Typhoon Safety',  tip: 'Secure loose objects, move to an interior room away from windows, and monitor official PAGASA advisories.' },
+  { icon: MdLandslide,     color: '#78716C', bg: '#F5F5F4', title: 'Landslide Safety',tip: 'Move away from slopes and valleys immediately. Listen for unusual sounds like cracking or rumbling.' },
 ];
 
 import { useLocationChecker } from '../../utils/useLocationChecker';
