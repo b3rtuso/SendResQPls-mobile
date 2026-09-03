@@ -309,7 +309,7 @@ export default function MobileHome() {
               tabIndex={0}
               style={{
                 background: '#0F2942',
-                borderLeft: `4px solid ${locStatus === 'PERMISSION_DENIED' ? '#3B82F6' : '#F59E0B'}`,
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: 14,
                 padding: '14px 16px',
                 display: 'flex',

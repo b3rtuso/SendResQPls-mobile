@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User, Shield, Phone, Bell, HelpCircle, LogOut, ChevronRight,
+  User, Phone, Bell, HelpCircle, LogOut, ChevronRight,
   ChevronLeft, Save, Mail, X, Plus, Trash2, Info, MessageCircle, Lock, Eye, EyeOff,
 } from 'lucide-react';
+import { MdVerified } from 'react-icons/md';
 import { updateProfile, changePassword } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import BottomNav from '../../components/BottomNav';
@@ -213,7 +214,7 @@ export default function MobileProfile() {
             borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px',
             border: 'none', color: 'white',
           }}>
-            <Shield size={12} /> VERIFIED CITIZEN
+            <MdVerified size={15} style={{ color: '#60A5FA' }} /> VERIFIED CITIZEN
           </Badge>
         </div>
 

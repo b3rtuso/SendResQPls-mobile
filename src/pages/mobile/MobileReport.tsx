@@ -459,52 +459,89 @@ export default function MobileReport() {
           </div>
         )}
 
-        {/* Location Services Off/Denied Reminder Banner (stays if OFF, auto-disappears if ON) */}
-        {isLocationOn === false && (
-          <div style={{
-            background: '#FEF3C7',
-            border: '1.5px solid #FDE68A',
-            borderRadius: 14,
-            padding: '12px 16px',
-            marginBottom: 16,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}>
+        {/* Location Status Strip (matching Home tab dark card design, no side highlight) */}
+        {isLocationOn !== true && (
+          <div
+            onClick={handleEnableGps}
+            role="button"
+            tabIndex={0}
+            style={{
+              background: '#0F2942',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: 14,
+              padding: '14px 16px',
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              cursor: 'pointer',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+            }}
+          >
+            {/* Status dot */}
             <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: '#F59E0B', color: 'white',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <MapPin size={18} />
-            </div>
+              width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+              background: locStatus === 'PERMISSION_DENIED' ? '#3B82F6' : '#F59E0B',
+              boxShadow: `0 0 0 3px ${locStatus === 'PERMISSION_DENIED' ? 'rgba(59,130,246,0.2)' : 'rgba(245,158,11,0.2)'}`,
+            }} />
+
+            {/* Text block */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#92400E' }}>
-                Location Services Off
+              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.1px', marginBottom: 2 }}>
+                {locStatus === 'PERMISSION_DENIED' ? 'Location permission blocked' : 'Location (GPS) is off'}
               </div>
-              <div style={{ fontSize: 11.5, color: '#B45309', marginTop: 1, lineHeight: 1.4 }}>
-                GPS is off. You can manually select your barangay on submit or enable GPS.
+              <div style={{ fontSize: 11.5, color: '#94A3B8', lineHeight: 1.4 }}>
+                {locStatus === 'PERMISSION_DENIED'
+                  ? 'Tap to open App Settings and allow access.'
+                  : 'Turn on GPS so responders can find you.'}
               </div>
             </div>
-            <button
-              onClick={handleEnableGps}
-              style={{
-                padding: '7px 12px',
-                borderRadius: 10,
-                background: '#D97706',
-                color: 'white',
-                border: 'none',
-                fontSize: 11.5,
-                fontWeight: 800,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                fontFamily: 'inherit',
-              }}
-            >
-              Enable GPS
-            </button>
+
+            {/* Primary action button */}
+            {locStatus === 'PERMISSION_DENIED' ? (
+              <Button
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); openAppSettings(); }}
+                style={{
+                  flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
+                  padding: '7px 12px', borderRadius: 8, height: 'auto',
+                  background: '#3B82F6', border: 'none',
+                  color: 'white', fontSize: 12, fontWeight: 700,
+                  whiteSpace: 'nowrap' as const,
+                }}
+              >
+                <Lock size={12} /> Settings
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                disabled={locRequesting}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const ok = await requestLocation();
+                  if (ok) setShowLocationGuideModal(false);
+                }}
+                style={{
+                  flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
+                  padding: '7px 12px', borderRadius: 8, height: 'auto',
+                  background: locRequesting ? '#78350F' : '#F59E0B', border: 'none',
+                  color: 'white', fontSize: 12, fontWeight: 700,
+                  whiteSpace: 'nowrap' as const,
+                  opacity: locRequesting ? 0.85 : 1,
+                }}
+              >
+                {locRequesting ? (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 1s linear infinite' }}>
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                    Detecting…
+                  </>
+                ) : (
+                  <><Navigation size={12} /> Enable GPS</>
+                )}
+              </Button>
+            )}
           </div>
         )}
 
