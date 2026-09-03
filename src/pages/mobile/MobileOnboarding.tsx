@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, AlertTriangle, ShieldCheck, MapPin, Navigation } from 'lucide-react';
+import { Camera, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { FaLocationDot } from 'react-icons/fa6';
 import { Button } from '@/components/ui/button';
 
 const ONBOARDING_KEY = 'srq_onboarding_done';
@@ -479,7 +480,7 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <MapPin size={13} color="#93C5FD" />
+                  <FaLocationDot size={13} color="#93C5FD" />
                   <span style={{ fontSize: 11.5, fontWeight: 700 }}>MDRRMO Command Center</span>
                 </div>
                 <span style={{ fontSize: 10, background: '#DC2626', padding: '2px 6px', borderRadius: 4, fontWeight: 800 }}>LIVE</span>
@@ -557,7 +558,7 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
                     flexShrink: 0,
                   }}
                 >
-                  <Navigation size={18} />
+                  <FaLocationDot size={18} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

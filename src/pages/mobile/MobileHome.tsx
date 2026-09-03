@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, AlertTriangle, Wind, ChevronDown, WifiOff, Navigation, Lock } from 'lucide-react';
-import { FaFire, FaHouseFloodWater } from 'react-icons/fa6';
+import { Phone, AlertTriangle, Wind, ChevronDown, WifiOff, Lock } from 'lucide-react';
+import { FaFire, FaHouseFloodWater, FaLocationDot } from 'react-icons/fa6';
 import { FaBriefcaseMedical } from 'react-icons/fa';
 import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
 import { MdLandslide } from 'react-icons/md';
@@ -379,7 +379,7 @@ export default function MobileHome() {
                       Detecting…
                     </>
                   ) : (
-                    <><Navigation size={12} /> Enable GPS</>
+                    <><FaLocationDot size={12} /> Enable GPS</>
                   )}
                 </Button>
               )}
@@ -531,7 +531,7 @@ export default function MobileHome() {
                 {locStatus === 'PERMISSION_DENIED' ? (
                   <Lock size={26} color="#2563EB" strokeWidth={2} />
                 ) : (
-                  <Navigation size={26} color="#DC2626" strokeWidth={2} />
+                  <FaLocationDot size={26} color="#DC2626" />
                 )}
               </div>
 
@@ -651,7 +651,7 @@ export default function MobileHome() {
                       Detecting Location…
                     </>
                   ) : (
-                    <><Navigation size={16} /> Enable GPS</>
+                    <><FaLocationDot size={16} /> Enable GPS</>
                   )}
                 </Button>
               )}
@@ -673,7 +673,7 @@ export default function MobileHome() {
                   minHeight: 48,
                 }}
               >
-                <Navigation size={15} /> Check Location Now
+                <FaLocationDot size={15} /> Check Location Now
               </Button>
 
               <Button

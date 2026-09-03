@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, AlertTriangle, Camera, Loader, WifiOff, Clock,
-  RotateCcw, MapPin, ArrowRight, 
-  MessageSquare, ChevronDown, Lock, Navigation
+  RotateCcw, ArrowRight, 
+  MessageSquare, ChevronDown, Lock,
 } from 'lucide-react';
+import { FaLocationDot } from 'react-icons/fa6';
 import { reportIncident } from '../../api/client';
 import { Button } from '@/components/ui/button';
 import { isWithinBalayan, getNearestBarangay, BARANGAYS } from '../../data/balayan-data';
@@ -538,7 +539,7 @@ export default function MobileReport() {
                     Detecting…
                   </>
                 ) : (
-                  <><Navigation size={12} /> Enable GPS</>
+                  <><FaLocationDot size={12} /> Enable GPS</>
                 )}
               </Button>
             )}
@@ -684,7 +685,7 @@ export default function MobileReport() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 12px', color: '#D97706',
               }}>
-                <MapPin size={26} />
+                <FaLocationDot size={26} />
               </div>
               <h3 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.2px' }}>
                 Select Your Barangay
@@ -806,8 +807,8 @@ export default function MobileReport() {
                 />
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#2563EB', fontSize: 13, fontWeight: 800 }}>
-                  <MapPin size={14} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#2563EB', fontSize: 13, fontWeight: 800 }}>
+                  <FaLocationDot size={13} style={{ flexShrink: 0 }} />
                   <span>{detectedLocation.barangay}</span>
                 </div>
                 <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
@@ -890,7 +891,7 @@ export default function MobileReport() {
                 {locStatus === 'PERMISSION_DENIED' ? (
                   <Lock size={26} />
                 ) : (
-                  <Navigation size={26} />
+                  <FaLocationDot size={26} />
                 )}
               </div>
               <h3 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.2px' }}>
@@ -1003,7 +1004,7 @@ export default function MobileReport() {
                       Detecting Location…
                     </>
                   ) : (
-                    <><Navigation size={16} /> Enable Location</>
+                    <><FaLocationDot size={16} /> Enable Location</>
                   )}
                 </button>
               )}
@@ -1026,7 +1027,7 @@ export default function MobileReport() {
                   fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}
               >
-                <Navigation size={15} /> Check Location Now
+                <FaLocationDot size={15} /> Check Location Now
               </button>
 
               <button

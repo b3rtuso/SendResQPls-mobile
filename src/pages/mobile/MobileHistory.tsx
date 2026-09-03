@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, MapPin, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, ShieldCheck, XCircle, AlertTriangle, PlusCircle, X, Phone, Siren, ChevronRight, Check } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, ShieldCheck, XCircle, AlertTriangle, PlusCircle, X, Phone, Siren, ChevronRight, Check } from 'lucide-react';
+import { FaLocationDot } from 'react-icons/fa6';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
 import type { Incident, Status } from '../../types';
 import BottomNav from '../../components/BottomNav';
@@ -676,7 +677,7 @@ export default function MobileHistory() {
                         color: '#64748B',
                         fontWeight: 500,
                       }}>
-                        <MapPin size={12} color="#2563EB" />
+                        <FaLocationDot size={12} color="#2563EB" />
                         <span>
                           {inc.latitude && inc.longitude
                             ? getNearestBarangay(inc.latitude, inc.longitude).split(',')[0]
@@ -1016,7 +1017,7 @@ export default function MobileHistory() {
                       {selectedIncident.status === 'RESOLVED' ? (
                         <Check size={18} strokeWidth={3} />
                       ) : (
-                        <MapPin size={18} />
+                        <FaLocationDot size={18} />
                       )}
                     </div>
                     <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A' }}>
