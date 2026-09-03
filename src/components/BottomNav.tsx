@@ -1,13 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { Home, PlusCircle, Clock, User, Bell } from 'lucide-react';
+import { FaHome, FaBell, FaUser } from 'react-icons/fa';
+import { FaCirclePlus } from 'react-icons/fa6';
+import { RiChatHistoryFill } from 'react-icons/ri';
 import { getStoredNotifications } from '../pages/mobile/MobileNotifications';
 
 const tabs = [
-  { to: '/mobile',               icon: Home,       label: 'Home',    end: true,  isReport: false, isBell: false },
-  { to: '/mobile/report',        icon: PlusCircle, label: 'Report',  end: false, isReport: true,  isBell: false },
-  { to: '/mobile/notifications', icon: Bell,       label: 'Alerts',  end: false, isReport: false, isBell: true  },
-  { to: '/mobile/history',       icon: Clock,      label: 'History', end: false, isReport: false, isBell: false },
-  { to: '/mobile/profile',       icon: User,       label: 'Profile', end: false, isReport: false, isBell: false },
+  { to: '/mobile',               icon: FaHome,            label: 'Home',    end: true,  isReport: false, isBell: false },
+  { to: '/mobile/report',        icon: FaCirclePlus,      label: 'Report',  end: false, isReport: true,  isBell: false },
+  { to: '/mobile/notifications', icon: FaBell,            label: 'Alerts',  end: false, isReport: false, isBell: true  },
+  { to: '/mobile/history',       icon: RiChatHistoryFill, label: 'History', end: false, isReport: false, isBell: false },
+  { to: '/mobile/profile',       icon: FaUser,            label: 'Profile', end: false, isReport: false, isBell: false },
 ];
 
 export default function BottomNav() {
@@ -185,7 +187,7 @@ export default function BottomNav() {
 
           {/* Icon with optional badge */}
           <div className="bn-icon-wrap" draggable={false}>
-            <Icon size={20} strokeWidth={2} />
+            <Icon size={20} />
             {isBell && unread > 0 && (
               <span className="bn-badge">{unread > 9 ? '9+' : unread}</span>
             )}
