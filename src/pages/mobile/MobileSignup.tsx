@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EyeOff, Eye, CheckCircle } from 'lucide-react';
-import { FaUser, FaPhoneSquareAlt, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FiPhone } from 'react-icons/fi';
 import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
@@ -207,7 +208,7 @@ export default function MobileSignup() {
           <div className="input-group">
             <Label>Phone Number</Label>
             <div className="input-wrapper">
-              <FaPhoneSquareAlt size={16} className="input-icon" />
+              <FiPhone size={16} className="input-icon" />
               <Input type="tel" autoComplete="tel" placeholder="+63 900 000 0000" value={form.phone} onChange={(e) => update('phone', e.target.value.replace(/[^0-9+ ]/g, ''))} />
             </div>
           </div>

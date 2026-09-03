@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, ShieldCheck, XCircle, AlertTriangle, PlusCircle, X, Siren, ChevronRight, Check } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
-import { FaPhoneSquareAlt } from 'react-icons/fa';
+import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
 import type { Incident, Status } from '../../types';
 import BottomNav from '../../components/BottomNav';
@@ -1232,7 +1232,7 @@ export default function MobileHistory() {
                 boxSizing: 'border-box',
               }}
             >
-              <FaPhoneSquareAlt size={16} />
+              <FiPhone size={16} />
               <span>Call MDRRMO Balayan (0917-123-4567)</span>
             </a>
           </div>

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Wind, ChevronDown, WifiOff } from 'lucide-react';
-import { FaFire, FaHouseFloodWater, FaLocationDot } from 'react-icons/fa6';
-import { FaBriefcaseMedical, FaPhoneSquareAlt, FaLock } from 'react-icons/fa';
+import { FaFire, FaHouseFloodWater, FaLocationDot, FaPlus } from 'react-icons/fa6';
+import { FaCog } from 'react-icons/fa';
+import { FiPhone } from 'react-icons/fi';
 import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
 import { MdLandslide } from 'react-icons/md';
 import BottomNav from '../../components/BottomNav';
@@ -24,10 +25,10 @@ const safetyTips = [
   { icon: Wind,             color: '#2563EB', bg: '#EFF6FF', title: 'Stay Calm',       tip: 'Take deep breaths. Panicking makes it harder to think clearly.' },
   { icon: FaHouseFloodWater,color: '#0EA5E9', bg: '#F0F9FF', title: 'Flood Safety',    tip: 'Move to high ground immediately. Do not walk or drive through floodwaters.' },
   { icon: FaFire,           color: '#EF4444', bg: '#FEF2F2', title: 'Fire Safety',     tip: 'Stay away from smoke. Cover your nose with a damp cloth and evacuate immediately.' },
-  { icon: FaBriefcaseMedical,color: '#8B5CF6', bg: '#F5F3FF', title: 'First Aid',      tip: 'Apply pressure to wounds with a clean cloth to stop bleeding. Do not move injured persons unless necessary.' },
-  { icon: RiCriminalFill,  color: '#7C3AED', bg: '#EDE9FE', title: 'Crime Safety',    tip: 'Stay in a safe location and lock your doors. Call emergency services immediately — do not confront threats alone.' },
-  { icon: RiTyphoonFill,   color: '#0284C7', bg: '#E0F2FE', title: 'Typhoon Safety',  tip: 'Secure loose objects, move to an interior room away from windows, and monitor official PAGASA advisories.' },
-  { icon: MdLandslide,     color: '#78716C', bg: '#F5F5F4', title: 'Landslide Safety',tip: 'Move away from slopes and valleys immediately. Listen for unusual sounds like cracking or rumbling.' },
+  { icon: FaPlus,           color: '#DC2626', bg: '#FFFFFF', title: 'First Aid',      tip: 'Apply pressure to wounds with a clean cloth to stop bleeding. Do not move injured persons unless necessary.' },
+  { icon: RiCriminalFill,   color: '#000000', bg: '#F1F5F9', title: 'Crime Safety',    tip: 'Stay in a safe location and lock your doors. Call emergency services immediately — do not confront threats alone.' },
+  { icon: RiTyphoonFill,    color: '#0284C7', bg: '#E0F2FE', title: 'Typhoon Safety',  tip: 'Secure loose objects, move to an interior room away from windows, and monitor official PAGASA advisories.' },
+  { icon: MdLandslide,      color: '#78716C', bg: '#F5F5F4', title: 'Landslide Safety',tip: 'Move away from slopes and valleys immediately. Listen for unusual sounds like cracking or rumbling.' },
 ];
 
 import { useLocationChecker } from '../../utils/useLocationChecker';
@@ -351,7 +352,7 @@ export default function MobileHome() {
                     whiteSpace: 'nowrap' as const,
                   }}
                 >
-                  <FaLock size={12} /> Settings
+                  <FaCog size={12} /> Settings
                 </Button>
               ) : (
                 <Button
@@ -416,7 +417,7 @@ export default function MobileHome() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <FaPhoneSquareAlt size={15} color="white" />
+                    <FiPhone size={15} color="white" />
                   </div>
                   {/* Number — full width, scales to fit 11 digits */}
                   <div style={{
@@ -529,7 +530,7 @@ export default function MobileHome() {
                 margin: '0 auto 14px',
               }}>
                 {locStatus === 'PERMISSION_DENIED' ? (
-                  <FaLock size={24} color="#2563EB" />
+                  <FaCog size={24} color="#2563EB" />
                 ) : (
                   <FaLocationDot size={26} color="#DC2626" />
                 )}
@@ -621,7 +622,7 @@ export default function MobileHome() {
                     minHeight: 48,
                   }}
                 >
-                  <FaLock size={15} /> Open App Settings
+                  <FaCog size={15} /> Open App Settings
                 </Button>
               ) : (
                 /* GPS off or not yet asked — fire the native browser dialog directly */

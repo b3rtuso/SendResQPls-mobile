@@ -4,9 +4,10 @@ import {
   LogOut, ChevronRight,
   ChevronLeft, Save, X, Plus, Trash2, Info, MessageCircle, Eye, EyeOff,
 } from 'lucide-react';
-import { FaUser, FaPhoneSquareAlt, FaLock, FaEnvelope, FaCogs } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaBell, FaCog } from 'react-icons/fa';
+import { FiPhone } from 'react-icons/fi';
 import { BsQuestionCircleFill } from 'react-icons/bs';
-import { MdVerified } from 'react-icons/md';
+import { MdVerified, MdManageAccounts } from 'react-icons/md';
 import { updateProfile, changePassword } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { useConfirm } from '../../contexts/ConfirmContext';
@@ -281,9 +282,17 @@ export default function MobileProfile() {
         {/* Menu */}
         <div style={{ padding: '12px clamp(14px, 4vw, 20px)' }}>
           {[
-            { icon: FaUser, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
-            { icon: FaPhoneSquareAlt, label: 'Emergency Contacts', key: 'contacts' as Section, desc: `${contacts.length} contact${contacts.length !== 1 ? 's' : ''} saved` },
-            { icon: FaCogs, label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences' },
+            { icon: MdManageAccounts, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
+            { icon: FiPhone, label: 'Emergency Contacts', key: 'contacts' as Section, desc: `${contacts.length} contact${contacts.length !== 1 ? 's' : ''} saved` },
+            {
+              icon: () => (
+                <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 }}>
+                  <FaBell size={18} />
+                  <FaCog size={10} style={{ position: 'absolute', top: -3, right: -4, background: '#EFF6FF', borderRadius: '50%', color: '#2563EB' }} />
+                </span>
+              ),
+              label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences',
+            },
             { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
           ].map(item => (
             <div
@@ -340,7 +349,7 @@ export default function MobileProfile() {
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
           <Field label="Full Name" icon={FaUser} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
           <Field label="Email Address" icon={FaEnvelope} value={email} onChange={setEmail} placeholder="juan@example.com" type="email" />
-          <Field label="Phone Number" icon={FaPhoneSquareAlt} value={phone} onChange={setPhone} placeholder="+63 900 000 0000" type="tel" />
+          <Field label="Phone Number" icon={FiPhone} value={phone} onChange={setPhone} placeholder="+63 900 000 0000" type="tel" />
 
           <button onClick={handleSaveProfile} disabled={saving} style={{
             width: '100%', padding: 'clamp(12px, 3.5vw, 15px)',
@@ -425,7 +434,7 @@ export default function MobileProfile() {
 
           {contacts.length === 0 && !showAddContact && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94A3B8' }}>
-              <FaPhoneSquareAlt size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
+              <FiPhone size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
               <p style={{ fontWeight: 600, marginBottom: 4 }}>No emergency contacts yet</p>
               <p style={{ fontSize: 13 }}>Add contacts who should be notified during emergencies.</p>
             </div>
@@ -548,7 +557,7 @@ export default function MobileProfile() {
               <h3 style={{ fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 800, color: '#1E40AF', marginBottom: 12 }}>Contact MDRRMO Balayan</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <a href="tel:09171234567" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#1E40AF', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-                  <FaPhoneSquareAlt size={15} /> 0917-123-4567
+                  <FiPhone size={15} /> 0917-123-4567
                 </a>
                 <a href="mailto:mdrrmo@balayan.gov.ph" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#1E40AF', textDecoration: 'none', fontSize: 14, fontWeight: 600, wordBreak: 'break-all' }}>
                   <FaEnvelope size={15} /> mdrrmo@balayan.gov.ph
