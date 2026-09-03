@@ -11,6 +11,7 @@ import { MdVerified, MdManageAccounts } from 'react-icons/md';
 import { updateProfile, changePassword } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { detectFieldChanges } from '../../utils/changeDetector';
 import BottomNav from '../../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -117,6 +118,11 @@ export default function MobileProfile() {
   const [name, setName] = useState(localStorage.getItem('userName') || 'User');
   const [email, setEmail] = useState(localStorage.getItem('userEmail') || '');
   const [phone, setPhone] = useState(localStorage.getItem('userPhone') || '');
+  const [originalProfile, setOriginalProfile] = useState(() => ({
+    name: localStorage.getItem('userName') || 'User',
+    email: localStorage.getItem('userEmail') || '',
+    phone: localStorage.getItem('userPhone') || '',
+  }));
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 
   const [currentPass, setCurrentPass] = useState('');
@@ -145,6 +151,18 @@ export default function MobileProfile() {
     localStorage.setItem(NOTIF_SETTINGS_KEY, JSON.stringify(notifSettings));
   }, [notifSettings]);
 
+  const getProfileChanges = () => detectFieldChanges(
+    originalProfile,
+    { name, email, phone },
+    {
+      labels: {
+        name: 'Full Name',
+        email: 'Email Address',
+        phone: 'Phone Number',
+      },
+    }
+  );
+
   const handleLogout = async () => {
     const isConfirmed = await confirm({
       type: 'confirm',
@@ -163,22 +181,55 @@ export default function MobileProfile() {
   };
 
   const handleSaveProfile = async () => {
+    const changes = getProfileChanges();
+
+    // 1. Detect which fields were actually changed
+    if (changes.length === 0) {
+      showToast({
+        type: 'info',
+        priority: 'normal',
+        title: 'No Changes Detected',
+        message: 'Your profile details are already up to date.',
+      });
+      return;
+    }
+
+    // 2. Show ONLY the changed fields in the confirmation modal
     const isConfirmed = await confirm({
       type: 'update',
-      title: 'Confirm Profile Update',
-      message: 'Update your official citizen profile details?',
-      detail: 'Your name, email address, and emergency contact number will be updated across active and future incident records.',
-      confirmText: 'Save Profile',
+      title: 'Confirm Changes',
+      message: changes.length === 1
+        ? 'Are you sure you want to save this change to your profile?'
+        : 'Are you sure you want to save these changes to your profile?',
+      detail: 'Your updated contact information will be reflected on future incident dispatches and official records.',
+      confirmText: 'Confirm Changes',
       cancelText: 'Cancel',
+      changes,
     });
     if (!isConfirmed) return;
 
     setSaving(true);
     try {
-      await updateProfile({ userId, name, email, phoneNumber: phone });
-      localStorage.setItem('userName', name);
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('userPhone', phone);
+      const cleanName = name.trim();
+      const cleanEmail = email.trim();
+      const cleanPhone = phone.trim();
+
+      await updateProfile({ userId, name: cleanName, email: cleanEmail, phoneNumber: cleanPhone });
+      const updated = {
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+      };
+
+      // 6. After a successful save, the new values become the new saved/original values
+      setOriginalProfile(updated);
+      setName(updated.name);
+      setEmail(updated.email);
+      setPhone(updated.phone);
+
+      localStorage.setItem('userName', updated.name);
+      localStorage.setItem('userEmail', updated.email);
+      localStorage.setItem('userPhone', updated.phone);
       showToast({
         type: 'error',
         priority: 'important',
@@ -188,6 +239,55 @@ export default function MobileProfile() {
     } catch {
       showToast({ type: 'error', priority: 'normal', title: 'Update failed', message: 'Could not save profile changes.' });
     } finally { setSaving(false); }
+  };
+
+  const handleBackFromAccount = async () => {
+    const changes = getProfileChanges();
+    const hasPasswordInput = !!(currentPass || newPass);
+
+    // If no changes, close/navigate back immediately without discard confirmation
+    if (changes.length === 0 && !hasPasswordInput) {
+      setSection('main');
+      return;
+    }
+
+    // If unsaved changes exist, show discard confirmation
+    const shouldDiscard = await confirm({
+      type: 'discard',
+      title: 'Discard Changes?',
+      message: 'You have unsaved changes. Are you sure you want to leave? Your changes will be discarded.',
+      confirmText: 'Discard Changes',
+      cancelText: 'Keep Editing',
+    });
+
+    if (shouldDiscard) {
+      // Revert all unsaved inputs back to saved/original values
+      setName(originalProfile.name);
+      setEmail(originalProfile.email);
+      setPhone(originalProfile.phone);
+      setCurrentPass('');
+      setNewPass('');
+      setSection('main');
+    }
+  };
+
+  const handleDiscardProfileEdits = async () => {
+    const changes = getProfileChanges();
+    if (changes.length === 0) return;
+
+    const shouldDiscard = await confirm({
+      type: 'discard',
+      title: 'Discard Changes?',
+      message: 'You have unsaved profile changes. Are you sure you want to discard your edits?',
+      confirmText: 'Discard Changes',
+      cancelText: 'Keep Editing',
+    });
+
+    if (shouldDiscard) {
+      setName(originalProfile.name);
+      setEmail(originalProfile.email);
+      setPhone(originalProfile.phone);
+    }
   };
 
   const handleChangePassword = async () => {
@@ -217,6 +317,39 @@ export default function MobileProfile() {
     } catch (err: any) {
       showToast({ type: 'error', priority: 'normal', title: err.response?.data?.error || 'Failed to change password' });
     } finally { setSaving(false); }
+  };
+
+  const handleCloseAddContact = async () => {
+    const hasInput = !!(newContact.name.trim() || newContact.phone.trim() || newContact.relation.trim());
+    if (hasInput) {
+      const shouldDiscard = await confirm({
+        type: 'discard',
+        title: 'Discard New Contact?',
+        message: 'You have entered unsaved contact details. Are you sure you want to discard this contact?',
+        confirmText: 'Discard Changes',
+        cancelText: 'Keep Editing',
+      });
+      if (!shouldDiscard) return;
+    }
+    setNewContact({ name: '', phone: '', relation: '' });
+    setShowAddContact(false);
+  };
+
+  const handleBackFromContacts = async () => {
+    const hasInput = !!(newContact.name.trim() || newContact.phone.trim() || newContact.relation.trim());
+    if (hasInput && showAddContact) {
+      const shouldDiscard = await confirm({
+        type: 'discard',
+        title: 'Discard New Contact?',
+        message: 'You have an unsaved emergency contact. Are you sure you want to leave?',
+        confirmText: 'Discard Changes',
+        cancelText: 'Keep Editing',
+      });
+      if (!shouldDiscard) return;
+      setNewContact({ name: '', phone: '', relation: '' });
+      setShowAddContact(false);
+    }
+    setSection('main');
   };
 
   const handleDeleteContact = async (contact: EmergencyContact) => {
@@ -344,7 +477,7 @@ export default function MobileProfile() {
     <div className="mobile-shell mobile-section-transition" key="profile-account">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        <SectionHeader title="Account Details" onBack={() => setSection('main')} />
+        <SectionHeader title="Account Details" onBack={handleBackFromAccount} />
 
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
           <Field label="Full Name" icon={FaUser} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
@@ -357,10 +490,27 @@ export default function MobileProfile() {
             border: 'none', fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 700,
             cursor: 'pointer', fontFamily: 'var(--font)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            opacity: saving ? 0.6 : 1, marginBottom: 20,
+            opacity: saving ? 0.6 : 1, marginBottom: getProfileChanges().length > 0 ? 8 : 20,
           }}>
             <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
+
+          {getProfileChanges().length > 0 && (
+            <button
+              type="button"
+              onClick={handleDiscardProfileEdits}
+              style={{
+                width: '100%', padding: 'clamp(11px, 3.2vw, 14px)',
+                borderRadius: 14, background: '#F8FAFC', color: '#64748B',
+                border: '1.5px solid #CBD5E1', fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 600,
+                cursor: 'pointer', fontFamily: 'var(--font)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                marginBottom: 20,
+              }}
+            >
+              Discard Changes
+            </button>
+          )}
 
           {/* Change Password card */}
           <div style={{
@@ -425,7 +575,7 @@ export default function MobileProfile() {
     <div className="mobile-shell mobile-section-transition" key="profile-contacts">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        <SectionHeader title="Emergency Contacts" onBack={() => setSection('main')} />
+        <SectionHeader title="Emergency Contacts" onBack={handleBackFromContacts} />
 
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
           <p style={{ fontSize: 13, color: '#64748B', marginBottom: 16, lineHeight: 1.5 }}>
@@ -468,7 +618,7 @@ export default function MobileProfile() {
             <div style={{ padding: 16, background: '#F0F9FF', borderRadius: 16, border: '1.5px solid #BAE6FD', marginTop: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', margin: 0 }}>New Contact</h4>
-                <button onClick={() => setShowAddContact(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}><X size={18} /></button>
+                <button onClick={handleCloseAddContact} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}><X size={18} /></button>
               </div>
               {([['name', 'Full Name'], ['phone', 'Phone Number'], ['relation', 'Relation (e.g. Parent, Sibling)']] as const).map(([field, ph]) => (
                 <input key={field} placeholder={ph}

@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, AlertTriangle, Camera, Loader, WifiOff, Clock,
-  RotateCcw, ArrowRight, 
+  RotateCcw, ArrowRight, Trash2,
   MessageSquare, ChevronDown,
 } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FaCog } from 'react-icons/fa';
 import { reportIncident } from '../../api/client';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '../../contexts/ConfirmContext';
 import { isWithinBalayan, getNearestBarangay, BARANGAYS } from '../../data/balayan-data';
 import { useNetworkStatus } from '../../utils/useNetworkStatus';
 import { compressImage } from '../../utils/imageCompressor';
@@ -32,7 +33,7 @@ export default function MobileReport() {
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const isOnline = useNetworkStatus();
-
+  const { confirm } = useConfirm();
   const { push: showToast } = useMobileToast();
 
   const [photo, setPhoto] = useState<File | null>(() => cachedReportPhoto);
@@ -165,6 +166,43 @@ export default function MobileReport() {
     } finally {
       setCompressing(false);
     }
+  };
+
+  const handleDiscardPhoto = async () => {
+    if (!photo && !preview) return;
+    const shouldDiscard = await confirm({
+      type: 'discard',
+      title: 'Discard Photo Evidence?',
+      message: 'Are you sure you want to discard this captured emergency photo?',
+      confirmText: 'Discard Photo',
+      cancelText: 'Keep Photo',
+    });
+    if (shouldDiscard) {
+      setPhoto(null);
+      setPreview(null);
+      cachedReportPhoto = null;
+      cachedReportPreview = null;
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const handleBack = async () => {
+    if (photo || preview) {
+      const shouldDiscard = await confirm({
+        type: 'discard',
+        title: 'Discard Report?',
+        message: 'You have captured an unsent emergency photo. Are you sure you want to leave? Your report will be discarded.',
+        confirmText: 'Discard Changes',
+        cancelText: 'Keep Editing',
+      });
+      if (!shouldDiscard) return;
+      setPhoto(null);
+      setPreview(null);
+      cachedReportPhoto = null;
+      cachedReportPreview = null;
+      if (fileRef.current) fileRef.current.value = '';
+    }
+    navigate('/mobile');
   };
 
   const handleOpenReview = async () => {
@@ -385,7 +423,7 @@ export default function MobileReport() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/mobile')}
+            onClick={handleBack}
             style={{
               width: 36,
               height: 36,
@@ -590,8 +628,20 @@ export default function MobileReport() {
 
           {/* Photo actions */}
           {preview && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <button
+                type="button"
+                onClick={handleDiscardPhoto}
+                style={{
+                  background: 'white', border: '1px solid #FECACA', borderRadius: 10,
+                  padding: '6px 14px', fontSize: 12.5, fontWeight: 700, color: '#DC2626',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                <Trash2 size={13} /> Discard Photo
+              </button>
+              <button
+                type="button"
                 onClick={() => fileRef.current?.click()}
                 style={{
                   background: 'white', border: '1px solid #CBD5E1', borderRadius: 10,
