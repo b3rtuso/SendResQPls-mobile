@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, AlertTriangle, Wind, ChevronDown, WifiOff, Lock } from 'lucide-react';
+import { AlertTriangle, Wind, ChevronDown, WifiOff } from 'lucide-react';
 import { FaFire, FaHouseFloodWater, FaLocationDot } from 'react-icons/fa6';
-import { FaBriefcaseMedical } from 'react-icons/fa';
+import { FaBriefcaseMedical, FaPhoneSquareAlt, FaLock } from 'react-icons/fa';
 import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
 import { MdLandslide } from 'react-icons/md';
 import BottomNav from '../../components/BottomNav';
@@ -351,7 +351,7 @@ export default function MobileHome() {
                     whiteSpace: 'nowrap' as const,
                   }}
                 >
-                  <Lock size={12} /> Settings
+                  <FaLock size={12} /> Settings
                 </Button>
               ) : (
                 <Button
@@ -416,7 +416,7 @@ export default function MobileHome() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <Phone size={14} color="white" strokeWidth={2.5} />
+                    <FaPhoneSquareAlt size={15} color="white" />
                   </div>
                   {/* Number — full width, scales to fit 11 digits */}
                   <div style={{
@@ -529,7 +529,7 @@ export default function MobileHome() {
                 margin: '0 auto 14px',
               }}>
                 {locStatus === 'PERMISSION_DENIED' ? (
-                  <Lock size={26} color="#2563EB" strokeWidth={2} />
+                  <FaLock size={24} color="#2563EB" />
                 ) : (
                   <FaLocationDot size={26} color="#DC2626" />
                 )}
@@ -621,7 +621,7 @@ export default function MobileHome() {
                     minHeight: 48,
                   }}
                 >
-                  <Lock size={16} /> Open App Settings
+                  <FaLock size={15} /> Open App Settings
                 </Button>
               ) : (
                 /* GPS off or not yet asked — fire the native browser dialog directly */

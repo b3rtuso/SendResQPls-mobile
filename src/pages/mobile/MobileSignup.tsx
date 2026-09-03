@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Phone, Mail, Lock, EyeOff, Eye, CheckCircle } from 'lucide-react';
+import { EyeOff, Eye, CheckCircle } from 'lucide-react';
+import { FaUser, FaPhoneSquareAlt, FaEnvelope, FaLock } from 'react-icons/fa';
 import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
@@ -198,7 +199,7 @@ export default function MobileSignup() {
           <div className="input-group">
             <Label>Full Name</Label>
             <div className="input-wrapper">
-              <User size={18} className="input-icon" />
+              <FaUser size={16} className="input-icon" />
               <Input autoComplete="name" placeholder="Juan Dela Cruz" value={form.name} onChange={(e) => update('name', e.target.value)} />
             </div>
           </div>
@@ -206,7 +207,7 @@ export default function MobileSignup() {
           <div className="input-group">
             <Label>Phone Number</Label>
             <div className="input-wrapper">
-              <Phone size={18} className="input-icon" />
+              <FaPhoneSquareAlt size={16} className="input-icon" />
               <Input type="tel" autoComplete="tel" placeholder="+63 900 000 0000" value={form.phone} onChange={(e) => update('phone', e.target.value.replace(/[^0-9+ ]/g, ''))} />
             </div>
           </div>
@@ -216,7 +217,7 @@ export default function MobileSignup() {
             <Label>Email Address</Label>
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
               <div className="input-wrapper" style={{ flex: 1, minWidth: 0 }}>
-                <Mail size={18} className="input-icon" style={{ flexShrink: 0 }} />
+                <FaEnvelope size={16} className="input-icon" style={{ flexShrink: 0 }} />
                 <Input
                   type="email"
                   autoComplete="email"
@@ -278,7 +279,7 @@ export default function MobileSignup() {
               <Label>Verification Code</Label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
                 <div className="input-wrapper" style={{ flex: 1, minWidth: 0 }}>
-                  <Lock size={18} className="input-icon" />
+                  <FaLock size={16} className="input-icon" />
                   <Input
                     type="text"
                     autoComplete="one-time-code"
@@ -312,7 +313,7 @@ export default function MobileSignup() {
           <div className="input-group">
             <Label>Password</Label>
             <div className="input-wrapper">
-              <Lock size={18} className="input-icon" />
+              <FaLock size={16} className="input-icon" />
               <Input
                 type={showPass ? 'text' : 'password'}
                 autoComplete="new-password"

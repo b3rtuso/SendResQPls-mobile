@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login as apiLogin } from '../../api/client';
 import { setupPushNotifications } from '../../utils/pushNotificationHelper';
-import { Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { FaEnvelope, FaLock } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -173,7 +174,7 @@ export default function MobileLogin() {
           <Label htmlFor="mobile-email" style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: emailError ? '#DC2626' : '#374151', marginBottom: 6, letterSpacing: '0.01em' }}>Email Address</Label>
           <div style={wrapStyle('email', !!emailError)}>
             <span style={{ position: 'absolute', left: 14, color: emailError ? '#EF4444' : focusField === 'email' ? '#2563EB' : '#94A3B8', display: 'flex', transition: 'color 0.18s' }}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <FaEnvelope size={15} />
             </span>
             <Input
               id="mobile-email"
@@ -206,7 +207,7 @@ export default function MobileLogin() {
           <Label htmlFor="mobile-password" style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: passError ? '#DC2626' : '#374151', marginBottom: 6, letterSpacing: '0.01em' }}>Password</Label>
           <div style={wrapStyle('pass', !!passError)}>
             <span style={{ position: 'absolute', left: 14, color: passError ? '#EF4444' : focusField === 'pass' ? '#2563EB' : '#94A3B8', display: 'flex', transition: 'color 0.18s' }}>
-              <Lock size={17} />
+              <FaLock size={15} />
             </span>
             <Input
               id="mobile-password"

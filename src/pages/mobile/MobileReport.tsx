@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, AlertTriangle, Camera, Loader, WifiOff, Clock,
   RotateCcw, ArrowRight, 
-  MessageSquare, ChevronDown, Lock,
+  MessageSquare, ChevronDown,
 } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
+import { FaLock } from 'react-icons/fa';
 import { reportIncident } from '../../api/client';
 import { Button } from '@/components/ui/button';
 import { isWithinBalayan, getNearestBarangay, BARANGAYS } from '../../data/balayan-data';
@@ -511,7 +512,7 @@ export default function MobileReport() {
                   whiteSpace: 'nowrap' as const,
                 }}
               >
-                <Lock size={12} /> Settings
+                <FaLock size={12} /> Settings
               </Button>
             ) : (
               <Button
@@ -889,7 +890,7 @@ export default function MobileReport() {
                 color: locStatus === 'PERMISSION_DENIED' ? '#2563EB' : '#D97706',
               }}>
                 {locStatus === 'PERMISSION_DENIED' ? (
-                  <Lock size={26} />
+                  <FaLock size={24} />
                 ) : (
                   <FaLocationDot size={26} />
                 )}
@@ -971,7 +972,7 @@ export default function MobileReport() {
                     fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   }}
                 >
-                  <Lock size={16} /> Open App Settings
+                  <FaLock size={15} /> Open App Settings
                 </button>
               ) : (
                 /* GPS off or not yet asked — fire the native browser dialog inline */

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User, Phone, Bell, HelpCircle, LogOut, ChevronRight,
-  ChevronLeft, Save, Mail, X, Plus, Trash2, Info, MessageCircle, Lock, Eye, EyeOff,
+  Bell, LogOut, ChevronRight,
+  ChevronLeft, Save, X, Plus, Trash2, Info, MessageCircle, Eye, EyeOff,
 } from 'lucide-react';
+import { FaUser, FaPhoneSquareAlt, FaLock, FaEnvelope } from 'react-icons/fa';
+import { BsQuestionCircleFill } from 'react-icons/bs';
 import { MdVerified } from 'react-icons/md';
 import { updateProfile, changePassword } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
@@ -221,10 +223,10 @@ export default function MobileProfile() {
         {/* Menu */}
         <div style={{ padding: '12px clamp(14px, 4vw, 20px)' }}>
           {[
-            { icon: User, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
-            { icon: Phone, label: 'Emergency Contacts', key: 'contacts' as Section, desc: `${contacts.length} contact${contacts.length !== 1 ? 's' : ''} saved` },
+            { icon: FaUser, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
+            { icon: FaPhoneSquareAlt, label: 'Emergency Contacts', key: 'contacts' as Section, desc: `${contacts.length} contact${contacts.length !== 1 ? 's' : ''} saved` },
             { icon: Bell, label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences' },
-            { icon: HelpCircle, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
+            { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
           ].map(item => (
             <div
               key={item.label}
@@ -278,9 +280,9 @@ export default function MobileProfile() {
         <SectionHeader title="Account Details" onBack={() => setSection('main')} />
 
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
-          <Field label="Full Name" icon={User} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
-          <Field label="Email Address" icon={Mail} value={email} onChange={setEmail} placeholder="juan@example.com" type="email" />
-          <Field label="Phone Number" icon={Phone} value={phone} onChange={setPhone} placeholder="+63 900 000 0000" type="tel" />
+          <Field label="Full Name" icon={FaUser} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
+          <Field label="Email Address" icon={FaEnvelope} value={email} onChange={setEmail} placeholder="juan@example.com" type="email" />
+          <Field label="Phone Number" icon={FaPhoneSquareAlt} value={phone} onChange={setPhone} placeholder="+63 900 000 0000" type="tel" />
 
           <button onClick={handleSaveProfile} disabled={saving} style={{
             width: '100%', padding: 'clamp(12px, 3.5vw, 15px)',
@@ -305,7 +307,7 @@ export default function MobileProfile() {
               background: 'white', border: '1.5px solid #E2E8F0',
               borderRadius: 12, padding: '12px 14px', marginBottom: 10,
             }}>
-              <Lock size={16} color="#94A3B8" style={{ flexShrink: 0 }} />
+              <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
                 type={showCurrentPass ? 'text' : 'password'}
                 placeholder="Current password"
@@ -324,7 +326,7 @@ export default function MobileProfile() {
               background: 'white', border: '1.5px solid #E2E8F0',
               borderRadius: 12, padding: '12px 14px', marginBottom: 14,
             }}>
-              <Lock size={16} color="#94A3B8" style={{ flexShrink: 0 }} />
+              <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
                 type={showNewPass ? 'text' : 'password'}
                 placeholder="New password (min 6 chars)"
@@ -365,7 +367,7 @@ export default function MobileProfile() {
 
           {contacts.length === 0 && !showAddContact && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94A3B8' }}>
-              <Phone size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
+              <FaPhoneSquareAlt size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
               <p style={{ fontWeight: 600, marginBottom: 4 }}>No emergency contacts yet</p>
               <p style={{ fontSize: 13 }}>Add contacts who should be notified during emergencies.</p>
             </div>
@@ -488,10 +490,10 @@ export default function MobileProfile() {
               <h3 style={{ fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 800, color: '#1E40AF', marginBottom: 12 }}>Contact MDRRMO Balayan</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <a href="tel:09171234567" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#1E40AF', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-                  <Phone size={15} /> 0917-123-4567
+                  <FaPhoneSquareAlt size={15} /> 0917-123-4567
                 </a>
                 <a href="mailto:mdrrmo@balayan.gov.ph" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#1E40AF', textDecoration: 'none', fontSize: 14, fontWeight: 600, wordBreak: 'break-all' }}>
-                  <Mail size={15} /> mdrrmo@balayan.gov.ph
+                  <FaEnvelope size={15} /> mdrrmo@balayan.gov.ph
                 </a>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#1E40AF', fontSize: 14, fontWeight: 600 }}>
                   <MessageCircle size={15} /> Live chat (8AM – 5PM)
