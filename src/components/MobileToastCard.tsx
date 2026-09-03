@@ -181,15 +181,13 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
       onClick={handleTap}
       style={{
         position: 'relative',
-        background: '#FFFFFF',
+        background: toast.type === 'error' ? '#2B0710' : '#0B132B',
         borderRadius: 14,
-        border: `1px solid ${toast.type === 'error' ? '#FECACA' : toast.type === 'warning' ? '#FDE68A' : isCritical ? `${accent}40` : '#E2E8F0'}`,
+        border: toast.type === 'error' ? '1px solid #9F1239' : '1px solid rgba(255, 255, 255, 0.1)',
         borderLeft: leftBorder > 0 ? `${leftBorder}px solid ${accent}` : undefined,
         boxShadow: toast.type === 'error'
-          ? '0 8px 24px rgba(239, 68, 68, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04)'
-          : isCritical
-          ? `0 8px 28px rgba(0, 0, 0, 0.13), 0 2px 8px ${accent}22, 0 0 0 1px ${accent}15`
-          : '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03)',
+          ? '0 12px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(159, 18, 57, 0.3)'
+          : '0 12px 30px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2)',
         overflow: 'hidden',
         cursor: (toast.navigateTo || toast.incidentId) ? 'pointer' : 'default',
         userSelect: 'none',
@@ -215,49 +213,49 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
         }} />
       )}
 
-      {/* Main content row — Flowbite Clean Toast Structure */}
+      {/* Main content row — Flowbite Dark Navy & Crimson Toast Structure */}
       <div style={{
         display: 'flex', alignItems: 'center',
-        gap: 12, padding: '12px 14px',
-        paddingLeft: leftBorder > 0 ? (14 + leftBorder) : 14,
+        gap: 12, padding: '12px 16px',
+        paddingLeft: leftBorder > 0 ? (16 + leftBorder) : 16,
       }}>
         {/* Left Icon / Badge */}
         {toast.type === 'error' ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, width: 28, height: 28,
-            color: '#DC2626', background: '#FEE2E2', borderRadius: 8,
+            flexShrink: 0, width: 26, height: 26,
+            color: '#FDA4AF', background: 'rgba(225, 29, 72, 0.2)', borderRadius: 8,
           }}>
-            <svg style={{ width: 16, height: 16 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg style={{ width: 15, height: 15 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" />
             </svg>
           </div>
         ) : toast.type === 'success' ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, width: 28, height: 28,
-            color: '#16A34A', background: '#DCFCE7', borderRadius: 8,
+            flexShrink: 0, width: 26, height: 26,
+            color: '#34D399',
           }}>
-            <svg style={{ width: 16, height: 16 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg style={{ width: 18, height: 18 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M5 11.917 9.724 16.5 19 7.5" />
             </svg>
           </div>
         ) : toast.type === 'warning' ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, width: 28, height: 28,
-            color: '#D97706', background: '#FEF3C7', borderRadius: 8,
+            flexShrink: 0, width: 26, height: 26,
+            color: '#FBBF24',
           }}>
-            <svg style={{ width: 16, height: 16 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg style={{ width: 18, height: 18 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
             </svg>
           </div>
         ) : (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, width: 24, height: 24, color: '#2563EB',
+            flexShrink: 0, width: 22, height: 22, color: '#3B82F6',
           }}>
-            <svg style={{ width: 20, height: 20 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg style={{ width: 18, height: 18 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m12 18-7 3 7-18 7 18-7-3Zm0 0v-5" />
             </svg>
           </div>
@@ -266,14 +264,14 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
         {/* Text content */}
         <div style={{
           flex: 1, minWidth: 0,
-          marginLeft: (toast.type === 'error' || toast.type === 'success' || toast.type === 'warning') ? 0 : 2,
-          paddingLeft: (toast.type === 'error' || toast.type === 'success' || toast.type === 'warning') ? 0 : 10,
-          borderLeft: (toast.type === 'error' || toast.type === 'success' || toast.type === 'warning') ? 'none' : '1px solid #E2E8F0',
+          marginLeft: toast.type === 'error' ? 0 : 2,
+          paddingLeft: toast.type === 'error' ? 0 : 10,
+          borderLeft: toast.type === 'error' ? 'none' : '1px solid rgba(255, 255, 255, 0.15)',
         }}>
           <div style={{
             fontSize: 13.5,
-            fontWeight: toast.type === 'error' ? 700 : 600,
-            color: toast.type === 'error' ? '#991B1B' : toast.type === 'warning' ? '#92400E' : '#0F172A',
+            fontWeight: 700,
+            color: toast.type === 'error' ? '#FDA4AF' : toast.type === 'warning' ? '#FDE68A' : toast.type === 'success' ? '#A7F3D0' : '#93C5FD',
             lineHeight: 1.35,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
@@ -283,7 +281,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
           {toast.message && (
             <div style={{
               fontSize: 12,
-              color: toast.type === 'error' ? '#B91C1C' : '#475569',
+              color: toast.type === 'error' ? '#FCA5A5' : 'rgba(255, 255, 255, 0.7)',
               marginTop: 2,
               lineHeight: 1.4,
               overflow: 'hidden',
@@ -300,11 +298,11 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
           onClick={e => { e.stopPropagation(); triggerExit(); }}
           aria-label="Close"
           style={{
-            flexShrink: 0, width: 28, height: 28, borderRadius: 8,
+            flexShrink: 0, width: 26, height: 26, borderRadius: 6,
             background: 'transparent', border: 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#94A3B8', padding: 0,
-            transition: 'background 0.15s, color 0.15s',
+            cursor: 'pointer', color: toast.type === 'error' ? '#FDA4AF' : '#64748B', padding: 0,
+            transition: 'color 0.15s',
           }}
         >
           <X size={15} strokeWidth={2.2} />

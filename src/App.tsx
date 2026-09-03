@@ -10,6 +10,7 @@ import MobileOnboarding, { shouldShowOnboarding } from './pages/mobile/MobileOnb
 import MobileForgotPassword from './pages/mobile/MobileForgotPassword';
 import MobileResetPassword from './pages/mobile/MobileResetPassword';
 import { MobileToastProvider } from './components/MobileToastProvider';
+import { ConfirmProvider } from './contexts/ConfirmContext';
 import FcmBannerOverlay from './components/FcmBannerOverlay';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useState, useEffect } from 'react';
@@ -87,9 +88,11 @@ function App() {
             path="/mobile/*"
             element={
               <MobileToastProvider>
-                <FcmBannerOverlay />
-                <RouterAwareNotificationSetup />
-                <AnimatedMobileRoutes />
+                <ConfirmProvider>
+                  <FcmBannerOverlay />
+                  <RouterAwareNotificationSetup />
+                  <AnimatedMobileRoutes />
+                </ConfirmProvider>
               </MobileToastProvider>
             }
           />

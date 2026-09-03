@@ -9,6 +9,7 @@ import { BsQuestionCircleFill } from 'react-icons/bs';
 import { MdVerified } from 'react-icons/md';
 import { updateProfile, changePassword } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
+import { useConfirm } from '../../contexts/ConfirmContext';
 import BottomNav from '../../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -108,6 +109,7 @@ export default function MobileProfile() {
   const navigate = useNavigate();
   const [section, setSection] = useState<Section>('main');
   const { push: showToast } = useMobileToast();
+  const { confirm } = useConfirm();
   const [saving, setSaving] = useState(false);
 
   const userId = localStorage.getItem('userId') || '';
@@ -142,7 +144,17 @@ export default function MobileProfile() {
     localStorage.setItem(NOTIF_SETTINGS_KEY, JSON.stringify(notifSettings));
   }, [notifSettings]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const isConfirmed = await confirm({
+      type: 'confirm',
+      title: 'Log Out Confirmation',
+      message: 'Are you sure you want to log out of SendResQ?',
+      detail: 'You will need to sign back in with your mobile number or email to send reports and track emergency dispatches.',
+      confirmText: 'Log Out',
+      cancelText: 'Stay Logged In',
+    });
+    if (!isConfirmed) return;
+
     const onboardingDone = localStorage.getItem('srq_onboarding_done');
     localStorage.clear();
     if (onboardingDone) localStorage.setItem('srq_onboarding_done', onboardingDone);
@@ -150,6 +162,16 @@ export default function MobileProfile() {
   };
 
   const handleSaveProfile = async () => {
+    const isConfirmed = await confirm({
+      type: 'update',
+      title: 'Confirm Profile Update',
+      message: 'Update your official citizen profile details?',
+      detail: 'Your name, email address, and emergency contact number will be updated across active and future incident records.',
+      confirmText: 'Save Profile',
+      cancelText: 'Cancel',
+    });
+    if (!isConfirmed) return;
+
     setSaving(true);
     try {
       await updateProfile({ userId, name, email, phoneNumber: phone });
@@ -170,6 +192,17 @@ export default function MobileProfile() {
   const handleChangePassword = async () => {
     if (!currentPass || !newPass) { showToast({ type: 'error', priority: 'normal', title: 'Fill in both fields' }); return; }
     if (newPass.length < 6) { showToast({ type: 'error', priority: 'normal', title: 'Password must be at least 6 characters' }); return; }
+
+    const isConfirmed = await confirm({
+      type: 'update',
+      title: 'Confirm Password Change',
+      message: 'Are you sure you want to change your account password?',
+      detail: 'You will need to use your new credentials the next time you sign into the SendResQ mobile app.',
+      confirmText: 'Update Password',
+      cancelText: 'Cancel',
+    });
+    if (!isConfirmed) return;
+
     setSaving(true);
     try {
       await changePassword({ currentPassword: currentPass, newPassword: newPass });
@@ -183,6 +216,21 @@ export default function MobileProfile() {
     } catch (err: any) {
       showToast({ type: 'error', priority: 'normal', title: err.response?.data?.error || 'Failed to change password' });
     } finally { setSaving(false); }
+  };
+
+  const handleDeleteContact = async (contact: EmergencyContact) => {
+    const isConfirmed = await confirm({
+      type: 'delete',
+      title: 'Delete Emergency Contact',
+      message: `Are you sure you want to remove ${contact.name} from your emergency contacts?`,
+      detail: 'This person will no longer receive emergency alerts or be listed for quick dial during an incident.',
+      confirmText: 'Delete Contact',
+      cancelText: 'Keep Contact',
+    });
+    if (!isConfirmed) return;
+
+    setContacts(contacts.filter(x => x.id !== contact.id));
+    showToast({ type: 'info', priority: 'normal', title: 'Contact removed', message: `${contact.name} was removed.` });
   };
 
   const addContact = () => {
@@ -400,7 +448,7 @@ export default function MobileProfile() {
                 <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div>
                 <div style={{ fontSize: 12, color: '#64748B' }}>{c.phone}{c.relation && ` · ${c.relation}`}</div>
               </div>
-              <button onClick={() => { setContacts(contacts.filter(x => x.id !== c.id)); showToast({ type: 'info', priority: 'normal', title: 'Contact removed' }); }}
+              <button onClick={() => handleDeleteContact(c)}
                 style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 4, flexShrink: 0 }}>
                 <Trash2 size={17} />
               </button>
