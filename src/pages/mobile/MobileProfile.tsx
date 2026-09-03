@@ -156,7 +156,12 @@ export default function MobileProfile() {
       localStorage.setItem('userName', name);
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userPhone', phone);
-      showToast({ type: 'success', priority: 'normal', title: 'Profile updated', message: 'Your account details have been saved.' });
+      showToast({
+        type: 'error',
+        priority: 'important',
+        title: 'Account Data Changed',
+        message: 'Your name, email, and phone number have been updated.',
+      });
     } catch {
       showToast({ type: 'error', priority: 'normal', title: 'Update failed', message: 'Could not save profile changes.' });
     } finally { setSaving(false); }
@@ -168,7 +173,12 @@ export default function MobileProfile() {
     setSaving(true);
     try {
       await changePassword({ currentPassword: currentPass, newPassword: newPass });
-      showToast({ type: 'success', priority: 'normal', title: 'Password changed', message: 'Your password has been updated successfully.' });
+      showToast({
+        type: 'error',
+        priority: 'important',
+        title: 'Security Alert: Password Changed',
+        message: 'Your account password has been updated successfully.',
+      });
       setCurrentPass(''); setNewPass('');
     } catch (err: any) {
       showToast({ type: 'error', priority: 'normal', title: err.response?.data?.error || 'Failed to change password' });
