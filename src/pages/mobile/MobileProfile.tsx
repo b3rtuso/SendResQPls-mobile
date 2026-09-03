@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Bell, LogOut, ChevronRight,
+  LogOut, ChevronRight,
   ChevronLeft, Save, X, Plus, Trash2, Info, MessageCircle, Eye, EyeOff,
 } from 'lucide-react';
-import { FaUser, FaPhoneSquareAlt, FaLock, FaEnvelope } from 'react-icons/fa';
+import { FaUser, FaPhoneSquareAlt, FaLock, FaEnvelope, FaCogs } from 'react-icons/fa';
 import { BsQuestionCircleFill } from 'react-icons/bs';
 import { MdVerified } from 'react-icons/md';
 import { updateProfile, changePassword } from '../../api/client';
@@ -225,7 +225,7 @@ export default function MobileProfile() {
           {[
             { icon: FaUser, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
             { icon: FaPhoneSquareAlt, label: 'Emergency Contacts', key: 'contacts' as Section, desc: `${contacts.length} contact${contacts.length !== 1 ? 's' : ''} saved` },
-            { icon: Bell, label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences' },
+            { icon: FaCogs, label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences' },
             { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
           ].map(item => (
             <div
