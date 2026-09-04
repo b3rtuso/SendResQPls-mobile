@@ -163,17 +163,22 @@ export default function MobileProfile() {
     }
   );
 
-  const handleLogout = async () => {
-    const isConfirmed = await confirm({
-      type: 'confirm',
-      title: 'Log Out Confirmation',
-      message: 'Are you sure you want to log out of SendResQ?',
-      detail: 'You will need to sign back in with your mobile number or email to send reports and track emergency dispatches.',
-      confirmText: 'Log Out',
-      cancelText: 'Stay Logged In',
-    });
-    if (!isConfirmed) return;
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  useEffect(() => {
+    if (!showLogoutModal) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [showLogoutModal]);
+
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const executeLogout = () => {
     const onboardingDone = localStorage.getItem('srq_onboarding_done');
     localStorage.clear();
     if (onboardingDone) localStorage.setItem('srq_onboarding_done', onboardingDone);
@@ -382,7 +387,7 @@ export default function MobileProfile() {
 
         {/* Hero Header — uses percentage width, no 100vw hack */}
         <div style={{
-          background: 'linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%)',
+          background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
           padding: 'clamp(32px, 8vw, 48px) clamp(16px, 5vw, 28px) 28px',
           textAlign: 'center', color: 'white', width: '100%', boxSizing: 'border-box',
         }}>
@@ -468,6 +473,146 @@ export default function MobileProfile() {
           </Button>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal matching Photo 3 */}
+      {showLogoutModal && (
+        <div
+          onClick={() => setShowLogoutModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 100000,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            animation: 'fadeIn 0.2s ease-out',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: 340,
+              background: '#18181B',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 24,
+              padding: '28px 20px 22px',
+              textAlign: 'center',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.65)',
+              animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <h2 style={{
+              color: '#FFFFFF',
+              fontSize: 20,
+              fontWeight: 800,
+              lineHeight: 1.3,
+              margin: '0 0 22px',
+              letterSpacing: '-0.3px',
+            }}>
+              Are you sure you<br />want to log out?
+            </h2>
+
+            {/* Profile identity box */}
+            <div style={{
+              background: '#27272A',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 16,
+              padding: '12px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              textAlign: 'left',
+              marginBottom: 22,
+            }}>
+              <div style={{
+                width: 42,
+                height: 42,
+                borderRadius: '50%',
+                background: '#0D9488',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: 15,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                {initials}
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
+                  {name || 'User'}
+                </div>
+                <div style={{
+                  color: '#9CA3AF',
+                  fontSize: 12.5,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  marginTop: 2,
+                }}>
+                  {email || phone || 'user@sendresq.app'}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                type="button"
+                onClick={executeLogout}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: 9999,
+                  background: '#FFFFFF',
+                  color: '#09090B',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'opacity 0.15s ease',
+                }}
+              >
+                Log out
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: 9999,
+                  background: '#27272A',
+                  color: '#FFFFFF',
+                  fontSize: 15,
+                  fontWeight: 600,
+                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BottomNav />
     </div>
   );

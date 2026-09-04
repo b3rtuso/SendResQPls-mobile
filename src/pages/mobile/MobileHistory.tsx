@@ -504,7 +504,7 @@ export default function MobileHistory() {
       <div className="mobile-page" style={{ paddingBottom: 90 }}>
         {/* Header (flush top, matching Home header gradient) */}
         <div style={{
-          background: 'linear-gradient(155deg, #0F1F38 0%, #1E3A5F 40%, #2563EB 100%)',
+          background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
           margin: 0,
           padding: '24px 20px 20px',
           display: 'flex',

@@ -73,7 +73,7 @@ export default function MobileNotifications() {
       <div className="mobile-page" style={{ flex: 1, paddingBottom: 85 }}>
         {/* Header (flush top, matching Home header gradient) */}
         <div className="mobile-header-bar" style={{
-          background: 'linear-gradient(135deg, #0F1F38 0%, #1A365D 60%, #1E40AF 100%)',
+          background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
           padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',

@@ -214,6 +214,19 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   padding: 16px 16px 16px 46px;
 }
 
+.mobile-auth .input-wrapper input:focus,
+.mobile-auth .input-wrapper input:focus-visible,
+.input-wrapper input:focus,
+.input-wrapper input:focus-visible,
+.mobile-auth input:focus,
+.mobile-auth input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  --tw-ring-shadow: none !important;
+  --tw-ring-offset-shadow: none !important;
+}
+
 .mobile-auth .toggle-pass {
   position: absolute;
   right: 14px;
@@ -301,7 +314,7 @@ body:has(.mobile-shell)::-webkit-scrollbar {
 
 .mobile-home-header {
   padding: 60px 24px 40px;
-  background: linear-gradient(155deg, #0F1F38 0%, #1E3A5F 40%, #2563EB 100%);
+  background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
   color: white;
   position: relative;
   overflow: hidden;
