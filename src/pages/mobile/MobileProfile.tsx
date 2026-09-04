@@ -489,7 +489,7 @@ export default function MobileProfile() {
             alignItems: 'center',
             justifyContent: 'center',
             padding: '20px',
-            animation: 'fadeIn 0.2s ease-out',
+            animation: 'modalOverlayFade 0.2s ease-out',
           }}
         >
           <div
@@ -503,7 +503,7 @@ export default function MobileProfile() {
               padding: '28px 20px 22px',
               textAlign: 'center',
               boxShadow: '0 25px 60px rgba(0, 0, 0, 0.65)',
-              animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+              animation: 'modalCenterPop 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             <h2 style={{
