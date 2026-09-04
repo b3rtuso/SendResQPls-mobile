@@ -958,19 +958,15 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   width: 100% !important;
   max-width: 480px !important;
   height: 68px !important;
-  background: rgba(255,255,255,0.97) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-top: 1px solid rgba(226,232,240,0.7) !important;
+  background: #FFFFFF !important;
+  border-top: 1px solid #E2E8F0 !important;
   display: flex !important;
   justify-content: space-around !important;
   align-items: center !important;
   padding: 0 4px env(safe-area-inset-bottom, 0px) !important;
   z-index: 99999 !important;
   box-sizing: border-box !important;
-  box-shadow:
-    0 -1px 0 rgba(226,232,240,0.8),
-    0 -8px 32px rgba(30,58,95,0.07) !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
 .bottom-nav a {
