@@ -482,7 +482,7 @@ export default function MobileProfile() {
             position: 'fixed',
             inset: 0,
             zIndex: 100000,
-            background: 'rgba(0, 0, 0, 0.75)',
+            background: 'rgba(15, 23, 42, 0.65)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
@@ -497,30 +497,30 @@ export default function MobileProfile() {
             style={{
               width: '100%',
               maxWidth: 340,
-              background: '#18181B',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#FFFFFF',
+              border: '1px solid #E2E8F0',
               borderRadius: 24,
-              padding: '28px 20px 22px',
+              padding: '28px 22px 22px',
               textAlign: 'center',
-              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.65)',
+              boxShadow: '0 25px 60px -12px rgba(15, 23, 42, 0.25), 0 10px 20px -5px rgba(15, 23, 42, 0.1)',
               animation: 'modalCenterPop 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             <h2 style={{
-              color: '#FFFFFF',
+              color: '#0F1F38',
               fontSize: 20,
               fontWeight: 800,
               lineHeight: 1.3,
-              margin: '0 0 22px',
+              margin: '0 0 20px',
               letterSpacing: '-0.3px',
             }}>
               Are you sure you<br />want to log out?
             </h2>
 
-            {/* Profile identity box */}
+            {/* Profile identity box — Header blue colors */}
             <div style={{
-              background: '#27272A',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#F0F7FF',
+              border: '1.5px solid #BFDBFE',
               borderRadius: 16,
               padding: '12px 14px',
               display: 'flex',
@@ -530,10 +530,10 @@ export default function MobileProfile() {
               marginBottom: 22,
             }}>
               <div style={{
-                width: 42,
-                height: 42,
+                width: 44,
+                height: 44,
                 borderRadius: '50%',
-                background: '#0D9488',
+                background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
                 color: '#FFFFFF',
                 fontWeight: 800,
                 fontSize: 15,
@@ -541,34 +541,37 @@ export default function MobileProfile() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
+                boxShadow: '0 4px 10px rgba(29, 78, 216, 0.25)',
               }}>
                 {initials}
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{
-                  color: '#FFFFFF',
-                  fontWeight: 700,
-                  fontSize: 15,
+                  color: '#0F1F38',
+                  fontWeight: 800,
+                  fontSize: 15.5,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
+                  lineHeight: 1.2,
                 }}>
                   {name || 'User'}
                 </div>
                 <div style={{
-                  color: '#9CA3AF',
-                  fontSize: 12.5,
+                  color: '#1D4ED8',
+                  fontSize: 13,
+                  fontWeight: 600,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  marginTop: 2,
+                  marginTop: 3,
                 }}>
                   {email || phone || 'user@sendresq.app'}
                 </div>
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Actions: Red Log out & White Cancel */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <button
                 type="button"
@@ -577,13 +580,14 @@ export default function MobileProfile() {
                   width: '100%',
                   padding: '14px',
                   borderRadius: 9999,
-                  background: '#FFFFFF',
-                  color: '#09090B',
+                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                  color: '#FFFFFF',
                   fontSize: 15,
                   fontWeight: 700,
                   border: 'none',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
+                  boxShadow: '0 4px 14px rgba(220, 38, 38, 0.3)',
                   transition: 'opacity 0.15s ease',
                 }}
               >
@@ -596,13 +600,14 @@ export default function MobileProfile() {
                   width: '100%',
                   padding: '14px',
                   borderRadius: 9999,
-                  background: '#27272A',
-                  color: '#FFFFFF',
+                  background: '#FFFFFF',
+                  color: '#334155',
                   fontSize: 15,
-                  fontWeight: 600,
-                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  fontWeight: 700,
+                  border: '1.5px solid #E2E8F0',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)',
                   transition: 'background 0.15s ease',
                 }}
               >
