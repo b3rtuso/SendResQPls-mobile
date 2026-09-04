@@ -219,8 +219,7 @@ export default function MobileNotifications() {
                     cursor: 'pointer',
                     position: 'relative',
                     transition: 'all 0.15s ease',
-                    border: `1px solid ${!n.read ? meta.border + '50' : '#E2E8F0'}`,
-                    borderLeft: `4px solid ${!n.read ? meta.border : '#CBD5E1'}`,
+                    border: '1px solid #E2E8F0',
                   }}
                 >
                   {/* Icon square with tinted bg */}

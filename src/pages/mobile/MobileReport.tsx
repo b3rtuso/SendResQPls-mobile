@@ -506,8 +506,8 @@ export default function MobileReport() {
             role="button"
             tabIndex={0}
             style={{
-              background: '#0F2942',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: '#FFFFFF',
+              border: '1px solid #E2E8F0',
               borderRadius: 14,
               padding: '14px 16px',
               marginBottom: 16,
@@ -515,22 +515,22 @@ export default function MobileReport() {
               alignItems: 'center',
               gap: 12,
               cursor: 'pointer',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+              boxShadow: '0 2px 10px rgba(15, 23, 42, 0.06)',
             }}
           >
             {/* Status dot */}
             <div style={{
               width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-              background: locStatus === 'PERMISSION_DENIED' ? '#3B82F6' : '#F59E0B',
-              boxShadow: `0 0 0 3px ${locStatus === 'PERMISSION_DENIED' ? 'rgba(59,130,246,0.2)' : 'rgba(245,158,11,0.2)'}`,
+              background: locStatus === 'PERMISSION_DENIED' ? '#2563EB' : '#F59E0B',
+              boxShadow: `0 0 0 3px ${locStatus === 'PERMISSION_DENIED' ? 'rgba(37,99,235,0.15)' : 'rgba(245,158,11,0.15)'}`,
             }} />
 
             {/* Text block */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.1px', marginBottom: 2 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.1px', marginBottom: 2 }}>
                 {locStatus === 'PERMISSION_DENIED' ? 'Location permission blocked' : 'Location (GPS) is off'}
               </div>
-              <div style={{ fontSize: 11.5, color: '#94A3B8', lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11.5, color: '#64748B', lineHeight: 1.4 }}>
                 {locStatus === 'PERMISSION_DENIED'
                   ? 'Tap to open App Settings and allow access.'
                   : 'Turn on GPS so responders can find you.'}
@@ -545,7 +545,7 @@ export default function MobileReport() {
                 style={{
                   flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
                   padding: '7px 12px', borderRadius: 8, height: 'auto',
-                  background: '#3B82F6', border: 'none',
+                  background: '#2563EB', border: 'none',
                   color: 'white', fontSize: 12, fontWeight: 700,
                   whiteSpace: 'nowrap' as const,
                 }}
@@ -564,7 +564,7 @@ export default function MobileReport() {
                 style={{
                   flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
                   padding: '7px 12px', borderRadius: 8, height: 'auto',
-                  background: locRequesting ? '#78350F' : '#F59E0B', border: 'none',
+                  background: locRequesting ? '#D97706' : '#F59E0B', border: 'none',
                   color: 'white', fontSize: 12, fontWeight: 700,
                   whiteSpace: 'nowrap' as const,
                   opacity: locRequesting ? 0.85 : 1,
