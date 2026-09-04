@@ -32,6 +32,18 @@ export default function MobileSignup() {
 
   const update = (key: string, val: string) => setForm({ ...form, [key]: val });
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    border: 'none',
+    background: 'transparent',
+    outline: 'none',
+    fontSize: 15,
+    fontFamily: 'inherit',
+    color: '#0F172A',
+    padding: '16px 16px 16px 46px',
+    boxSizing: 'border-box',
+  };
+
   // ── Friendly error message mapper ──────────────────────────────────────────
   const friendlySendCodeError = (err: any): string => {
     const raw = err.response?.data?.error || err.response?.data?.details || err.message || '';
@@ -74,7 +86,7 @@ export default function MobileSignup() {
     try {
       await sendVerificationCode(form.email);
       setCodeSent(true);
-      setCooldown(600);
+      setCooldown(60);
       toast({ type: 'success', priority: 'normal', title: 'Code sent! 📩', message: `Check your inbox or spam folder for ${form.email}` });
     } catch (err: any) {
       console.error('[SendCode] Error:', err.response?.data || err.message);
@@ -201,7 +213,7 @@ export default function MobileSignup() {
             <Label>Full Name</Label>
             <div className="input-wrapper">
               <FaUser size={16} className="input-icon" />
-              <Input autoComplete="name" placeholder="Juan Dela Cruz" value={form.name} onChange={(e) => update('name', e.target.value)} />
+              <Input autoComplete="name" placeholder="Juan Dela Cruz" value={form.name} onChange={(e) => update('name', e.target.value)} style={inputStyle} />
             </div>
           </div>
 
@@ -209,7 +221,7 @@ export default function MobileSignup() {
             <Label>Phone Number</Label>
             <div className="input-wrapper">
               <FiPhone size={16} className="input-icon" />
-              <Input type="tel" autoComplete="tel" placeholder="+63 900 000 0000" value={form.phone} onChange={(e) => update('phone', e.target.value.replace(/[^0-9+ ]/g, ''))} />
+              <Input type="tel" autoComplete="tel" placeholder="+63 900 000 0000" value={form.phone} onChange={(e) => update('phone', e.target.value.replace(/[^0-9+ ]/g, ''))} style={inputStyle} />
             </div>
           </div>
 
@@ -229,7 +241,10 @@ export default function MobileSignup() {
                     if (verified) { setVerified(false); setCodeSent(false); setCodeInput(''); }
                   }}
                   disabled={verified}
-                  style={verified ? { color: '#22C55E', fontWeight: 600 } : undefined}
+                  style={{
+                    ...inputStyle,
+                    ...(verified ? { color: '#22C55E', fontWeight: 600 } : {})
+                  }}
                 />
               </div>
               <Button
@@ -288,7 +303,7 @@ export default function MobileSignup() {
                     value={codeInput}
                     onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     maxLength={6}
-                    style={{ letterSpacing: 2, fontWeight: 700, fontSize: 18, paddingLeft: 46 }}
+                    style={{ ...inputStyle, letterSpacing: 2, fontWeight: 700, fontSize: 18 }}
                   />
                 </div>
                 <Button
@@ -321,6 +336,7 @@ export default function MobileSignup() {
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => update('password', e.target.value)}
+                style={{ ...inputStyle, paddingRight: 52 }}
               />
               <Button type="button" variant="ghost" size="icon" className="toggle-pass" onClick={() => setShowPass(!showPass)} style={{ width: 44, height: 44 }}>
                 {showPass ? <Eye size={18} /> : <EyeOff size={18} />}

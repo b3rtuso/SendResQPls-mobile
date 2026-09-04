@@ -30,8 +30,13 @@ function RouterAwareNotificationSetup() {
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token');
+  const role = localStorage.getItem('userRole');
   const location = useLocation();
-  if (!token) {
+  if (!token || role === 'ADMIN') {
+    if (role === 'ADMIN') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userRole');
+    }
     return <Navigate to="/mobile/login" state={{ from: location }} replace />;
   }
   return <>{children}</>;

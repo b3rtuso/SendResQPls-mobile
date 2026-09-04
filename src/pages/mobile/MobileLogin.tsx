@@ -42,6 +42,13 @@ export default function MobileLogin() {
     setLoading(true);
     try {
       const res = await apiLogin(email.trim(), password);
+
+      // Block admin accounts from citizen mobile app
+      if (res.data.role === 'ADMIN' || res.data.user?.role === 'ADMIN') {
+        setGlobalError('Admin accounts cannot log in to the citizen app. Please use the Admin Web Portal.');
+        return;
+      }
+
       const storage = rememberMe ? localStorage : sessionStorage;
       storage.setItem('token', res.data.token);
       localStorage.setItem('token', res.data.token);
@@ -51,7 +58,7 @@ export default function MobileLogin() {
       localStorage.setItem('userPhone', res.data.user?.phoneNumber || '');
       localStorage.setItem('userRole', res.data.user?.role || 'CITIZEN');
       setupPushNotifications().catch(err => console.warn('[Login] Push notification setup failed:', err));
-      if (res.data.role === 'ADMIN') { navigate('/'); } else { navigate('/mobile'); }
+      navigate('/mobile');
     } catch {
       setEmailError('error');
       setPassError('error');
