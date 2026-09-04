@@ -77,31 +77,9 @@ export default function BottomNav() {
           font-weight: 800;
         }
 
-        /* Glowing dot indicator above icon for active tab */
-        .bn-tab.active .bn-dot {
-          opacity: 1;
-          transform: scale(1);
-        }
-
-        .bn-dot {
-          position: absolute;
-          top: 4px;
-          left: 50%;
-          transform: translateX(-50%) scale(0);
-          width: 4px;
-          height: 4px;
-          border-radius: 50%;
-          background: #2563EB;
-          opacity: 0;
-          transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
         /* Report tab active — red */
         .bn-report-tab.active {
           color: #DC2626;
-        }
-        .bn-report-tab.active .bn-dot {
-          background: #DC2626;
         }
 
         /* Icon wrapper — subtle background on active */
@@ -182,9 +160,6 @@ export default function BottomNav() {
             `bn-tab${isReport ? ' bn-report-tab' : ''}${isActive ? ' active' : ''}`
           }
         >
-          {/* Active indicator dot above icon */}
-          <span className="bn-dot" />
-
           {/* Icon with optional badge */}
           <div className="bn-icon-wrap" draggable={false}>
             <Icon size={20} />

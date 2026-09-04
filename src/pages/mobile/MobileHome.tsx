@@ -462,14 +462,8 @@ export default function MobileHome() {
                   width: 44, height: 44, borderRadius: 14,
                   background: t.bg, border: `1.5px solid ${t.color}25`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0, position: 'relative',
+                  flexShrink: 0,
                 }}>
-                  {/* Inner accent dot */}
-                  <div style={{
-                    position: 'absolute', top: 6, right: 6,
-                    width: 5, height: 5, borderRadius: '50%',
-                    background: t.color, opacity: 0.45,
-                  }} />
                   <t.icon size={20} color={t.color} strokeWidth={2} />
                 </div>
                 {/* Text */}
