@@ -48,10 +48,41 @@ function MobileHomeWithOnboarding() {
   return <PrivateRoute><MobileHome /></PrivateRoute>;
 }
 
+function getRouteTabOrder(pathname: string): number {
+  const clean = pathname.replace(/\/$/, '');
+  if (clean === '/mobile' || clean === '') return 0;
+  if (clean.startsWith('/mobile/report')) return 1;
+  if (clean.startsWith('/mobile/notifications')) return 2;
+  if (clean.startsWith('/mobile/history')) return 3;
+  if (clean.startsWith('/mobile/profile')) return 4;
+  return -1;
+}
+
+let lastMobilePath = '';
+
 function AnimatedMobileRoutes() {
   const location = useLocation();
+  const currentPath = location.pathname;
+  const currentOrder = getRouteTabOrder(currentPath);
+  const prevOrder = lastMobilePath ? getRouteTabOrder(lastMobilePath) : -1;
+
+  let transitionClass = 'mobile-page-fade-scale';
+  if (lastMobilePath && currentOrder !== -1 && prevOrder !== -1) {
+    if (currentOrder > prevOrder) {
+      transitionClass = 'mobile-page-slide-left';
+    } else if (currentOrder < prevOrder) {
+      transitionClass = 'mobile-page-slide-right';
+    } else {
+      transitionClass = 'mobile-page-fade';
+    }
+  }
+
+  useEffect(() => {
+    lastMobilePath = currentPath;
+  }, [currentPath]);
+
   return (
-    <div key={location.pathname} className="mobile-page-transition">
+    <div key={currentPath} className={`mobile-page-transition ${transitionClass}`}>
       <Routes location={location}>
         <Route path="login" element={<MobileLogin />} />
         <Route path="signup" element={<MobileSignup />} />

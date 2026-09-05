@@ -1662,7 +1662,57 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-page-transition {
   width: 100%;
   min-height: 100dvh;
-  animation: mobilePageFadeIn 0.25s ease-out;
+  overflow-x: hidden;
+  will-change: transform, opacity;
+}
+
+.mobile-page-slide-left {
+  animation: mobilePageSlideLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-page-slide-right {
+  animation: mobilePageSlideRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-page-fade-scale {
+  animation: mobilePageFadeScale 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-page-fade {
+  animation: mobilePageFadeIn 0.22s ease-out both;
+}
+
+@keyframes mobilePageSlideLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(28px) scale(0.988);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes mobilePageSlideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(-28px) scale(0.988);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes mobilePageFadeScale {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes mobilePageFadeIn {
@@ -1730,10 +1780,15 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 
 @media (prefers-reduced-motion: reduce) {
   .mobile-page-transition,
+  .mobile-page-slide-left,
+  .mobile-page-slide-right,
+  .mobile-page-fade-scale,
+  .mobile-page-fade,
   .mobile-section-transition,
   .mobile-auth-transition,
   .ml-form-card {
     animation: none !important;
+    transform: none !important;
   }
 }
 
