@@ -617,7 +617,7 @@ export default function MobileReport() {
                   <Camera size={28} color="#EF4444" />
                 </div>
                 <h3 style={{ margin: '0 0 6px', color: '#FFFFFF', fontSize: 16, fontWeight: 800 }}>
-                  Take or Upload Photo
+                  Take Photo
                 </h3>
                 <p style={{ margin: 0, color: '#94A3B8', fontSize: 12.5, maxWidth: 240, lineHeight: 1.4 }}>
                   Capture clear evidence of the scene for instant AI triage
