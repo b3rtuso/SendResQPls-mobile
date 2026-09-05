@@ -703,9 +703,9 @@ export default function MobileReport() {
           ) : flushing ? (
             <><Loader size={20} className="spin" /> SYNCING QUEUED REPORTS…</>
           ) : !isOnline ? (
-            <>QUEUE REPORT OFFLINE <ArrowRight size={18} /></>
+            <>QUEUE REPORT OFFLINE <IoIosSend size={19} /></>
           ) : (
-            <>DISPATCH EMERGENCY ALERT <ArrowRight size={18} /></>
+            <>DISPATCH EMERGENCY ALERT <IoIosSend size={19} /></>
           )}
         </Button>
       </div>
@@ -900,9 +900,10 @@ export default function MobileReport() {
                   fontSize: 14, fontWeight: 800, cursor: 'pointer',
                   boxShadow: '0 4px 16px rgba(220,38,38,0.35)',
                   fontFamily: 'inherit',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
                 }}
               >
-                Confirm & Send Now
+                <IoIosSend size={16} /> Confirm & Send Now
               </button>
             </div>
           </div>
