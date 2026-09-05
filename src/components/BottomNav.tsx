@@ -57,14 +57,14 @@ export default function BottomNav() {
           width: 100% !important;
           max-width: 480px !important;
           height: 68px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-around !important;
+          display: grid !important;
+          grid-template-columns: repeat(5, 1fr) !important;
+          align-items: stretch !important;
           background: #FFFFFF !important;
           border-top: 1px solid #E2E8F0 !important;
           box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05) !important;
           z-index: 99999 !important;
-          padding: 0 4px env(safe-area-inset-bottom, 0px) !important;
+          padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
           box-sizing: border-box !important;
           overflow: hidden !important;
         }
@@ -74,23 +74,20 @@ export default function BottomNav() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
-          gap: 3px;
+          justify-content: flex-start;
+          padding-top: 8px;
           text-decoration: none;
           font-size: 9.5px;
           font-weight: 600;
           color: #94A3B8;
-          padding: 6px 0;
-          min-width: 60px;
-          min-height: 56px;
-          border-radius: 16px;
-          transition: color 0.2s ease, transform 0.15s ease;
+          height: 68px;
+          transition: color 0.2s ease;
           letter-spacing: 0.04em;
           text-transform: uppercase;
           position: relative;
-          flex: 1;
           cursor: pointer;
           z-index: 2;
+          box-sizing: border-box;
           -webkit-touch-callout: none !important;
           -webkit-user-select: none !important;
           -moz-user-select: none !important;
@@ -98,6 +95,14 @@ export default function BottomNav() {
           user-select: none !important;
           -webkit-user-drag: none !important;
           -webkit-tap-highlight-color: transparent !important;
+        }
+
+        .bn-label {
+          font-size: 9.5px;
+          font-weight: 600;
+          margin-top: 4px;
+          line-height: 1;
+          letter-spacing: 0.04em;
         }
 
         /* Active state — default blue */
@@ -111,17 +116,18 @@ export default function BottomNav() {
           color: #DC2626;
         }
 
-        /* Icon wrapper */
+        /* Icon wrapper: exact match with the 44x34 pill */
         .bn-icon-wrap {
-          width: 34px;
+          width: 44px;
           height: 34px;
-          border-radius: 11px;
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+          transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
           position: relative;
           z-index: 2;
+          box-sizing: border-box;
           -webkit-touch-callout: none !important;
           -webkit-user-select: none !important;
           user-select: none !important;
@@ -129,33 +135,20 @@ export default function BottomNav() {
         }
 
         .bn-tab.active .bn-icon-wrap {
-          transform: translateY(-2px) scale(1.1);
-          animation: bnTabActiveBounce 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-
-        @keyframes bnTabActiveBounce {
-          0% {
-            transform: scale(0.92);
-          }
-          50% {
-            transform: scale(1.18) translateY(-3px);
-          }
-          100% {
-            transform: scale(1.1) translateY(-2px);
-          }
+          transform: scale(1.06);
         }
 
         /* Press / tap state */
         .bn-tab:active .bn-icon-wrap {
-          transform: scale(0.86);
+          transform: scale(0.92);
           transition: transform 0.1s ease;
         }
 
         /* Notification badge */
         .bn-badge {
           position: absolute;
-          top: -4px;
-          right: -6px;
+          top: -2px;
+          right: 2px;
           min-width: 17px;
           height: 17px;
           border-radius: 9px;
@@ -224,20 +217,23 @@ export default function BottomNav() {
             }}
           />
 
-          {/* Under-icon soft squircle pill */}
+          {/* Under-icon soft squircle pill — perfectly aligned with the 44x34 icon wrap at top: 8px */}
           <div
             style={{
-              marginTop: 6,
+              marginTop: 5,
               width: 44,
               height: 34,
               borderRadius: 12,
               background: sliderIndex === 1
-                ? 'rgba(220, 38, 38, 0.12)'
+                ? 'rgba(220, 38, 38, 0.14)'
                 : 'rgba(37, 99, 235, 0.12)',
+              border: sliderIndex === 1
+                ? '1px solid rgba(220, 38, 38, 0.22)'
+                : '1px solid rgba(37, 99, 235, 0.18)',
               boxShadow: sliderIndex === 1
-                ? 'inset 0 0 0 1px rgba(220, 38, 38, 0.1)'
-                : 'inset 0 0 0 1px rgba(37, 99, 235, 0.1)',
-              transition: 'background 0.25s ease, box-shadow 0.25s ease',
+                ? '0 2px 10px rgba(220, 38, 38, 0.15)'
+                : '0 2px 10px rgba(37, 99, 235, 0.12)',
+              transition: 'background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
             }}
           />
         </div>
