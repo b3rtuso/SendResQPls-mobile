@@ -731,9 +731,9 @@ export default function MobileReport() {
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <div style={{
                 width: 52, height: 52, borderRadius: 16,
-                background: '#FEF3C7', border: '1.5px solid #FDE68A',
+                background: '#DBEAFE', border: '1.5px solid #BFDBFE',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 12px', color: '#D97706',
+                margin: '0 auto 12px', color: '#2563EB',
               }}>
                 <FaLocationDot size={26} />
               </div>
@@ -932,11 +932,11 @@ export default function MobileReport() {
             <div style={{ textAlign: 'center', marginBottom: 18 }}>
               <div style={{
                 width: 52, height: 52, borderRadius: 16,
-                background: locStatus === 'PERMISSION_DENIED' ? '#DBEAFE' : '#FEF3C7',
-                border: `1.5px solid ${locStatus === 'PERMISSION_DENIED' ? '#BFDBFE' : '#FDE68A'}`,
+                background: '#DBEAFE',
+                border: '1.5px solid #BFDBFE',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 12px',
-                color: locStatus === 'PERMISSION_DENIED' ? '#2563EB' : '#D97706',
+                color: '#2563EB',
               }}>
                 {locStatus === 'PERMISSION_DENIED' ? (
                   <FaCog size={24} />

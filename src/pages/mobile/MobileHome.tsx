@@ -6,7 +6,7 @@ import { FaCog } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
 import { MdLandslide } from 'react-icons/md';
-import { getMyIncidents, cachedGet } from '../../api/client';
+import { getMyIncidents } from '../../api/client';
 import { setupPushNotifications } from '../../utils/pushNotificationHelper';
 import { getStoredNotifications, saveNotifications, type StoredNotif } from './MobileNotifications';
 import { Button } from '@/components/ui/button';
@@ -50,14 +50,10 @@ export default function MobileHome() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Unified polling — writes new notifications to localStorage for the notifications page
-  const checkForUpdates = async (isFirstLoad = false) => {
+  const checkForUpdates = async () => {
     if (!userId) return;
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const url = `/incidents/my/${userId}`;
-      const res = isFirstLoad
-        ? await cachedGet(API_BASE + url, 20000)
-        : await getMyIncidents(userId);
+      const res = await getMyIncidents(userId);
       const incidents = res.data || [];
       const stored: Record<string, string> = JSON.parse(localStorage.getItem(STATUS_KEY) || '{}');
       const newNotifs: StoredNotif[] = [];
@@ -85,8 +81,8 @@ export default function MobileHome() {
   };
 
   useEffect(() => {
-    checkForUpdates(true); // First load: uses cache, no duplicate
-    pollRef.current = setInterval(() => checkForUpdates(false), 30000); // Poll every 30s
+    checkForUpdates(); // Uses SWR cache + background revalidation
+    pollRef.current = setInterval(() => checkForUpdates(), 30000); // Poll every 30s
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [userId]);
 
@@ -516,15 +512,15 @@ export default function MobileHome() {
             <div style={{ textAlign: 'center', marginBottom: 18 }}>
               <div style={{
                 width: 54, height: 54, borderRadius: 18,
-                background: locStatus === 'PERMISSION_DENIED' ? 'linear-gradient(135deg, #DBEAFE, #EFF6FF)' : 'linear-gradient(135deg, #FEE2E2, #FEF2F2)',
-                border: `1.5px solid ${locStatus === 'PERMISSION_DENIED' ? '#BFDBFE' : '#FECACA'}`,
+                background: 'linear-gradient(135deg, #DBEAFE, #EFF6FF)',
+                border: '1.5px solid #BFDBFE',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 14px',
               }}>
                 {locStatus === 'PERMISSION_DENIED' ? (
                   <FaCog size={24} color="#2563EB" />
                 ) : (
-                  <FaLocationDot size={26} color="#DC2626" />
+                  <FaLocationDot size={26} color="#2563EB" />
                 )}
               </div>
 
@@ -626,11 +622,11 @@ export default function MobileHome() {
                   }}
                   style={{
                     width: '100%', padding: '15px 20px',
-                    background: locRequesting ? '#9A3412' : 'linear-gradient(135deg, #F97316, #EA580C)',
+                    background: locRequesting ? '#1D4ED8' : 'linear-gradient(135deg, #3B82F6, #2563EB)',
                     color: 'white', border: 'none', borderRadius: 16,
                     fontSize: 15, fontWeight: 800,
                     letterSpacing: '0.02em',
-                    boxShadow: '0 4px 16px rgba(249,115,22,0.35)',
+                    boxShadow: '0 4px 16px rgba(37,99,235,0.35)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     opacity: locRequesting ? 0.85 : 1,
                     minHeight: 48,
@@ -666,7 +662,7 @@ export default function MobileHome() {
                   minHeight: 48,
                 }}
               >
-                <FaLocationDot size={15} /> Check Location Now
+                <FaLocationDot size={15} color="#2563EB" /> Check Location Now
               </Button>
 
               <Button

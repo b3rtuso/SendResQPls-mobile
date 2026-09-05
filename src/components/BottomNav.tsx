@@ -6,11 +6,11 @@ import { RiChatHistoryFill } from 'react-icons/ri';
 import { getStoredNotifications } from '../pages/mobile/MobileNotifications';
 
 const tabs = [
-  { to: '/mobile',               icon: FaHome,            label: 'Home',    end: true,  isReport: false, isBell: false },
-  { to: '/mobile/report',        icon: FaCirclePlus,      label: 'Report',  end: false, isReport: true,  isBell: false },
-  { to: '/mobile/notifications', icon: FaBell,            label: 'Alerts',  end: false, isReport: false, isBell: true  },
-  { to: '/mobile/history',       icon: RiChatHistoryFill, label: 'History', end: false, isReport: false, isBell: false },
-  { to: '/mobile/profile',       icon: FaUser,            label: 'Profile', end: false, isReport: false, isBell: false },
+  { to: '/mobile',               icon: FaHome,            label: 'Home',    end: true,  isBell: false },
+  { to: '/mobile/report',        icon: FaCirclePlus,      label: 'Report',  end: false, isBell: false },
+  { to: '/mobile/notifications', icon: FaBell,            label: 'Alerts',  end: false, isBell: true  },
+  { to: '/mobile/history',       icon: RiChatHistoryFill, label: 'History', end: false, isBell: false },
+  { to: '/mobile/profile',       icon: FaUser,            label: 'Profile', end: false, isBell: false },
 ];
 
 let lastActiveTab = -1;
@@ -111,11 +111,6 @@ export default function BottomNav() {
           font-weight: 800;
         }
 
-        /* Report tab active — red */
-        .bn-report-tab.active {
-          color: #DC2626;
-        }
-
         /* Icon wrapper: exact match with the 44x34 pill */
         .bn-icon-wrap {
           width: 44px;
@@ -124,7 +119,7 @@ export default function BottomNav() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
           position: relative;
           z-index: 2;
           box-sizing: border-box;
@@ -181,7 +176,7 @@ export default function BottomNav() {
         }
       `}</style>
 
-      {/* ── Sliding Active Indicator Pill Track ── */}
+      {/* ── Sliding Active Indicator Pill Track (Hardware-accelerated & 0.2s responsive) ── */}
       {activeTab !== -1 && (
         <div
           className="bn-sliding-track"
@@ -192,8 +187,9 @@ export default function BottomNav() {
             left: 0,
             width: '20%',
             pointerEvents: 'none',
-            transform: `translateX(${sliderIndex * 100}%)`,
-            transition: 'transform 0.34s cubic-bezier(0.34, 1.45, 0.64, 1)',
+            transform: `translate3d(${sliderIndex * 100}%, 0, 0)`,
+            transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            willChange: 'transform',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -207,13 +203,9 @@ export default function BottomNav() {
               width: 32,
               height: 3,
               borderRadius: '0 0 3px 3px',
-              background: sliderIndex === 1
-                ? 'linear-gradient(90deg, #EF4444, #DC2626)'
-                : 'linear-gradient(90deg, #3B82F6, #2563EB)',
-              boxShadow: sliderIndex === 1
-                ? '0 2px 8px rgba(220, 38, 38, 0.5)'
-                : '0 2px 8px rgba(37, 99, 235, 0.45)',
-              transition: 'background 0.25s ease, box-shadow 0.25s ease',
+              background: 'linear-gradient(90deg, #3B82F6, #2563EB)',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.45)',
+              transition: 'background 0.2s ease, box-shadow 0.2s ease',
             }}
           />
 
@@ -224,22 +216,16 @@ export default function BottomNav() {
               width: 44,
               height: 34,
               borderRadius: 12,
-              background: sliderIndex === 1
-                ? 'rgba(220, 38, 38, 0.14)'
-                : 'rgba(37, 99, 235, 0.12)',
-              border: sliderIndex === 1
-                ? '1px solid rgba(220, 38, 38, 0.22)'
-                : '1px solid rgba(37, 99, 235, 0.18)',
-              boxShadow: sliderIndex === 1
-                ? '0 2px 10px rgba(220, 38, 38, 0.15)'
-                : '0 2px 10px rgba(37, 99, 235, 0.12)',
-              transition: 'background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+              background: 'rgba(37, 99, 235, 0.12)',
+              border: '1px solid rgba(37, 99, 235, 0.18)',
+              boxShadow: '0 2px 10px rgba(37, 99, 235, 0.12)',
+              transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
             }}
           />
         </div>
       )}
 
-      {tabs.map(({ to, icon: Icon, label, end, isReport, isBell }, idx) => (
+      {tabs.map(({ to, icon: Icon, label, end, isBell }, idx) => (
         <NavLink
           key={to}
           to={to}
@@ -251,7 +237,7 @@ export default function BottomNav() {
           }}
           onContextMenu={(e) => e.preventDefault()}
           className={({ isActive }) =>
-            `bn-tab${isReport ? ' bn-report-tab' : ''}${isActive ? ' active' : ''}`
+            `bn-tab${isActive ? ' active' : ''}`
           }
         >
           {/* Icon with optional badge */}

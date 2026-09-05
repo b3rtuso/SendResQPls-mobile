@@ -1,4 +1,4 @@
-﻿/**
+/**
  * cacheManager.ts
  * 
  * Persistent Cache Manager for Web & Mobile App (Capacitor / Android).
@@ -37,20 +37,31 @@ export class CacheManager {
     }
   }
 
-  public static get<T>(key: string): T | null {
+  public static get<T>(key: string, allowStale = false): T | null {
     try {
       const raw = localStorage.getItem(this.getKey(key));
       if (!raw) return null;
       const entry: CacheEntry<T> = JSON.parse(raw);
 
       // Check TTL expiration
-      if (Date.now() - entry.timestamp > entry.ttlMs) {
+      if (!allowStale && Date.now() - entry.timestamp > entry.ttlMs) {
         localStorage.removeItem(this.getKey(key));
         return null;
       }
       return entry.data;
     } catch {
       return null;
+    }
+  }
+
+  public static isExpired(key: string): boolean {
+    try {
+      const raw = localStorage.getItem(this.getKey(key));
+      if (!raw) return true;
+      const entry: CacheEntry<any> = JSON.parse(raw);
+      return Date.now() - entry.timestamp > entry.ttlMs;
+    } catch {
+      return true;
     }
   }
 

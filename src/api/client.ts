@@ -51,10 +51,11 @@ api.interceptors.response.use(
 );
 
 // ── Persistent SWR Cache Layer ────────────────────────────────────────────────
-export function cachedGet(url: string, ttlMs = 20000) {
-  const cached = CacheManager.get<any>(url);
+export function cachedGet(url: string, ttlMs = 60000) {
+  // Return cached data immediately (even if stale) for 0ms render
+  const cached = CacheManager.get<any>(url, true);
   if (cached) {
-    // Return cached immediately, revalidate in background if online
+    // Revalidate silently in background if online
     if (typeof navigator === 'undefined' || navigator.onLine) {
       api.get(url).then(res => CacheManager.set(url, res.data, ttlMs)).catch(() => {});
     }
@@ -112,7 +113,7 @@ export const getIncidentsByRange = (from: string, to: string) =>
   cachedGet(`/incidents?from=${from}&to=${to}`, 60000);
 export const getIncident = (id: string) => cachedGet(`/incidents/${id}`, 30000);
 export const getIncidentStats = () => cachedGet('/incidents/stats', 60000);
-export const getMyIncidents = (userId: string) => cachedGet(`/incidents/my/${userId}`, 30000);
+export const getMyIncidents = (userId: string) => cachedGet(`/incidents/my/${userId}`, 180000);
 
 export const reverseGeocode = (lat: number, lng: number) =>
   cachedGet(`/incidents/geocode/reverse?lat=${lat}&lng=${lng}`, 300000);

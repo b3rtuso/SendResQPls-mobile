@@ -4,6 +4,7 @@ import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, Shie
 import { FaLocationDot } from 'react-icons/fa6';
 import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
+import { CacheManager } from '../../api/cacheManager';
 import type { Incident, Status } from '../../types';
 import { FCM_FOREGROUND_EVENT } from '../../utils/pushNotificationHelper';
 import type { FcmNotificationPayload } from '../../utils/pushNotificationHelper';
@@ -121,8 +122,23 @@ export default function MobileHistory() {
   const [searchParams] = useSearchParams();
   const targetIncidentId = searchParams.get('incidentId');
 
-  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Synchronous cache hydration for instant 0ms render on tab switch
+  const [allIncidents, setAllIncidents] = useState<Incident[]>(() => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const cacheKey = userId ? `/incidents/my/${userId}` : '/incidents';
+      const cached = CacheManager.get<Incident[]>(cacheKey, true);
+      if (Array.isArray(cached) && cached.length > 0) {
+        return cached;
+      }
+    } catch {
+      // ignore
+    }
+    return [];
+  });
+
+  // Only show skeleton loader if there is no cached data available
+  const [loading, setLoading] = useState(() => allIncidents.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [statusFilter, setStatusFilter] = useState<FilterTab>('ALL');
   const [page, setPage] = useState(1);
@@ -161,11 +177,19 @@ export default function MobileHistory() {
   }, [selectedIncident]);
 
   const fetchHistory = async (forceNetwork = false) => {
-    setLoading(true);
-    try {
-      if (forceNetwork) {
-        invalidateCache('incidents');
+    // Only display full skeleton if we have no reports in state and are not pulling to refresh
+    if (forceNetwork) {
+      invalidateCache('incidents');
+    }
+
+    setAllIncidents(prev => {
+      if (prev.length === 0) {
+        setLoading(true);
       }
+      return prev;
+    });
+
+    try {
       const userId = localStorage.getItem('userId');
       let res;
       if (userId) {
@@ -175,7 +199,6 @@ export default function MobileHistory() {
       }
       const data: Incident[] = res.data || [];
       setAllIncidents(data);
-      setPage(1);
     } catch (err) {
       console.warn('[MobileHistory] Fetch history error:', err);
       // Keep existing data if available
