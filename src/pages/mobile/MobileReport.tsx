@@ -22,7 +22,6 @@ import {
   pruneStaleReports,
 } from '../../utils/offlineQueue';
 import { useLocationChecker } from '../../utils/useLocationChecker';
-import BottomNav from '../../components/BottomNav';
 import { useMobileToast } from '../../components/MobileToastProvider';
 
 // ── Module-level cache to persist photo across mobile tab switches ──────────
@@ -1187,8 +1186,6 @@ export default function MobileReport() {
           </div>
         </div>
       )}
-
-      <BottomNav />
     </div>
   );
 }

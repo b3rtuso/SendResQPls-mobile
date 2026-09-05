@@ -6,7 +6,6 @@ import { FaCog } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
 import { MdLandslide } from 'react-icons/md';
-import BottomNav from '../../components/BottomNav';
 import { getMyIncidents, cachedGet } from '../../api/client';
 import { setupPushNotifications } from '../../utils/pushNotificationHelper';
 import { getStoredNotifications, saveNotifications, type StoredNotif } from './MobileNotifications';
@@ -484,7 +483,6 @@ export default function MobileHome() {
         </div>
 
       </div>
-      <BottomNav />
 
 
       {/* ── Location Framework Modal (Screen-Centered Dialog) ── */}

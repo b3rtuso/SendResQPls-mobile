@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, AlertCircle, Truck, ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight } from 'lucide-react';
-import BottomNav from '../../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -278,8 +277,6 @@ export default function MobileNotifications() {
         )}
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 }

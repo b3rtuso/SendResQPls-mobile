@@ -5,3 +5,4 @@ dist
 .env.production
 android/app/build
 android/.gradle
+.idea

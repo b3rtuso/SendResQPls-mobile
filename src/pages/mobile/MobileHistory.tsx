@@ -5,7 +5,6 @@ import { FaLocationDot } from 'react-icons/fa6';
 import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
 import type { Incident, Status } from '../../types';
-import BottomNav from '../../components/BottomNav';
 import { FCM_FOREGROUND_EVENT } from '../../utils/pushNotificationHelper';
 import type { FcmNotificationPayload } from '../../utils/pushNotificationHelper';
 import { Button } from '@/components/ui/button';
@@ -1238,8 +1237,6 @@ export default function MobileHistory() {
           </div>
         </div>
       )}
-
-      <BottomNav />
     </div>
   );
 }

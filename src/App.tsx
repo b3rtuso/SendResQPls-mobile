@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import MobileLogin from './pages/mobile/MobileLogin';
 import MobileSignup from './pages/mobile/MobileSignup';
 import MobileHome from './pages/mobile/MobileHome';
@@ -9,6 +9,7 @@ import MobileNotifications from './pages/mobile/MobileNotifications';
 import MobileOnboarding, { shouldShowOnboarding } from './pages/mobile/MobileOnboarding';
 import MobileForgotPassword from './pages/mobile/MobileForgotPassword';
 import MobileResetPassword from './pages/mobile/MobileResetPassword';
+import BottomNav from './components/BottomNav';
 import { MobileToastProvider } from './components/MobileToastProvider';
 import { ConfirmProvider } from './contexts/ConfirmContext';
 import FcmBannerOverlay from './components/FcmBannerOverlay';
@@ -42,59 +43,52 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function MobileHomeWithOnboarding() {
-  const [done, setDone] = useState(!shouldShowOnboarding());
-  if (!done) return <MobileOnboarding onDone={() => setDone(true)} />;
-  return <PrivateRoute><MobileHome /></PrivateRoute>;
-}
-
-function getRouteTabOrder(pathname: string): number {
-  const clean = pathname.replace(/\/$/, '');
-  if (clean === '/mobile' || clean === '') return 0;
-  if (clean.startsWith('/mobile/report')) return 1;
-  if (clean.startsWith('/mobile/notifications')) return 2;
-  if (clean.startsWith('/mobile/history')) return 3;
-  if (clean.startsWith('/mobile/profile')) return 4;
-  return -1;
-}
-
-let lastMobilePath = '';
-
-function AnimatedMobileRoutes() {
+function AuthenticatedMobileLayout() {
   const location = useLocation();
-  const currentPath = location.pathname;
-  const currentOrder = getRouteTabOrder(currentPath);
-  const prevOrder = lastMobilePath ? getRouteTabOrder(lastMobilePath) : -1;
-
-  let transitionClass = 'mobile-page-fade-scale';
-  if (lastMobilePath && currentOrder !== -1 && prevOrder !== -1) {
-    if (currentOrder > prevOrder) {
-      transitionClass = 'mobile-page-slide-left';
-    } else if (currentOrder < prevOrder) {
-      transitionClass = 'mobile-page-slide-right';
-    } else {
-      transitionClass = 'mobile-page-fade';
-    }
-  }
-
-  useEffect(() => {
-    lastMobilePath = currentPath;
-  }, [currentPath]);
 
   return (
-    <div key={currentPath} className={`mobile-page-transition ${transitionClass}`}>
-      <Routes location={location}>
-        <Route path="login" element={<MobileLogin />} />
-        <Route path="signup" element={<MobileSignup />} />
-        <Route path="forgot-password" element={<MobileForgotPassword />} />
-        <Route path="reset-password" element={<MobileResetPassword />} />
-        <Route path="" element={<MobileHomeWithOnboarding />} />
-        <Route path="report" element={<PrivateRoute><MobileReport /></PrivateRoute>} />
-        <Route path="history" element={<PrivateRoute><MobileHistory /></PrivateRoute>} />
-        <Route path="profile" element={<PrivateRoute><MobileProfile /></PrivateRoute>} />
-        <Route path="notifications" element={<PrivateRoute><MobileNotifications /></PrivateRoute>} />
-      </Routes>
+    <div className="mobile-shell">
+      {/* Scrollable animated viewport for the active tab */}
+      <div key={location.pathname} className="mobile-tab-view">
+        <Outlet />
+      </div>
+
+      {/* Persistent BottomNav: permanently mounted in the shell */}
+      <BottomNav />
     </div>
+  );
+}
+
+function AnimatedMobileRoutes() {
+  const [onboardingDone, setOnboardingDone] = useState(!shouldShowOnboarding());
+
+  return (
+    <Routes>
+      {/* Public Auth Screens (Full-screen, no navbar) */}
+      <Route path="login" element={<MobileLogin />} />
+      <Route path="signup" element={<MobileSignup />} />
+      <Route path="forgot-password" element={<MobileForgotPassword />} />
+      <Route path="reset-password" element={<MobileResetPassword />} />
+
+      {/* Authenticated Tab Shell (Persistent navbar + unified tab transitions) */}
+      <Route
+        element={
+          !onboardingDone ? (
+            <MobileOnboarding onDone={() => setOnboardingDone(true)} />
+          ) : (
+            <PrivateRoute>
+              <AuthenticatedMobileLayout />
+            </PrivateRoute>
+          )
+        }
+      >
+        <Route path="" element={<MobileHome />} />
+        <Route path="report" element={<MobileReport />} />
+        <Route path="history" element={<MobileHistory />} />
+        <Route path="profile" element={<MobileProfile />} />
+        <Route path="notifications" element={<MobileNotifications />} />
+      </Route>
+    </Routes>
   );
 }
 

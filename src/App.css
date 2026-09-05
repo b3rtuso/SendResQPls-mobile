@@ -1093,7 +1093,6 @@ body:has(.mobile-shell)::-webkit-scrollbar {
 
 /* ===== APP-WIDE MOBILE ANIMATIONS & TRANSITIONS ===== */
 .mobile-page {
-  animation: mobilePageFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   padding: 0 0 100px;
   box-sizing: border-box;
   width: 100%;

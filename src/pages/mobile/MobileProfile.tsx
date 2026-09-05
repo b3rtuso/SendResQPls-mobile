@@ -12,7 +12,6 @@ import { updateProfile, changePassword } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { useConfirm } from '../../contexts/ConfirmContext';
 import { detectFieldChanges } from '../../utils/changeDetector';
-import BottomNav from '../../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -110,6 +109,18 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 export default function MobileProfile() {
   const navigate = useNavigate();
   const [section, setSection] = useState<Section>('main');
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
+
+  const openSection = (s: Section) => {
+    setDirection('forward');
+    setSection(s);
+  };
+
+  const backToMain = () => {
+    setDirection('backward');
+    setSection('main');
+  };
+
   const { push: showToast } = useMobileToast();
   const { confirm } = useConfirm();
   const [saving, setSaving] = useState(false);
@@ -252,7 +263,7 @@ export default function MobileProfile() {
 
     // If no changes, close/navigate back immediately without discard confirmation
     if (changes.length === 0 && !hasPasswordInput) {
-      setSection('main');
+      backToMain();
       return;
     }
 
@@ -272,7 +283,7 @@ export default function MobileProfile() {
       setPhone(originalProfile.phone);
       setCurrentPass('');
       setNewPass('');
-      setSection('main');
+      backToMain();
     }
   };
 
@@ -354,7 +365,7 @@ export default function MobileProfile() {
       setNewContact({ name: '', phone: '', relation: '' });
       setShowAddContact(false);
     }
-    setSection('main');
+    backToMain();
   };
 
   const handleDeleteContact = async (contact: EmergencyContact) => {
@@ -382,7 +393,7 @@ export default function MobileProfile() {
 
   /* ── MAIN VIEW ─────────────────────────────────────────── */
   if (section === 'main') return (
-    <div className="mobile-shell mobile-section-transition" key="profile-main">
+    <div className={`mobile-shell ${direction === 'backward' ? 'mobile-subpage-backward' : ''}`} key="profile-main">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         {/* Hero Header — uses percentage width, no 100vw hack */}
@@ -435,7 +446,7 @@ export default function MobileProfile() {
           ].map(item => (
             <div
               key={item.label}
-              onClick={() => setSection(item.key)}
+              onClick={() => openSection(item.key)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: 'clamp(12px, 3.5vw, 16px) 4px',
@@ -617,14 +628,12 @@ export default function MobileProfile() {
           </div>
         </div>
       )}
-
-      <BottomNav />
     </div>
   );
 
   /* ── ACCOUNT DETAILS ───────────────────────────────────── */
   if (section === 'account') return (
-    <div className="mobile-shell mobile-section-transition" key="profile-account">
+    <div className="mobile-shell mobile-subpage-forward" key="profile-account">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         <SectionHeader title="Account Details" onBack={handleBackFromAccount} />
@@ -716,13 +725,12 @@ export default function MobileProfile() {
           </div>
         </div>
       </div>
-      <BottomNav />
     </div>
   );
 
   /* ── EMERGENCY CONTACTS ────────────────────────────────── */
   if (section === 'contacts') return (
-    <div className="mobile-shell mobile-section-transition" key="profile-contacts">
+    <div className="mobile-shell mobile-subpage-forward" key="profile-contacts">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         <SectionHeader title="Emergency Contacts" onBack={handleBackFromContacts} />
@@ -798,16 +806,15 @@ export default function MobileProfile() {
           )}
         </div>
       </div>
-      <BottomNav />
     </div>
   );
 
   /* ── NOTIFICATION SETTINGS ─────────────────────────────── */
   if (section === 'notifications') return (
-    <div className="mobile-shell mobile-section-transition" key="profile-notifications">
+    <div className="mobile-shell mobile-subpage-forward" key="profile-notifications">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        <SectionHeader title="Notification Settings" onBack={() => setSection('main')} />
+        <SectionHeader title="Notification Settings" onBack={backToMain} />
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
           {([
             { key: 'statusUpdates', label: 'Status Updates', desc: 'Get notified when your report status changes' },
@@ -828,7 +835,6 @@ export default function MobileProfile() {
           ))}
         </div>
       </div>
-      <BottomNav />
     </div>
   );
 
@@ -844,9 +850,9 @@ export default function MobileProfile() {
     ];
 
     return (
-      <div className="mobile-shell mobile-section-transition" key="profile-help">
+      <div className="mobile-shell mobile-subpage-forward" key="profile-help">
         <div style={{ flex: 1, paddingBottom: 80 }}>
-          <SectionHeader title="Help & Support" onBack={() => setSection('main')} />
+          <SectionHeader title="Help & Support" onBack={backToMain} />
           <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
             {/* Contact card */}
             <div style={{
@@ -897,7 +903,6 @@ export default function MobileProfile() {
             </div>
           </div>
         </div>
-        <BottomNav />
       </div>
     );
   }
