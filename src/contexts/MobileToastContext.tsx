@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useRef } from 'react';
 
 export type MobileToastPriority = 'normal' | 'important' | 'critical';
-export type MobileToastType = 'success' | 'error' | 'warning' | 'info' | 'incident' | 'system';
+export type MobileToastType = 'success' | 'error' | 'warning' | 'info' | 'incident' | 'system' | 'update';
 
 export interface MobileToastItem {
   id: string;

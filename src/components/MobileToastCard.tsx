@@ -12,6 +12,7 @@ interface MobileToastCardProps {
 // ── Color config ──────────────────────────────────────────
 const TYPE_COLOR: Record<string, string> = {
   success:  '#22C55E',
+  update:   '#22C55E',
   error:    '#EF4444',
   warning:  '#F59E0B',
   info:     '#2563EB',
@@ -208,7 +209,17 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 9v4m0 4h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" />
             </svg>
           </div>
-        ) : toast.type === 'success' ? (
+        ) : toast.type === 'success' || toast.type === 'update' || (
+          toast.type !== 'warning' && (
+            toast.title?.toLowerCase().includes('update') ||
+            toast.title?.toLowerCase().includes('updated') ||
+            toast.title?.toLowerCase().includes('changed') ||
+            Boolean(toast.message && (
+              toast.message.toLowerCase().includes('update') ||
+              toast.message.toLowerCase().includes('updated')
+            ))
+          )
+        ) ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, width: 28, height: 28,

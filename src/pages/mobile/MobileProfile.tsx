@@ -247,7 +247,7 @@ export default function MobileProfile() {
       localStorage.setItem('userEmail', updated.email);
       localStorage.setItem('userPhone', updated.phone);
       showToast({
-        type: 'error',
+        type: 'success',
         priority: 'important',
         title: 'Account Data Changed',
         message: 'Your name, email, and phone number have been updated.',
@@ -324,9 +324,9 @@ export default function MobileProfile() {
     try {
       await changePassword({ currentPassword: currentPass, newPassword: newPass });
       showToast({
-        type: 'error',
+        type: 'success',
         priority: 'important',
-        title: 'Security Alert: Password Changed',
+        title: 'Password Changed',
         message: 'Your account password has been updated successfully.',
       });
       setCurrentPass(''); setNewPass('');
