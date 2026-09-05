@@ -1,5 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import { FaHome, FaBell, FaUser } from 'react-icons/fa';
 import { FaCirclePlus } from 'react-icons/fa6';
 import { RiChatHistoryFill } from 'react-icons/ri';
@@ -13,36 +12,8 @@ const tabs = [
   { to: '/mobile/profile',       icon: FaUser,            label: 'Profile', end: false, isBell: false },
 ];
 
-let lastActiveTab = -1;
-
 export default function BottomNav() {
-  const location = useLocation();
   const unread = getStoredNotifications().filter(n => !n.read).length;
-
-  const getActiveTab = () => {
-    const p = location.pathname.replace(/\/$/, '');
-    if (p === '/mobile' || p === '') return 0;
-    if (p.startsWith('/mobile/report')) return 1;
-    if (p.startsWith('/mobile/notifications')) return 2;
-    if (p.startsWith('/mobile/history')) return 3;
-    if (p.startsWith('/mobile/profile')) return 4;
-    return -1;
-  };
-
-  const activeTab = getActiveTab();
-  const [sliderIndex, setSliderIndex] = useState(() => (lastActiveTab !== -1 ? lastActiveTab : (activeTab !== -1 ? activeTab : 0)));
-
-  useEffect(() => {
-    if (activeTab === -1) return;
-    if (sliderIndex !== activeTab) {
-      const raf = requestAnimationFrame(() => {
-        setSliderIndex(activeTab);
-      });
-      lastActiveTab = activeTab;
-      return () => cancelAnimationFrame(raf);
-    }
-    lastActiveTab = activeTab;
-  }, [activeTab, sliderIndex]);
 
   return (
     <nav className="bottom-nav">
@@ -81,7 +52,7 @@ export default function BottomNav() {
           font-weight: 600;
           color: #94A3B8;
           height: 68px;
-          transition: color 0.2s ease;
+          transition: color 0.15s ease;
           letter-spacing: 0.04em;
           text-transform: uppercase;
           position: relative;
@@ -97,21 +68,65 @@ export default function BottomNav() {
           -webkit-tap-highlight-color: transparent !important;
         }
 
+        /* Top accent line directly inside each tab — lights up when selected */
+        .bn-top-bar {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 32px;
+          height: 3px;
+          border-radius: 0 0 3px 3px;
+          background: linear-gradient(90deg, #3B82F6, #2563EB);
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+          opacity: 0;
+          transition: opacity 0.15s ease;
+          pointer-events: none;
+        }
+
+        .bn-tab.active .bn-top-bar {
+          opacity: 1;
+        }
+
+        /* Glowing soft squircle pill directly behind the icon — lights up when selected */
+        .bn-pill {
+          position: absolute;
+          top: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 44px;
+          height: 34px;
+          border-radius: 12px;
+          background: rgba(37, 99, 235, 0.12);
+          border: 1px solid rgba(37, 99, 235, 0.18);
+          box-shadow: 0 2px 10px rgba(37, 99, 235, 0.12);
+          opacity: 0;
+          transition: opacity 0.15s ease;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        .bn-tab.active .bn-pill {
+          opacity: 1;
+        }
+
         .bn-label {
           font-size: 9.5px;
           font-weight: 600;
           margin-top: 4px;
           line-height: 1;
           letter-spacing: 0.04em;
+          position: relative;
+          z-index: 2;
         }
 
-        /* Active state — default blue */
+        /* Active state */
         .bn-tab.active {
           color: #2563EB;
           font-weight: 800;
         }
 
-        /* Icon wrapper: exact match with the 44x34 pill */
+        /* Icon wrapper */
         .bn-icon-wrap {
           width: 44px;
           height: 34px;
@@ -119,7 +134,7 @@ export default function BottomNav() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+          transition: transform 0.15s ease, color 0.15s ease;
           position: relative;
           z-index: 2;
           box-sizing: border-box;
@@ -136,7 +151,7 @@ export default function BottomNav() {
         /* Press / tap state */
         .bn-tab:active .bn-icon-wrap {
           transform: scale(0.92);
-          transition: transform 0.1s ease;
+          transition: transform 0.08s ease;
         }
 
         /* Notification badge */
@@ -166,80 +181,34 @@ export default function BottomNav() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .bn-sliding-track,
           .bn-tab,
           .bn-icon-wrap,
-          .bn-badge {
+          .bn-badge,
+          .bn-top-bar,
+          .bn-pill {
             transition: none !important;
             animation: none !important;
           }
         }
       `}</style>
 
-      {/* ── Sliding Active Indicator Pill Track (Hardware-accelerated & 0.2s responsive) ── */}
-      {activeTab !== -1 && (
-        <div
-          className="bn-sliding-track"
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            width: '20%',
-            pointerEvents: 'none',
-            transform: `translate3d(${sliderIndex * 100}%, 0, 0)`,
-            transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            willChange: 'transform',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            zIndex: 1,
-          }}
-        >
-          {/* Top accent glow bar */}
-          <div
-            style={{
-              width: 32,
-              height: 3,
-              borderRadius: '0 0 3px 3px',
-              background: 'linear-gradient(90deg, #3B82F6, #2563EB)',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.45)',
-              transition: 'background 0.2s ease, box-shadow 0.2s ease',
-            }}
-          />
-
-          {/* Under-icon soft squircle pill — perfectly aligned with the 44x34 icon wrap at top: 8px */}
-          <div
-            style={{
-              marginTop: 5,
-              width: 44,
-              height: 34,
-              borderRadius: 12,
-              background: 'rgba(37, 99, 235, 0.12)',
-              border: '1px solid rgba(37, 99, 235, 0.18)',
-              boxShadow: '0 2px 10px rgba(37, 99, 235, 0.12)',
-              transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
-            }}
-          />
-        </div>
-      )}
-
-      {tabs.map(({ to, icon: Icon, label, end, isBell }, idx) => (
+      {tabs.map(({ to, icon: Icon, label, end, isBell }) => (
         <NavLink
           key={to}
           to={to}
           end={end}
           draggable={false}
-          onClick={() => {
-            lastActiveTab = idx;
-            setSliderIndex(idx);
-          }}
           onContextMenu={(e) => e.preventDefault()}
           className={({ isActive }) =>
             `bn-tab${isActive ? ' active' : ''}`
           }
         >
+          {/* Top accent glow bar — lights up when tab is active */}
+          <div className="bn-top-bar" />
+
+          {/* Under-icon glowing soft pill — lights up when tab is active */}
+          <div className="bn-pill" />
+
           {/* Icon with optional badge */}
           <div className="bn-icon-wrap" draggable={false}>
             <Icon size={20} />
@@ -249,7 +218,7 @@ export default function BottomNav() {
           </div>
 
           {/* Label */}
-          {label}
+          <span className="bn-label">{label}</span>
         </NavLink>
       ))}
     </nav>

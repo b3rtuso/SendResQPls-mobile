@@ -318,8 +318,8 @@ export default function MobileHome() {
               {/* Status dot */}
               <div style={{
                 width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                background: locStatus === 'PERMISSION_DENIED' ? '#2563EB' : '#F59E0B',
-                boxShadow: `0 0 0 3px ${locStatus === 'PERMISSION_DENIED' ? 'rgba(37,99,235,0.15)' : 'rgba(245,158,11,0.15)'}`,
+                background: '#2563EB',
+                boxShadow: '0 0 0 3px rgba(37,99,235,0.18)',
               }} />
 
               {/* Text block */}
@@ -361,9 +361,10 @@ export default function MobileHome() {
                   style={{
                     flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
                     padding: '7px 12px', borderRadius: 8, height: 'auto',
-                    background: locRequesting ? '#D97706' : '#F59E0B', border: 'none',
+                    background: locRequesting ? '#1D4ED8' : '#2563EB', border: 'none',
                     color: 'white', fontSize: 12, fontWeight: 700,
                     whiteSpace: 'nowrap' as const,
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
                     opacity: locRequesting ? 0.85 : 1,
                   }}
                 >
