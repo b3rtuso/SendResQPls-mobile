@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { FaHome, FaBell, FaUser } from 'react-icons/fa';
 import { FaCirclePlus } from 'react-icons/fa6';
 import { RiChatHistoryFill } from 'react-icons/ri';
@@ -14,6 +15,23 @@ const tabs = [
 
 export default function BottomNav() {
   const unread = getStoredNotifications().filter(n => !n.read).length;
+  const location = useLocation();
+  const [optimisticTab, setOptimisticTab] = useState<string | null>(null);
+
+  // Clear optimistic tab when route settles
+  useEffect(() => {
+    setOptimisticTab(null);
+  }, [location.pathname]);
+
+  const isTabActive = (to: string, end: boolean) => {
+    if (optimisticTab !== null) {
+      return optimisticTab === to;
+    }
+    if (end) {
+      return location.pathname === to;
+    }
+    return location.pathname.startsWith(to);
+  };
 
   return (
     <nav className="bottom-nav">
@@ -38,6 +56,7 @@ export default function BottomNav() {
           padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
           box-sizing: border-box !important;
           overflow: hidden !important;
+          touch-action: manipulation !important;
         }
 
         /* ── Individual Tab ── */
@@ -52,13 +71,14 @@ export default function BottomNav() {
           font-weight: 600;
           color: #94A3B8;
           height: 68px;
-          transition: color 0.15s ease;
+          transition: none !important; /* Instant 0ms response */
           letter-spacing: 0.04em;
           text-transform: uppercase;
           position: relative;
           cursor: pointer;
           z-index: 2;
           box-sizing: border-box;
+          touch-action: manipulation !important;
           -webkit-touch-callout: none !important;
           -webkit-user-select: none !important;
           -moz-user-select: none !important;
@@ -68,7 +88,7 @@ export default function BottomNav() {
           -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* Top accent line directly inside each tab — lights up when selected */
+        /* Top accent line directly inside each tab — lights up instantly */
         .bn-top-bar {
           position: absolute;
           top: 0;
@@ -80,15 +100,16 @@ export default function BottomNav() {
           background: linear-gradient(90deg, #3B82F6, #2563EB);
           box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
           opacity: 0;
-          transition: opacity 0.15s ease;
+          transition: none !important; /* Instant 0ms response */
           pointer-events: none;
         }
 
+        .bn-tab:active .bn-top-bar,
         .bn-tab.active .bn-top-bar {
-          opacity: 1;
+          opacity: 1 !important;
         }
 
-        /* Glowing soft squircle pill directly behind the icon — lights up when selected */
+        /* Glowing soft squircle pill directly behind the icon — lights up instantly */
         .bn-pill {
           position: absolute;
           top: 8px;
@@ -101,13 +122,14 @@ export default function BottomNav() {
           border: 1px solid rgba(37, 99, 235, 0.18);
           box-shadow: 0 2px 10px rgba(37, 99, 235, 0.12);
           opacity: 0;
-          transition: opacity 0.15s ease;
+          transition: none !important; /* Instant 0ms response */
           pointer-events: none;
           z-index: 1;
         }
 
+        .bn-tab:active .bn-pill,
         .bn-tab.active .bn-pill {
-          opacity: 1;
+          opacity: 1 !important;
         }
 
         .bn-label {
@@ -118,12 +140,14 @@ export default function BottomNav() {
           letter-spacing: 0.04em;
           position: relative;
           z-index: 2;
+          transition: none !important;
         }
 
-        /* Active state */
+        /* Active & Pressed state — immediate blue color */
+        .bn-tab:active,
         .bn-tab.active {
-          color: #2563EB;
-          font-weight: 800;
+          color: #2563EB !important;
+          font-weight: 800 !important;
         }
 
         /* Icon wrapper */
@@ -134,7 +158,7 @@ export default function BottomNav() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.15s ease, color 0.15s ease;
+          transition: transform 0.06s ease;
           position: relative;
           z-index: 2;
           box-sizing: border-box;
@@ -144,14 +168,9 @@ export default function BottomNav() {
           -webkit-user-drag: none !important;
         }
 
+        .bn-tab:active .bn-icon-wrap,
         .bn-tab.active .bn-icon-wrap {
           transform: scale(1.06);
-        }
-
-        /* Press / tap state */
-        .bn-tab:active .bn-icon-wrap {
-          transform: scale(0.92);
-          transition: transform 0.08s ease;
         }
 
         /* Notification badge */
@@ -192,35 +211,37 @@ export default function BottomNav() {
         }
       `}</style>
 
-      {tabs.map(({ to, icon: Icon, label, end, isBell }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          draggable={false}
-          onContextMenu={(e) => e.preventDefault()}
-          className={({ isActive }) =>
-            `bn-tab${isActive ? ' active' : ''}`
-          }
-        >
-          {/* Top accent glow bar — lights up when tab is active */}
-          <div className="bn-top-bar" />
+      {tabs.map(({ to, icon: Icon, label, end, isBell }) => {
+        const active = isTabActive(to, end);
+        return (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            onPointerDown={() => setOptimisticTab(to)}
+            className={`bn-tab${active ? ' active' : ''}`}
+          >
+            {/* Top accent glow bar — lights up instantly when selected/pressed */}
+            <div className="bn-top-bar" />
 
-          {/* Under-icon glowing soft pill — lights up when tab is active */}
-          <div className="bn-pill" />
+            {/* Under-icon glowing soft pill — lights up instantly when selected/pressed */}
+            <div className="bn-pill" />
 
-          {/* Icon with optional badge */}
-          <div className="bn-icon-wrap" draggable={false}>
-            <Icon size={20} />
-            {isBell && unread > 0 && (
-              <span className="bn-badge">{unread > 9 ? '9+' : unread}</span>
-            )}
-          </div>
+            {/* Icon with optional badge */}
+            <div className="bn-icon-wrap" draggable={false}>
+              <Icon size={20} />
+              {isBell && unread > 0 && (
+                <span className="bn-badge">{unread > 9 ? '9+' : unread}</span>
+              )}
+            </div>
 
-          {/* Label */}
-          <span className="bn-label">{label}</span>
-        </NavLink>
-      ))}
+            {/* Label */}
+            <span className="bn-label">{label}</span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

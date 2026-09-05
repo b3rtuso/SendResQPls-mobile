@@ -425,7 +425,7 @@ export default function MobileHistory() {
           transform: scale(0.985);
         }
 
-        /* ── Delivery Tracker Sheet ── */
+        /* ── Delivery Tracker Sheet (Native bottom sheet, sits cleanly above bottom navbar) ── */
         .srq-tracker-overlay {
           position: fixed;
           top: 0;
@@ -435,31 +435,33 @@ export default function MobileHistory() {
           background: rgba(15, 23, 42, 0.7);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
-          z-index: 1050;
+          z-index: 100005;
           display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
           align-items: center;
-          justify-content: center;
-          padding-top: max(env(safe-area-inset-top, 0px), 16px);
-          padding-left: 16px;
-          padding-right: 16px;
-          padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px) + 20px);
           box-sizing: border-box;
           animation: trackerFadeIn 0.22s ease;
         }
         .srq-tracker-sheet {
           width: 100%;
-          max-width: 440px;
+          max-width: 480px;
           background: white;
-          border-radius: 24px;
-          max-height: calc(100dvh - 68px - env(safe-area-inset-bottom, 0px) - max(env(safe-area-inset-top, 0px), 16px) - 44px);
+          border-radius: 28px 28px 0 0;
+          max-height: calc(88dvh - max(env(safe-area-inset-top, 0px), 16px));
           overflow-y: auto;
-          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
-          animation: modalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-          padding: 24px 20px;
+          box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.35);
+          animation: trackerSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+          padding: 16px 20px calc(28px + env(safe-area-inset-bottom, 0px));
           box-sizing: border-box;
         }
         .srq-tracker-handle {
-          display: none;
+          display: block;
+          width: 40px;
+          height: 4px;
+          border-radius: 2px;
+          background: #CBD5E1;
+          margin: 0 auto 16px;
         }
         .srq-stepper-track {
           position: relative;
