@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, AlertTriangle, Camera, Loader, WifiOff, Clock,
   RotateCcw, ArrowRight, Trash2,
-  MessageSquare, ChevronDown, Truck,
+  MessageSquare, ChevronDown,
 } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FaCog } from 'react-icons/fa';
@@ -697,7 +697,7 @@ export default function MobileReport() {
           ) : !isOnline ? (
             <>QUEUE REPORT OFFLINE <ArrowRight size={18} /></>
           ) : (
-            <><Truck size={18} /> DISPATCH EMERGENCY ALERT <ArrowRight size={18} /></>
+            <>DISPATCH EMERGENCY ALERT <ArrowRight size={18} /></>
           )}
         </Button>
       </div>
@@ -837,9 +837,8 @@ export default function MobileReport() {
               }}>
                 <AlertTriangle size={26} />
               </div>
-              <h3 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-                <Truck size={20} color="#DC2626" />
-                <span>Confirm Emergency Dispatch</span>
+              <h3 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.2px', textAlign: 'center' }}>
+                Confirm Emergency Dispatch
               </h3>
               <p style={{ margin: '6px 0 0', fontSize: 13, color: '#64748B', lineHeight: 1.5 }}>
                 Please review your report details before sending to MDRRMO.
@@ -866,15 +865,8 @@ export default function MobileReport() {
                 <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
                   {parseFloat(detectedLocation.lat).toFixed(4)}°N, {parseFloat(detectedLocation.lng).toFixed(4)}°E
                 </div>
-                <div style={{ fontSize: 11, color: isOnline ? '#16A34A' : '#D97706', fontWeight: 700, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {isOnline ? (
-                    <>
-                      <Truck size={12} style={{ flexShrink: 0 }} />
-                      <span>Live Server Dispatch</span>
-                    </>
-                  ) : (
-                    '● Stored to Offline Queue'
-                  )}
+                <div style={{ fontSize: 11, color: isOnline ? '#16A34A' : '#D97706', fontWeight: 700, marginTop: 4 }}>
+                  {isOnline ? '● Live Server Dispatch' : '● Stored to Offline Queue'}
                 </div>
               </div>
             </div>
@@ -1137,17 +1129,10 @@ export default function MobileReport() {
               textTransform: 'uppercase',
               marginBottom: 8,
             }}>
-              {submittedIncident.offline ? (
-                'Offline Storage'
-              ) : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                  <Truck size={13} /> Live MDRRMO Dispatch
-                </span>
-              )}
+              {submittedIncident.offline ? 'Offline Storage' : 'Live MDRRMO Dispatch'}
             </div>
 
-            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.3px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {!submittedIncident.offline && <Truck size={22} color="#16A34A" />}
+            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.3px', textAlign: 'center' }}>
               <span>{submittedIncident.offline ? 'Report Saved Locally' : 'Emergency Alert Dispatched!'}</span>
             </h2>
 

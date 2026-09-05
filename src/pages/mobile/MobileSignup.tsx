@@ -234,7 +234,7 @@ export default function MobileSignup() {
                 <Input
                   type="email"
                   autoComplete="email"
-                  placeholder="juan@example.com"
+                  placeholder=""
                   value={form.email}
                   onChange={(e) => {
                     update('email', e.target.value);
@@ -333,7 +333,7 @@ export default function MobileSignup() {
               <Input
                 type={showPass ? 'text' : 'password'}
                 autoComplete="new-password"
-                placeholder="••••••••"
+                placeholder=""
                 value={form.password}
                 onChange={(e) => update('password', e.target.value)}
                 style={{ ...inputStyle, paddingRight: 52 }}

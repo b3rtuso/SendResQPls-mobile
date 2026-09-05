@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, AlertTriangle, PlusCircle, X, ChevronRight, Check, Truck } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, AlertTriangle, PlusCircle, X, ChevronRight, Check, Siren, ShieldCheck, HelpCircle } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
@@ -17,7 +17,7 @@ import { MobileHistorySkeleton } from '../../components/PageLoader';
 const STATUS_ICONS: Record<Status, any> = {
   PENDING: Clock,
   REVIEWING: AlertCircle,
-  DISPATCHED: Truck,
+  DISPATCHED: ShieldCheck,
   RESOLVED: CheckCircle2,
   REJECTED: XCircle,
 };
@@ -632,7 +632,6 @@ export default function MobileHistory() {
                 onClick={() => { setStatusFilter(tab); setPage(1); }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  {tab === 'DISPATCHED' && <Truck size={12} style={{ flexShrink: 0 }} />}
                   <span>{tab === 'ALL' ? 'All' : tab.charAt(0) + tab.slice(1).toLowerCase()}</span>
                 </span>
                 <span className="mh-chip-count">{count}</span>
@@ -689,7 +688,11 @@ export default function MobileHistory() {
                         color: accentColor,
                         flexShrink: 0,
                       }}>
-                        <AlertTriangle size={24} />
+                        {(!inc.aiDetectedType || inc.aiDetectedType.toLowerCase().includes('unrecognized') || inc.aiDetectedType.toLowerCase().includes('unknown')) ? (
+                          <HelpCircle size={24} color="#D97706" />
+                        ) : (
+                          <AlertTriangle size={24} />
+                        )}
                       </div>
                     )}
 
@@ -950,7 +953,7 @@ export default function MobileHistory() {
                   flexShrink: 0,
                   boxShadow: '0 4px 12px rgba(139, 92, 246, 0.35)',
                 }}>
-                  <Truck size={22} />
+                  <Siren size={22} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: '#5B21B6' }}>
@@ -1033,7 +1036,7 @@ export default function MobileHistory() {
                       {selectedIncident.status === 'RESOLVED' ? (
                         <Check size={18} strokeWidth={3} />
                       ) : (
-                        <Truck size={18} />
+                        <ShieldCheck size={18} />
                       )}
                     </div>
                     <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A' }}>

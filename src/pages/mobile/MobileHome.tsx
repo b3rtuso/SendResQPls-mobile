@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 
 const hotlines = [
-  { name: 'National Emergency', number: '911', color: '#DC2626' },
+  { name: 'National Emergency', number: '911', color: '#1E293B' },
   { name: 'Red Cross', number: '143', color: '#EF4444' },
   { name: 'MDRRMO Balayan', number: '09171234567', color: '#2563EB' },
   { name: 'BFP Fire', number: '160', color: '#F59E0B' },
