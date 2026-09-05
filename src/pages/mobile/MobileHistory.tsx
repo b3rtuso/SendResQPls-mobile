@@ -425,43 +425,40 @@ export default function MobileHistory() {
           transform: scale(0.985);
         }
 
-        /* ── Delivery Tracker Sheet (Native bottom sheet, sits cleanly above bottom navbar) ── */
+        /* ── Delivery Tracker Modal (Centered in the middle of the screen, sits cleanly above bottom navbar) ── */
         .srq-tracker-overlay {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(15, 23, 42, 0.7);
+          background: rgba(15, 23, 42, 0.65);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
           z-index: 100005;
           display: flex;
           flex-direction: column;
-          justify-content: flex-end;
+          justify-content: center;
           align-items: center;
+          padding: 20px 16px;
           box-sizing: border-box;
           animation: trackerFadeIn 0.22s ease;
         }
         .srq-tracker-sheet {
           width: 100%;
-          max-width: 480px;
-          background: white;
-          border-radius: 28px 28px 0 0;
-          max-height: calc(88dvh - max(env(safe-area-inset-top, 0px), 16px));
+          max-width: 440px;
+          background: #FFFFFF;
+          border-radius: 24px;
+          max-height: min(84dvh, 720px);
           overflow-y: auto;
-          box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.35);
-          animation: trackerSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-          padding: 16px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35), 0 2px 10px rgba(0, 0, 0, 0.05);
+          animation: trackerModalPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+          padding: 22px 20px 24px;
           box-sizing: border-box;
+          border: 1px solid rgba(226, 232, 240, 0.8);
         }
         .srq-tracker-handle {
-          display: block;
-          width: 40px;
-          height: 4px;
-          border-radius: 2px;
-          background: #CBD5E1;
-          margin: 0 auto 16px;
+          display: none;
         }
         .srq-stepper-track {
           position: relative;
@@ -519,9 +516,15 @@ export default function MobileHistory() {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes trackerSlideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+        @keyframes trackerModalPop {
+          0% {
+            opacity: 0;
+            transform: scale(0.92) translateY(12px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
         }
       `}</style>
 
