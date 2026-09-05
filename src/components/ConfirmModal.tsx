@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, AlertTriangle, Trash2, Edit3, CheckCircle2, HelpCircle } from 'lucide-react';
+import { X, AlertTriangle, Trash2, CheckCircle2 } from 'lucide-react';
 import type { FieldChange } from '../utils/changeDetector';
 
 export type ConfirmType = 'confirm' | 'modal' | 'delete' | 'update' | 'warning' | 'discard';
@@ -89,7 +89,7 @@ export default function ConfirmModal({
   const resolvedConfirmBtn = confirmText || defaultConfirmBtn;
   const resolvedCancelBtn = cancelText === 'Cancel' && isDiscard ? 'Keep Editing' : cancelText;
 
-  // ── 1. Crimson Wine Theme for Delete (matches Screenshot 3) ──
+  // ── 1. White Card Theme for Delete with Bright Red Confirm Button ──
   if (isDelete) {
     return (
       <div
@@ -97,14 +97,15 @@ export default function ConfirmModal({
           position: 'fixed',
           inset: 0,
           zIndex: 100000,
-          background: 'rgba(0, 0, 0, 0.75)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          background: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           padding: 16,
           boxSizing: 'border-box',
+          animation: 'fadeIn 0.2s ease-out',
         }}
         onClick={onCancel}
       >
@@ -115,12 +116,12 @@ export default function ConfirmModal({
           style={{
             width: '100%',
             maxWidth: 380,
-            background: '#2B0710',
-            border: '1px solid #9F1239',
+            background: '#FFFFFF',
+            border: '1px solid #FEE2E2',
             borderRadius: 18,
-            boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(159, 18, 57, 0.3)',
-            padding: '22px 20px',
-            color: '#FFFFFF',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(220, 38, 38, 0.08)',
+            padding: '24px 20px',
+            color: '#0F172A',
             fontFamily: "var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
             display: 'flex',
             flexDirection: 'column',
@@ -132,47 +133,51 @@ export default function ConfirmModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div
                 style={{
-                  width: 34,
-                  height: 34,
+                  width: 36,
+                  height: 36,
                   borderRadius: 10,
-                  background: 'rgba(225, 29, 72, 0.18)',
+                  background: '#FEE2E2',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#FDA4AF',
+                  color: '#DC2626',
                   flexShrink: 0,
                 }}
               >
                 <Trash2 size={18} />
               </div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#FDA4AF' }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#991B1B' }}>
                 {resolvedTitle}
               </div>
             </div>
             <button
               onClick={onCancel}
+              aria-label="Close"
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#FDA4AF',
-                opacity: 0.7,
+                color: '#94A3B8',
                 cursor: 'pointer',
                 padding: 4,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                borderRadius: 6,
+                transition: 'color 0.15s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#0F172A')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
             >
               <X size={18} />
             </button>
           </div>
 
-          <div style={{ fontSize: 13.5, color: '#FCA5A5', lineHeight: 1.5 }}>
-            {message}
+          <div style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.5 }}>
+            {resolvedMessage}
           </div>
 
           {detail && (
-            <div style={{ fontSize: 12, color: 'rgba(253, 164, 175, 0.8)', background: 'rgba(159, 18, 57, 0.2)', padding: '8px 12px', borderRadius: 8 }}>
+            <div style={{ fontSize: 12, color: '#9F1239', background: '#FFF1F2', border: '1px solid #FECDD3', padding: '10px 12px', borderRadius: 8 }}>
               {detail}
             </div>
           )}
@@ -183,23 +188,32 @@ export default function ConfirmModal({
               onClick={onCancel}
               style={{
                 padding: '8px 16px',
-                background: 'transparent',
-                color: '#FDA4AF',
-                border: '1px solid #9F1239',
+                background: '#F8FAFC',
+                color: '#475569',
+                border: '1px solid #CBD5E1',
                 borderRadius: 9999,
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#F1F5F9';
+                e.currentTarget.style.color = '#0F172A';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#F8FAFC';
+                e.currentTarget.style.color = '#475569';
               }}
             >
-              {cancelText}
+              {resolvedCancelBtn}
             </button>
             <button
               type="button"
               onClick={onConfirm}
               style={{
                 padding: '8px 18px',
-                background: '#E11D48',
+                background: '#DC2626',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 9999,
@@ -209,8 +223,11 @@ export default function ConfirmModal({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                boxShadow: '0 4px 14px rgba(225, 29, 72, 0.35)',
+                boxShadow: '0 4px 14px rgba(220, 38, 38, 0.35)',
+                transition: 'background 0.15s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#B91C1C')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#DC2626')}
             >
               <Trash2 size={14} /> {resolvedConfirmBtn}
             </button>
@@ -220,30 +237,22 @@ export default function ConfirmModal({
     );
   }
 
-  // ── 2. Dark Navy Theme for Update, Warning, Confirm, Modal, Discard ──
-  const accentColor = isDiscard
-    ? '#EF4444'
-    : isWarning
-    ? '#F59E0B'
+  // ── 2. White Card Theme for Update, Warning, Discard, Confirm, Modal ──
+  const accentColor = isWarning
+    ? '#D97706'
+    : isDiscard
+    ? '#DC2626'
     : isUpdate
-    ? '#3B82F6'
+    ? '#2563EB'
     : '#2563EB';
 
-  const accentBg = isDiscard
-    ? 'rgba(239, 68, 68, 0.15)'
-    : isWarning
-    ? 'rgba(245, 158, 11, 0.15)'
-    : 'rgba(59, 130, 246, 0.15)';
+  const accentBg = isWarning
+    ? '#FEF3C7'
+    : isDiscard
+    ? '#FEE2E2'
+    : '#DBEAFE';
 
-  const IconComponent = isDiscard
-    ? AlertTriangle
-    : isWarning
-    ? AlertTriangle
-    : isUpdate
-    ? Edit3
-    : isDelete
-    ? Trash2
-    : HelpCircle;
+  const IconComponent = isWarning || isDiscard ? AlertTriangle : isUpdate ? CheckCircle2 : CheckCircle2;
 
   return (
     <div
@@ -251,9 +260,9 @@ export default function ConfirmModal({
         position: 'fixed',
         inset: 0,
         zIndex: 100000,
-        background: 'rgba(0, 0, 0, 0.72)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -269,14 +278,12 @@ export default function ConfirmModal({
         style={{
           width: '100%',
           maxWidth: 380,
-          background: '#0B132B',
-          border: isDiscard ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+          background: '#FFFFFF',
+          border: '1px solid #E2E8F0',
           borderRadius: 18,
-          boxShadow: isDiscard
-            ? '0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(239, 68, 68, 0.2)'
-            : '0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
-          padding: '22px 20px',
-          color: '#FFFFFF',
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.04)',
+          padding: '24px 20px',
+          color: '#0F172A',
           fontFamily: "var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
           display: 'flex',
           flexDirection: 'column',
@@ -288,8 +295,8 @@ export default function ConfirmModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
               style={{
-                width: 34,
-                height: 34,
+                width: 36,
+                height: 36,
                 borderRadius: 10,
                 background: accentBg,
                 display: 'flex',
@@ -301,12 +308,13 @@ export default function ConfirmModal({
             >
               <IconComponent size={18} />
             </div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#F8FAFC' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A' }}>
               {resolvedTitle}
             </div>
           </div>
           <button
             onClick={onCancel}
+            aria-label="Close"
             style={{
               background: 'transparent',
               border: 'none',
@@ -316,13 +324,17 @@ export default function ConfirmModal({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              borderRadius: 6,
+              transition: 'color 0.15s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#0F172A')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
           >
             <X size={18} />
           </button>
         </div>
 
-        <div style={{ fontSize: 13.5, color: '#CBD5E1', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.5 }}>
           {resolvedMessage}
         </div>
 
@@ -330,63 +342,64 @@ export default function ConfirmModal({
         {changes && changes.length > 0 && (
           <div
             style={{
-              maxHeight: 180,
-              overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: 8,
-              padding: '10px',
-              background: 'rgba(255, 255, 255, 0.03)',
+              maxHeight: 200,
+              overflowY: 'auto',
+              padding: '12px 14px',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               borderRadius: 12,
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              margin: '2px 0',
+              margin: '4px 0',
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Detected Changes ({changes.length})
             </div>
-            {changes.map((change) => (
+            {changes.map((change, idx) => (
               <div
-                key={change.key}
+                key={change.key || idx}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 3,
-                  padding: '7px 10px',
-                  background: 'rgba(15, 23, 42, 0.6)',
-                  borderRadius: 8,
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  gap: 4,
+                  padding: '6px 0',
+                  borderBottom: idx < changes.length - 1 ? '1px solid #E2E8F0' : 'none',
                 }}
               >
-                <span style={{ fontSize: 11.5, fontWeight: 700, color: '#E2E8F0' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748B' }}>
                   {change.label}
                 </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, flexWrap: 'wrap' }}>
                   <span
                     style={{
-                      color: '#F87171',
+                      color: '#DC2626',
+                      background: '#FEE2E2',
+                      padding: '2px 8px',
+                      borderRadius: 6,
                       textDecoration: 'line-through',
-                      opacity: 0.85,
                       wordBreak: 'break-all',
-                      background: 'rgba(239, 68, 68, 0.12)',
-                      padding: '1px 6px',
-                      borderRadius: 4,
+                      fontFamily: "var(--font-mono, 'Geist Mono', monospace)",
+                      fontSize: 12,
                     }}
                   >
-                    {change.oldFormatted}
+                    {change.oldFormatted || '(empty)'}
                   </span>
-                  <span style={{ color: '#60A5FA', fontWeight: 800 }}>→</span>
+                  <span style={{ color: '#2563EB', fontWeight: 700, fontSize: 13 }}>→</span>
                   <span
                     style={{
-                      color: '#4ADE80',
+                      color: '#16A34A',
+                      background: '#DCFCE7',
+                      padding: '2px 8px',
+                      borderRadius: 6,
                       fontWeight: 700,
                       wordBreak: 'break-all',
-                      background: 'rgba(34, 197, 94, 0.14)',
-                      padding: '1px 6px',
-                      borderRadius: 4,
+                      fontFamily: "var(--font-mono, 'Geist Mono', monospace)",
+                      fontSize: 12,
                     }}
                   >
-                    {change.newFormatted}
+                    {change.newFormatted || '(empty)'}
                   </span>
                 </div>
               </div>
@@ -395,8 +408,15 @@ export default function ConfirmModal({
         )}
 
         {detail && (
-          <div style={{ fontSize: 12, color: '#94A3B8', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '8px 12px', borderRadius: 8 }}>
+          <div style={{ fontSize: 12, color: '#64748B', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '10px 12px', borderRadius: 10 }}>
             {detail}
+          </div>
+        )}
+
+        {isWarning && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: '#FEF3C7', color: '#92400E', fontSize: 12, fontWeight: 500 }}>
+            <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+            <span>This action may impact system operations or active personnel.</span>
           </div>
         )}
 
@@ -406,13 +426,22 @@ export default function ConfirmModal({
             onClick={onCancel}
             style={{
               padding: '8px 16px',
-              background: 'rgba(255, 255, 255, 0.06)',
-              color: '#94A3B8',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#F8FAFC',
+              color: '#475569',
+              border: '1px solid #CBD5E1',
               borderRadius: 9999,
               fontSize: 13,
               fontWeight: 600,
               cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#F1F5F9';
+              e.currentTarget.style.color = '#0F172A';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#F8FAFC';
+              e.currentTarget.style.color = '#475569';
             }}
           >
             {resolvedCancelBtn}
@@ -422,7 +451,7 @@ export default function ConfirmModal({
             onClick={onConfirm}
             style={{
               padding: '8px 18px',
-              background: accentColor,
+              background: isDiscard ? '#DC2626' : accentColor,
               color: '#FFFFFF',
               border: 'none',
               borderRadius: 9999,
@@ -432,10 +461,13 @@ export default function ConfirmModal({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              boxShadow: `0 4px 14px ${accentColor}40`,
+              boxShadow: isDiscard ? '0 4px 14px rgba(220, 38, 38, 0.35)' : `0 4px 14px ${accentColor}40`,
+              transition: 'opacity 0.15s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            {isDiscard ? <AlertTriangle size={14} /> : isUpdate ? <Edit3 size={14} /> : <CheckCircle2 size={14} />} {resolvedConfirmBtn}
+            {isDiscard ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />} {resolvedConfirmBtn}
           </button>
         </div>
       </div>
