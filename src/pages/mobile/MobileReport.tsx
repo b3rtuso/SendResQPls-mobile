@@ -699,13 +699,13 @@ export default function MobileReport() {
           {resolvingLoc ? (
             <><Loader size={20} className="spin" /> VERIFYING LOCATION…</>
           ) : sending ? (
-            <><Loader size={20} className="spin" /> DISPATCHING REPORT…</>
+            <><Loader size={20} className="spin" /> SENDING REPORT…</>
           ) : flushing ? (
             <><Loader size={20} className="spin" /> SYNCING QUEUED REPORTS…</>
           ) : !isOnline ? (
             <>QUEUE REPORT OFFLINE <IoIosSend size={19} /></>
           ) : (
-            <>DISPATCH EMERGENCY ALERT <IoIosSend size={19} /></>
+            <>SEND EMERGENCY ALERT <IoIosSend size={19} /></>
           )}
         </Button>
       </div>
