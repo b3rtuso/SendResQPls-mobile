@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, AlertTriangle, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Button } from '@/components/ui/button';
 
@@ -52,44 +52,27 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
   const navigate = useNavigate();
 
   const touchStartX = useRef<number | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Circular loop navigation (like a literal carousel)
-  const goNext = useCallback(() => {
-    setSlideDirection('next');
-    setCurrent(c => (c + 1) % slides.length);
-  }, []);
-
-  const goPrev = useCallback(() => {
-    setSlideDirection('prev');
-    setCurrent(c => (c - 1 + slides.length) % slides.length);
-  }, []);
-
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      goNext();
-    }, 5000);
-  }, [goNext]);
-
-  useEffect(() => {
-    resetTimer();
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [resetTimer]);
 
   const goTo = (index: number) => {
-    if (index < 0 || index >= slides.length || index === current) return;
-    if (current === slides.length - 1 && index === 0) {
-      setSlideDirection('next');
-    } else if (current === 0 && index === slides.length - 1) {
-      setSlideDirection('prev');
-    } else {
-      setSlideDirection(index > current ? 'next' : 'prev');
-    }
+    if (index < 0 || index >= slides.length) return;
+    setSlideDirection(index > current ? 'next' : 'prev');
     setCurrent(index);
-    resetTimer();
+  };
+
+  const goNext = () => {
+    if (current < slides.length - 1) {
+      setSlideDirection('next');
+      setCurrent(c => c + 1);
+    } else {
+      handleGetStarted();
+    }
+  };
+
+  const goPrev = () => {
+    if (current > 0) {
+      setSlideDirection('prev');
+      setCurrent(c => c - 1);
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -99,10 +82,9 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 35) {
+    if (Math.abs(diff) > 40) {
       if (diff > 0) goNext();
       else goPrev();
-      resetTimer();
     }
     touchStartX.current = null;
   };
@@ -110,17 +92,12 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
   // Keyboard navigation support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'Space') {
-        goNext();
-        resetTimer();
-      } else if (e.key === 'ArrowLeft') {
-        goPrev();
-        resetTimer();
-      }
+      if (e.key === 'ArrowRight' || e.key === 'Space') goNext();
+      else if (e.key === 'ArrowLeft') goPrev();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goNext, goPrev, resetTimer]);
+  }, [current]);
 
   const skip = () => {
     localStorage.setItem(ONBOARDING_KEY, '1');
@@ -158,72 +135,22 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
       onTouchEnd={handleTouchEnd}
     >
       <style>{`
-        @keyframes carouselOrbitNext {
-          0% {
-            opacity: 0;
-            transform: perspective(900px) rotateY(-24deg) translateX(42px) scale(0.92);
-          }
-          60% {
-            opacity: 0.95;
-          }
-          100% {
-            opacity: 1;
-            transform: perspective(900px) rotateY(0deg) translateX(0) scale(1);
-          }
+        @keyframes onbFadeSlideNext {
+          from { opacity: 0; transform: translateX(24px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
-        @keyframes carouselOrbitPrev {
-          0% {
-            opacity: 0;
-            transform: perspective(900px) rotateY(24deg) translateX(-42px) scale(0.92);
-          }
-          60% {
-            opacity: 0.95;
-          }
-          100% {
-            opacity: 1;
-            transform: perspective(900px) rotateY(0deg) translateX(0) scale(1);
-          }
+        @keyframes onbFadeSlidePrev {
+          from { opacity: 0; transform: translateX(-24px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
         .onb-content-animate {
-          animation: ${slideDirection === 'next' ? 'carouselOrbitNext' : 'carouselOrbitPrev'} 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          will-change: transform, opacity;
-        }
-        .onb-nav-arrow {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.95);
-          border: 1.5px solid #E2E8F0;
-          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #1E293B;
-          cursor: pointer;
-          z-index: 15;
-          transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-        }
-        .onb-nav-arrow:hover {
-          background: #FFFFFF;
-          box-shadow: 0 6px 18px rgba(15, 23, 42, 0.14);
-        }
-        .onb-nav-arrow:active {
-          transform: translateY(-50%) scale(0.92);
-        }
-        .onb-nav-arrow.left {
-          left: 0px;
-        }
-        .onb-nav-arrow.right {
-          right: 0px;
+          animation: ${slideDirection === 'next' ? 'onbFadeSlideNext' : 'onbFadeSlidePrev'} 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .onb-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          transition: background-color 0.2s ease, box-shadow 0.2s ease;
+          transition: all 0.25s ease;
           border: none;
           padding: 0;
           cursor: pointer;
@@ -400,7 +327,7 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
           </p>
         </div>
 
-        {/* Center UI Preview Card with circular carousel arrows */}
+        {/* Center UI Preview Card */}
         <div
           style={{
             flex: 1,
@@ -408,38 +335,8 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
             alignItems: 'center',
             justifyContent: 'center',
             padding: '10px 0',
-            position: 'relative',
-            width: '100%',
           }}
         >
-          {/* Left carousel navigation arrow */}
-          <button
-            type="button"
-            className="onb-nav-arrow left"
-            onClick={(e) => {
-              e.stopPropagation();
-              goPrev();
-              resetTimer();
-            }}
-            aria-label="Previous carousel slide"
-          >
-            <ChevronLeft size={20} strokeWidth={2.5} />
-          </button>
-
-          {/* Right carousel navigation arrow */}
-          <button
-            type="button"
-            className="onb-nav-arrow right"
-            onClick={(e) => {
-              e.stopPropagation();
-              goNext();
-              resetTimer();
-            }}
-            aria-label="Next carousel slide"
-          >
-            <ChevronRight size={20} strokeWidth={2.5} />
-          </button>
-
           {slide.type === 'camera' && (
             <div
               style={{
@@ -697,7 +594,7 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
           )}
         </div>
 
-        {/* ── Dot Indicators (Pure circular dots, active is blue #2563EB) ── */}
+        {/* ── Dot Indicators (Selected dot is circular dot and blue #2563EB) ── */}
         <div
           style={{
             display: 'flex',
@@ -715,23 +612,23 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
               aria-label={`Go to slide ${i + 1}`}
               style={{
                 background: i === current ? '#2563EB' : '#CBD5E1',
-                boxShadow: i === current ? '0 0 8px rgba(37, 99, 235, 0.45)' : 'none',
+                transform: i === current ? 'scale(1.2)' : 'scale(1)',
               }}
             />
           ))}
         </div>
 
-        {/* ── Action Buttons ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
-          <Button
-            type="button"
-            className="onb-action-btn"
-            onClick={isLast ? handleGetStarted : () => { goNext(); resetTimer(); }}
-            style={{ minHeight: 48 }}
-          >
-            {isLast ? 'Get Started' : 'Next'}
-          </Button>
-          {isLast ? (
+        {/* ── Action Buttons (No Arrow Icons) ── */}
+        {isLast ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
+            <Button
+              type="button"
+              className="onb-action-btn"
+              onClick={handleGetStarted}
+              style={{ minHeight: 48 }}
+            >
+              Get Started
+            </Button>
             <Button
               type="button"
               variant="outline"
@@ -741,18 +638,17 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
             >
               Create an Account
             </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              className="onb-secondary-btn"
-              onClick={handleGetStarted}
-              style={{ minHeight: 48 }}
-            >
-              Skip to Sign In
-            </Button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            className="onb-action-btn"
+            onClick={goNext}
+            style={{ minHeight: 48 }}
+          >
+            Next
+          </Button>
+        )}
       </div>
     </div>
   );
