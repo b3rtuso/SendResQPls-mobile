@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, ShieldCheck, XCircle, AlertTriangle, PlusCircle, X, Siren, ChevronRight, Check } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
@@ -425,13 +426,17 @@ export default function MobileHistory() {
           transform: scale(0.985);
         }
 
-        /* ── Delivery Tracker Modal (Centered in the middle of the screen, sits cleanly above bottom navbar) ── */
+        /* ── Delivery Tracker Modal (Centered on device screen: phone, tablet) ── */
         .srq-tracker-overlay {
           position: fixed;
+          inset: 0;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
+          width: 100vw;
+          height: 100vh;
+          height: 100dvh;
           background: rgba(15, 23, 42, 0.65);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
@@ -447,6 +452,7 @@ export default function MobileHistory() {
         .srq-tracker-sheet {
           width: 100%;
           max-width: 440px;
+          margin: auto;
           background: #FFFFFF;
           border-radius: 24px;
           max-height: min(84dvh, 720px);
@@ -865,7 +871,7 @@ export default function MobileHistory() {
       </div>
 
       {/* ─── LIVE DELIVERY-STYLE INCIDENT STATUS TRACKER MODAL ─── */}
-      {selectedIncident && (
+      {selectedIncident && typeof document !== 'undefined' && createPortal(
         <div
           className="srq-tracker-overlay"
           onClick={() => setSelectedIncident(null)}
@@ -1263,7 +1269,8 @@ export default function MobileHistory() {
               <span>Call MDRRMO Balayan (0917-123-4567)</span>
             </a>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
