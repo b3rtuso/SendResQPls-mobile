@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Zap } from 'lucide-react';
+import { X, Zap, Truck } from 'lucide-react';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
 
 interface MobileToastCardProps {
@@ -190,7 +190,15 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
         gap: 12, padding: '12px 14px',
       }}>
         {/* Left Icon / Badge */}
-        {toast.type === 'error' ? (
+        {toast.status === 'DISPATCHED' || toast.title?.toLowerCase().includes('dispatch') ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: '#8B5CF6', background: '#EDE9FE', borderRadius: 8,
+          }}>
+            <Truck size={16} />
+          </div>
+        ) : toast.type === 'error' ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, width: 28, height: 28,

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Camera, ShieldCheck, Truck } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Button } from '@/components/ui/button';
 
@@ -28,7 +28,7 @@ const slides: SlideData[] = [
   },
   {
     category: 'Dispatch',
-    badgeIcon: AlertTriangle,
+    badgeIcon: Truck,
     accentColor: '#DC2626',
     badgeBg: '#FEF2F2',
     title: 'MDRRMO Balayan Triage',
