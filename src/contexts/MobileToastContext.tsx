@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
 
 export type MobileToastPriority = 'normal' | 'important' | 'critical';
 export type MobileToastType = 'success' | 'error' | 'warning' | 'info' | 'incident' | 'system' | 'update';
@@ -18,6 +18,8 @@ export interface MobileToastItem {
   status?: string;
   /** Shown on the notification (e.g. "just now") */
   timestamp?: string;
+  /** Custom icon element */
+  icon?: ReactNode;
 }
 
 export type MobileToastInput = Omit<MobileToastItem, 'id' | 'timestamp'>;

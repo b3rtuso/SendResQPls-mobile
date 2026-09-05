@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FaCog } from 'react-icons/fa';
+import { IoIosSend } from 'react-icons/io';
 import { reportIncident } from '../../api/client';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '../../contexts/ConfirmContext';
@@ -110,7 +111,13 @@ export default function MobileReport() {
       setFlushing(false);
 
       if (successCount > 0 && failCount === 0) {
-        showToast({ type: 'success', priority: 'important', title: `${successCount} report${successCount > 1 ? 's' : ''} sent!`, message: 'All queued emergency reports have been submitted to MDRRMO.' });
+        showToast({
+          type: 'success',
+          priority: 'important',
+          title: `${successCount} report${successCount > 1 ? 's' : ''} sent!`,
+          message: 'All queued emergency reports have been submitted to MDRRMO.',
+          icon: <IoIosSend size={18} />,
+        });
       } else if (successCount > 0 && failCount > 0) {
         showToast({ type: 'warning', priority: 'important', title: `${successCount} sent, ${failCount} failed`, message: 'Some reports could not be sent. They will retry next time you are online.' });
       } else {
@@ -335,6 +342,7 @@ export default function MobileReport() {
         priority: 'important',
         title: 'Emergency Report Sent!',
         message: `AI-classified as: ${incident?.aiDetectedType || 'Processing…'} — Routed to ${incident?.aiRecommendedDept || 'MDRRMO'}`,
+        icon: <IoIosSend size={18} />,
       });
 
     } catch (error: any) {

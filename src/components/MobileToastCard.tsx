@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Zap, ShieldCheck } from 'lucide-react';
+import { X, ShieldCheck, Zap } from 'lucide-react';
+import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
 
 interface MobileToastCardProps {
@@ -148,6 +149,13 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
   const opacity    = phase === 'enter' ? 0 : phase === 'exit' ? 0 : 1;
   const scale      = phase === 'visible' ? 1 : 0.96;
 
+  const isReportSent = Boolean(
+    (toast.type === 'success' || !toast.type) && (
+      (toast.title && toast.title.toLowerCase().includes('report') && (toast.title.toLowerCase().includes('sent') || toast.title.toLowerCase().includes('submitted'))) ||
+      toast.status === 'REPORT_SENT'
+    )
+  );
+
   return (
     <div
       onTouchStart={onTouchStart}
@@ -191,7 +199,23 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
         gap: 12, padding: '12px 14px',
       }}>
         {/* Left Icon / Badge */}
-        {toast.status === 'DISPATCHED' || toast.title?.toLowerCase().includes('dispatch') ? (
+        {toast.icon ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: '#16A34A', background: '#DCFCE7', borderRadius: 8,
+          }}>
+            {toast.icon}
+          </div>
+        ) : isReportSent ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: '#16A34A', background: '#DCFCE7', borderRadius: 8,
+          }}>
+            <IoIosSend size={18} />
+          </div>
+        ) : toast.status === 'DISPATCHED' || toast.title?.toLowerCase().includes('dispatch') ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, width: 28, height: 28,
@@ -245,9 +269,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             flexShrink: 0, width: 28, height: 28,
             color: '#2563EB', background: '#DBEAFE', borderRadius: 8,
           }}>
-            <svg style={{ width: 16, height: 16 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m12 18-7 3 7-18 7 18-7-3Zm0 0v-5" />
-            </svg>
+            <IoIosSend size={18} />
           </div>
         )}
 
