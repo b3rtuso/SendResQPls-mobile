@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ShieldCheck, Zap } from 'lucide-react';
+import { X, Zap, Truck } from 'lucide-react';
 import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
 
@@ -221,7 +221,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             flexShrink: 0, width: 28, height: 28,
             color: '#8B5CF6', background: '#EDE9FE', borderRadius: 8,
           }}>
-            <ShieldCheck size={16} />
+            <Truck size={16} />
           </div>
         ) : toast.type === 'error' ? (
           <div style={{
