@@ -252,14 +252,14 @@ export default function MobileSignup() {
 
           {/* Email + Send Code */}
           <div className="input-group">
-            <Label>Email Address</Label>
+            <Label>Email Address</Label> 
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
               <div className="input-wrapper" style={{ flex: 1, minWidth: 0 }}>
                 <FaEnvelope size={16} className="input-icon" style={{ flexShrink: 0 }} />
                 <Input
                   type="email"
                   autoComplete="email"
-                  placeholder=""
+                  placeholder="juan@example.com"
                   value={form.email}
                   onChange={(e) => {
                     update('email', e.target.value);
@@ -358,7 +358,7 @@ export default function MobileSignup() {
               <Input
                 type={showPass ? 'text' : 'password'}
                 autoComplete="new-password"
-                placeholder=""
+                placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => update('password', e.target.value)}
                 style={{ ...inputStyle, paddingRight: 52 }}

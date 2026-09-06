@@ -220,7 +220,7 @@ export default function MobileLogin() {
               id="mobile-password"
               type={showPass ? 'text' : 'password'}
               className={passError ? 'ml-input-error' : ''}
-              placeholder=""
+              placeholder="••••••••"
               autoComplete="current-password"
               value={password}
               onChange={e => {
