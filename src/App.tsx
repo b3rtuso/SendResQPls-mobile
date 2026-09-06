@@ -16,7 +16,50 @@ import FcmBannerOverlay from './components/FcmBannerOverlay';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useState, useEffect } from 'react';
 import { registerPushNavigate, unregisterPushNavigate, consumePendingRoute } from './utils/pushNotificationHelper';
+import { App as CapApp } from '@capacitor/app';
 import './App.css';
+
+function BackButtonHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    let listenerHandle: any = null;
+
+    const setupListener = async () => {
+      try {
+        listenerHandle = await CapApp.addListener('backButton', ({ canGoBack }) => {
+          const path = location.pathname;
+          // Exit app immediately on login, root, or home
+          if (
+            path === '/mobile/login' ||
+            path === '/mobile' ||
+            path === '/mobile/' ||
+            path === '/'
+          ) {
+            CapApp.exitApp();
+          } else if (canGoBack) {
+            navigate(-1);
+          } else {
+            CapApp.exitApp();
+          }
+        });
+      } catch {
+        // Running on web, ignore
+      }
+    };
+
+    setupListener();
+
+    return () => {
+      if (listenerHandle?.remove) {
+        listenerHandle.remove();
+      }
+    };
+  }, [location.pathname, navigate]);
+
+  return null;
+}
 
 function RouterAwareNotificationSetup() {
   const navigate = useNavigate();
@@ -120,6 +163,7 @@ function App() {
               <MobileToastProvider>
                 <ConfirmProvider>
                   <FcmBannerOverlay />
+                  <BackButtonHandler />
                   <RouterAwareNotificationSetup />
                   <AnimatedMobileRoutes />
                 </ConfirmProvider>
