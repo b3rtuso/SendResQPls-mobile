@@ -1,4 +1,4 @@
-﻿/**
+/**
  * offlineQueue.ts
  * Stores pending emergency reports when the device is offline.
  * Images are stored in IndexedDB (can handle large blobs).
@@ -64,6 +64,7 @@ export interface PendingReport {
   longitude: string;
   photoBlob: Blob;      // Stored in IndexedDB (handles large images)
   photoName: string;    // Original filename for MIME reconstruction
+  description?: string; // Optional situation description
   timestamp: number;    // Unix ms — for display and expiry
 }
 

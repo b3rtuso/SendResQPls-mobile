@@ -28,6 +28,7 @@ import { useMobileToast } from '../../components/MobileToastProvider';
 // ── Module-level cache to persist photo across mobile tab switches ──────────
 let cachedReportPhoto: File | null = null;
 let cachedReportPreview: string | null = null;
+let cachedReportDescription = '';
 
 export default function MobileReport() {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export default function MobileReport() {
 
   const [photo, setPhoto] = useState<File | null>(() => cachedReportPhoto);
   const [preview, setPreview] = useState<string | null>(() => cachedReportPreview);
+  const [description, setDescription] = useState<string>(() => cachedReportDescription);
   const [compressing, setCompressing] = useState(false);
   const [sending, setSending] = useState(false);
   const [flushing, setFlushing] = useState(false);
@@ -98,6 +100,9 @@ export default function MobileReport() {
           formData.append('photo', file);
           formData.append('latitude', report.latitude);
           formData.append('longitude', report.longitude);
+          if (report.description) {
+            formData.append('description', report.description);
+          }
 
           await reportIncident(formData);
           await dequeueReport(id);
@@ -186,26 +191,30 @@ export default function MobileReport() {
     if (shouldDiscard) {
       setPhoto(null);
       setPreview(null);
+      setDescription('');
       cachedReportPhoto = null;
       cachedReportPreview = null;
+      cachedReportDescription = '';
       if (fileRef.current) fileRef.current.value = '';
     }
   };
 
   const handleBack = async () => {
-    if (photo || preview) {
+    if (photo || preview || description) {
       const shouldDiscard = await confirm({
         type: 'discard',
         title: 'Discard Report?',
-        message: 'You have captured an unsent emergency photo. Are you sure you want to leave? Your report will be discarded.',
+        message: 'You have unsent emergency report details. Are you sure you want to leave? Your report will be discarded.',
         confirmText: 'Discard Changes',
         cancelText: 'Keep Editing',
       });
       if (!shouldDiscard) return;
       setPhoto(null);
       setPreview(null);
+      setDescription('');
       cachedReportPhoto = null;
       cachedReportPreview = null;
+      cachedReportDescription = '';
       if (fileRef.current) fileRef.current.value = '';
     }
     navigate('/mobile');
@@ -296,14 +305,17 @@ export default function MobileReport() {
           longitude: lng,
           photoBlob: photo,
           photoName: photo.name,
+          description: description.trim() || undefined,
         });
 
         const newCount = getPendingCount();
         setPendingCount(newCount);
         cachedReportPhoto = null;
         cachedReportPreview = null;
+        cachedReportDescription = '';
         setPhoto(null);
         setPreview(null);
+        setDescription('');
         setDetectedLocation(null);
 
         setSubmittedIncident({
@@ -322,14 +334,19 @@ export default function MobileReport() {
       formData.append('photo', photo);
       formData.append('latitude', lat);
       formData.append('longitude', lng);
+      if (description.trim()) {
+        formData.append('description', description.trim());
+      }
 
       const response = await reportIncident(formData);
       const { incident } = response.data;
 
       cachedReportPhoto = null;
       cachedReportPreview = null;
+      cachedReportDescription = '';
       setPhoto(null);
       setPreview(null);
+      setDescription('');
       setDetectedLocation(null);
       setSubmittedIncident({
         ...incident,
@@ -672,7 +689,80 @@ export default function MobileReport() {
           onChange={handlePhotoChange}
         />
 
-        
+        {/* Optional Incident Description Field */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label
+              htmlFor="report-description"
+              style={{
+                fontSize: 12.5,
+                fontWeight: 800,
+                color: '#334155',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                letterSpacing: '0.01em',
+              }}
+            >
+              <MessageSquare size={14} color="#2563EB" />
+              <span>Situation Details</span>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#64748B',
+                background: '#F1F5F9',
+                padding: '2px 7px',
+                borderRadius: 6,
+                border: '1px solid #E2E8F0',
+              }}>
+                Optional
+              </span>
+            </label>
+            {description.length > 0 && (
+              <span style={{ fontSize: 11, color: description.length > 250 ? '#EF4444' : '#94A3B8', fontWeight: 600 }}>
+                {description.length}/300
+              </span>
+            )}
+          </div>
+
+          <div style={{
+            background: '#FFFFFF',
+            border: '1.5px solid #E2E8F0',
+            borderRadius: 14,
+            padding: '12px 14px',
+            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
+          }}>
+            <textarea
+              id="report-description"
+              name="description"
+              rows={3}
+              maxLength={300}
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                cachedReportDescription = e.target.value;
+              }}
+              placeholder="Briefly describe what you see (e.g. 2-car collision along highway, heavy smoke visible from 2nd floor, water rising near creek)..."
+              style={{
+                width: '100%',
+                border: 'none',
+                background: 'transparent',
+                outline: 'none',
+                fontSize: 13.5,
+                color: '#0F172A',
+                fontFamily: 'inherit',
+                resize: 'none',
+                lineHeight: 1.5,
+                boxSizing: 'border-box',
+                display: 'block',
+              }}
+            />
+          </div>
+          <p style={{ margin: '6px 4px 0', fontSize: 11, color: '#94A3B8', lineHeight: 1.4 }}>
+            Add extra details, landmarks, or hazards to assist dispatchers and responders.
+          </p>
+        </div>
 
         {/* Submit Button */}
         <Button
@@ -856,27 +946,47 @@ export default function MobileReport() {
             {/* Preview Summary Card */}
             <div style={{
               background: '#F8FAFC', borderRadius: 16, padding: '14px 16px',
-              border: '1px solid #E2E8F0', marginBottom: 22, display: 'flex', gap: 14, alignItems: 'center',
+              border: '1px solid #E2E8F0', marginBottom: 22,
             }}>
-              {preview && (
-                <img
-                  src={preview}
-                  alt="Review thumbnail"
-                  style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0, border: '1px solid #CBD5E1' }}
-                />
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#2563EB', fontSize: 13, fontWeight: 800 }}>
-                  <FaLocationDot size={13} style={{ flexShrink: 0 }} />
-                  <span>{detectedLocation.barangay}</span>
-                </div>
-                <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
-                  {parseFloat(detectedLocation.lat).toFixed(4)}°N, {parseFloat(detectedLocation.lng).toFixed(4)}°E
-                </div>
-                <div style={{ fontSize: 11, color: isOnline ? '#16A34A' : '#D97706', fontWeight: 700, marginTop: 4 }}>
-                  {isOnline ? '● Live Server Dispatch' : '● Stored to Offline Queue'}
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                {preview && (
+                  <img
+                    src={preview}
+                    alt="Review thumbnail"
+                    style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0, border: '1px solid #CBD5E1' }}
+                  />
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#2563EB', fontSize: 13, fontWeight: 800 }}>
+                    <FaLocationDot size={13} style={{ flexShrink: 0 }} />
+                    <span>{detectedLocation.barangay}</span>
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>
+                    {parseFloat(detectedLocation.lat).toFixed(4)}°N, {parseFloat(detectedLocation.lng).toFixed(4)}°E
+                  </div>
+                  <div style={{ fontSize: 11, color: isOnline ? '#16A34A' : '#D97706', fontWeight: 700, marginTop: 4 }}>
+                    {isOnline ? '● Live Server Dispatch' : '● Stored to Offline Queue'}
+                  </div>
                 </div>
               </div>
+
+              {description.trim() && (
+                <div style={{
+                  marginTop: 12,
+                  paddingTop: 10,
+                  borderTop: '1px solid #E2E8F0',
+                  fontSize: 12.5,
+                  color: '#334155',
+                  lineHeight: 1.45,
+                }}>
+                  <span style={{ fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+                    <MessageSquare size={12} color="#2563EB" /> Situation Details:
+                  </span>
+                  <span style={{ color: '#475569', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                    {description.trim()}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
