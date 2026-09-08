@@ -178,7 +178,7 @@ export default function MobileSignup() {
   };
 
   return (
-    <div className="mobile-shell mobile-auth mobile-auth-transition" style={{ background: '#F1F5F9' }}>
+    <div className="mobile-shell mobile-auth-transition" style={{ background: '#F1F5F9' }}>
       <style>{`
         .ms-signup-header {
           background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
@@ -210,7 +210,7 @@ export default function MobileSignup() {
           padding: 28px 24px;
           box-shadow: 0 8px 40px rgba(30,58,95,0.12), 0 2px 8px rgba(0,0,0,0.06);
           position: relative; z-index: 2;
-          animation: authCardEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
       `}</style>
 

@@ -150,7 +150,6 @@ export default function MobileHome() {
           box-shadow: 0 2px 12px rgba(15,23,42,0.07), 0 1px 3px rgba(15,23,42,0.04);
           border: 1px solid rgba(226,232,240,0.8);
           transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
-          animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
         .srq-hotline-card:active {
           transform: scale(0.96);
@@ -166,7 +165,6 @@ export default function MobileHome() {
           box-shadow: 0 1px 3px rgba(15,23,42,0.03), 0 4px 12px rgba(15,23,42,0.02);
           border: 1px solid #E2E8F0;
           transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
-          animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
         .srq-tip-card:active {
           transform: scale(0.98);
@@ -390,12 +388,11 @@ export default function MobileHome() {
         <div style={{ padding: '24px 20px 0' }}>
           <p className="srq-section-label">Emergency Hotlines</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {hotlines.map((h, i) => (
+            {hotlines.map((h) => (
               <a
                 key={h.number}
                 href={`tel:${h.number}`}
                 className="srq-hotline-card"
-                style={{ animationDelay: `${i * 0.07}s` }}
               >
                 {/* Colored header — stacked so 11-digit numbers always fit */}
                 <div style={{
@@ -447,11 +444,10 @@ export default function MobileHome() {
         <div style={{ padding: '24px 20px 20px' }}>
           <p className="srq-section-label">Emergency Safety Tips</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {safetyTips.map((t, i) => (
+            {safetyTips.map((t) => (
               <div
                 key={t.title}
                 className="srq-tip-card"
-                style={{ animationDelay: `${i * 0.08}s` }}
               >
                 {/* Icon box with tint */}
                 <div style={{

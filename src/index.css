@@ -1663,7 +1663,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-tab-view {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileTabSwitch 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: mobileTabSwitch 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: opacity, transform;
 }
 
@@ -1678,7 +1678,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   }
 }
 
-/* ── Unified Subpage Directional Transitions ── */
+/* ── Unified Subpage Directional Transitions (Profile Drill-down) ── */
 /* Forward: entering a subpage from the right */
 .mobile-subpage-forward {
   width: 100%;
@@ -1698,7 +1698,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 @keyframes mobileSubpageInRight {
   0% {
     opacity: 0;
-    transform: translateX(22px);
+    transform: translateX(20px);
   }
   100% {
     opacity: 1;
@@ -1709,7 +1709,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 @keyframes mobileSubpageInLeft {
   0% {
     opacity: 0;
-    transform: translateX(-22px);
+    transform: translateX(-20px);
   }
   100% {
     opacity: 1;
@@ -1724,39 +1724,32 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* ── Auth Screen Transition (Login <-> Signup <-> Forgot Password) ── */
-.mobile-auth-transition {
+/* ── Unified Auth Screen Transition (Login, Signup, Forgot Password, Reset Password) ── */
+.mobile-auth-transition,
+.mobile-auth {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileAuthFadeSlide 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: transform, opacity, filter;
+  animation: mobileAuthFadeSlide 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 @keyframes mobileAuthFadeSlide {
   0% {
     opacity: 0;
-    transform: translateY(36px) scale(0.94);
-    filter: blur(5px);
-  }
-  50% {
-    opacity: 0.85;
-    filter: blur(0px);
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
+    transform: translateY(0);
   }
 }
 
 @keyframes authCardEntrance {
   0% {
     opacity: 0;
-    transform: translateY(24px) scale(0.96);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -1766,8 +1759,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   .mobile-subpage-backward,
   .mobile-section-transition,
   .mobile-auth-transition,
-  .ml-form-card {
+  .mobile-auth,
+  .ml-form-card,
+  .ms-form-card,
+  .mf-form-card,
+  .mr-form-card {
     animation: none !important;
+    transition: none !important;
   }
 }
 

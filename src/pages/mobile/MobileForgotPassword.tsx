@@ -113,7 +113,7 @@ export default function MobileForgotPassword() {
           position: relative;
           z-index: 2;
           box-sizing: border-box;
-          animation: authCardEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @media (min-width: 600px) {
           .mf-form-card {

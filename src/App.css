@@ -1107,10 +1107,6 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   box-sizing: border-box;
 }
 
-.mobile-auth {
-  animation: mobilePageFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 .mobile-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1138,17 +1134,6 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   box-sizing: border-box;
 }
 
-@keyframes mobilePageFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes modalFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1162,17 +1147,6 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes authCardEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
