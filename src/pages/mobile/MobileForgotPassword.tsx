@@ -66,6 +66,8 @@ export default function MobileForgotPassword() {
     display: 'flex',
     alignItems: 'center',
     position: 'relative',
+    minHeight: 50,
+    height: 50,
     background: hasError ? '#FFF8F8' : focusField ? '#FFFFFF' : '#F8FAFC',
     border: `1.5px solid ${hasError ? '#EF4444' : focusField ? '#2563EB' : '#E2E8F0'}`,
     borderRadius: 14,
@@ -76,7 +78,7 @@ export default function MobileForgotPassword() {
   });
 
   return (
-    <div className="mobile-shell mobile-auth-transition" style={{ background: '#F1F5F9' }}>
+    <div className="mobile-shell mobile-auth-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: '#F1F5F9' }}>
       <style>{`
         .mf-header {
           background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
@@ -106,7 +108,7 @@ export default function MobileForgotPassword() {
           margin: 16px 20px 30px;
           background: #ffffff;
           border-radius: 22px;
-          padding: 28px 22px;
+          padding: 28px 24px 34px;
           box-shadow: 0 8px 40px rgba(30,58,95,0.12), 0 2px 8px rgba(0,0,0,0.06);
           position: relative;
           z-index: 2;
@@ -117,7 +119,7 @@ export default function MobileForgotPassword() {
           .mf-form-card {
             max-width: 480px;
             margin: 20px auto 40px;
-            padding: 34px 28px;
+            padding: 34px 28px 40px;
           }
         }
         .mf-input-error::placeholder {
@@ -317,12 +319,14 @@ export default function MobileForgotPassword() {
                   onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                   style={{
                     width: '100%',
+                    height: '100%',
                     border: 'none',
                     background: 'transparent',
                     outline: 'none',
-                    fontSize: 15,
+                    fontSize: 14,
+                    fontFamily: 'inherit',
                     color: '#0F172A',
-                    padding: '16px 16px 16px 46px',
+                    padding: '0 16px 0 46px',
                     boxSizing: 'border-box',
                   }}
                 />
@@ -341,22 +345,44 @@ export default function MobileForgotPassword() {
               )}
             </Button>
 
-            <div style={{ textAlign: 'center', marginTop: 22 }}>
-              <Button
+            <p style={{
+              textAlign: 'center',
+              marginTop: 26,
+              marginBottom: 0,
+              fontSize: 13.5,
+              color: '#64748B',
+              lineHeight: 1.5,
+            }}>
+              Remembered your password?{' '}
+              <button
                 type="button"
-                variant="ghost"
                 onClick={() => navigate('/mobile/login')}
                 style={{
+                  background: 'none',
+                  border: 'none',
                   color: '#2563EB',
-                  fontSize: 13.5,
                   fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: 13.5,
+                  padding: 0,
+                  textDecoration: 'none',
+                  display: 'inline',
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
               >
-                Remembered your password? Log in
-              </Button>
-            </div>
+                Log in
+              </button>
+            </p>
           </form>
         )}
+      </div>
+
+      {/* Bottom spacer & branding footer */}
+      <div style={{ flex: 1 }} />
+      <div style={{ textAlign: 'center', padding: '16px 24px 24px', fontSize: 11, color: '#CBD5E1' }}>
+        MDRRMO Balayan, Batangas · SendResQPls v2
       </div>
     </div>
   );
