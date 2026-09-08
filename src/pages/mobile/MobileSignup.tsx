@@ -262,17 +262,30 @@ export default function MobileSignup() {
           </div>
 
           <div className="input-group">
-            <Label htmlFor="signup-phone">Phone Number *</Label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <Label htmlFor="signup-phone" style={{ margin: 0 }}>Phone Number *</Label>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: form.phone.length === 11 && form.phone.startsWith('09') ? '#16A34A' : '#64748B',
+                transition: 'color 0.2s',
+              }}>
+                {form.phone.length}/11 digits
+              </span>
+            </div>
             <div className="input-wrapper" style={{ height: 50 }}>
               <FiPhone size={16} className="input-icon" />
               <Input
                 id="signup-phone"
                 name="phone"
                 type="tel"
+                inputMode="numeric"
+                pattern="09[0-9]{9}"
+                maxLength={11}
                 autoComplete="tel"
-                placeholder="09292695926"
+                placeholder="09292695926 (11 digits)"
                 value={form.phone}
-                onChange={(e) => update('phone', e.target.value.replace(/[^0-9+]/g, ''))}
+                onChange={(e) => update('phone', e.target.value.replace(/\D/g, '').slice(0, 11))}
                 style={inputStyle}
               />
             </div>
@@ -311,9 +324,9 @@ export default function MobileSignup() {
                 disabled={sendingCode || cooldown > 0 || verified || !form.email}
                 style={{
                   flexShrink: 0,
-                  width: 90,
+                  width: 95,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                  padding: '0 10px', borderRadius: 12,
+                  padding: '0 8px', borderRadius: 12,
                   fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
                   background: verified ? '#22C55E' : '#DC2626',
                   color: 'white', border: 'none', cursor: verified ? 'default' : 'pointer',
@@ -324,7 +337,7 @@ export default function MobileSignup() {
                 }}
               >
                 {verified ? (
-                  <><CheckCircle size={14} /> ✓</>
+                  <><CheckCircle size={15} /> Verified</>
                 ) : sendingCode ? (
                   'Sending…'
                 ) : cooldown > 0 ? (

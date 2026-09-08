@@ -32,7 +32,7 @@ interface EmergencyContact {
 /* ── shared sub-components ─────────────────────────────── */
 
 function Field({
-  label, icon: Icon, value, onChange, placeholder, type = 'text', maxLength,
+  label, icon: Icon, value, onChange, placeholder, type = 'text', maxLength, inputMode,
 }: {
   label: string;
   icon: React.ElementType;
@@ -41,6 +41,7 @@ function Field({
   placeholder?: string;
   type?: string;
   maxLength?: number;
+  inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
 }) {
   return (
     <div style={{ marginBottom: 14 }}>
@@ -60,6 +61,7 @@ function Field({
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
+          inputMode={inputMode}
           style={{
             flex: 1, border: 'none', background: 'none', outline: 'none',
             fontSize: 15, fontFamily: 'var(--font)', color: '#0F172A', minWidth: 0,
@@ -680,7 +682,7 @@ export default function MobileProfile() {
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
           <Field label="Full Name" icon={FaUser} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
           <Field label="Email Address" icon={FaEnvelope} value={email} onChange={setEmail} placeholder="juan@example.com" type="email" />
-          <Field label="Phone Number *" icon={FiPhone} value={phone} onChange={v => setPhone(v.replace(/[^0-9+]/g, ''))} placeholder="09292695926" type="tel" />
+          <Field label="Phone Number *" icon={FiPhone} value={phone} onChange={v => setPhone(v.replace(/\D/g, '').slice(0, 11))} placeholder="09292695926 (11 digits)" type="tel" maxLength={11} inputMode="numeric" />
 
           <button onClick={handleSaveProfile} disabled={saving} style={{
             width: '100%', padding: 'clamp(12px, 3.5vw, 15px)',
@@ -829,9 +831,11 @@ export default function MobileProfile() {
               />
               <input
                 type="tel"
-                placeholder="09292695926 (Phone Number *)"
+                inputMode="numeric"
+                maxLength={11}
+                placeholder="09292695926 (11 digits *)"
                 value={newContact.phone}
-                onChange={e => setNewContact({ ...newContact, phone: e.target.value.replace(/[^0-9+]/g, '') })}
+                onChange={e => setNewContact({ ...newContact, phone: e.target.value.replace(/\D/g, '').slice(0, 11) })}
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: 10,
                   border: '1.5px solid #E2E8F0', background: 'white', fontSize: 14,
