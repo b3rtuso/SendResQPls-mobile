@@ -84,9 +84,9 @@ export default function MobileLogin() {
   };
 
   const inputStyle = (): React.CSSProperties => ({
-    width: '100%', border: 'none', background: 'transparent',
-    outline: 'none', fontSize: 15, fontFamily: 'inherit',
-    color: '#0F172A', padding: '16px 16px 16px 46px',
+    width: '100%', height: '100%', border: 'none', background: 'transparent',
+    outline: 'none', fontSize: 14, fontFamily: 'inherit',
+    color: '#0F172A', padding: '0 16px 0 46px', boxSizing: 'border-box',
   });
 
   const wrapStyle = (field: 'email'|'pass', hasError?: boolean): React.CSSProperties => ({
@@ -94,6 +94,7 @@ export default function MobileLogin() {
     background: hasError ? '#FFF8F8' : focusField === field ? '#fff' : '#F8FAFC',
     border: `1.5px solid ${hasError ? '#EF4444' : focusField === field ? '#2563EB' : '#E2E8F0'}`,
     borderRadius: 14, transition: 'all 0.18s',
+    minHeight: 50, height: 50,
     boxShadow: hasError
       ? '0 0 0 3px rgba(239,68,68,0.09)'
       : focusField === field ? '0 0 0 3px rgba(37,99,235,0.1)' : 'none',

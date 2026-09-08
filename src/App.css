@@ -194,6 +194,8 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   border-radius: 14px;
   transition: all var(--transition);
   width: 100%;
+  min-height: 50px;
+  height: 50px;
 }
 
 .mobile-auth .input-wrapper:focus-within {
@@ -216,13 +218,15 @@ body:has(.mobile-shell)::-webkit-scrollbar {
 
 .mobile-auth .input-wrapper input {
   width: 100%;
+  height: 100% !important;
   border: none;
   background: transparent;
   outline: none;
   font-size: 15px;
   font-family: inherit;
   color: #0F172A;
-  padding: 16px 16px 16px 46px;
+  padding: 0 16px 0 46px !important;
+  box-sizing: border-box;
 }
 
 .mobile-auth .input-wrapper input:focus,

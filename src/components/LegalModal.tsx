@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export type LegalDocType = 'terms' | 'privacy';
@@ -40,7 +41,7 @@ export default function LegalModal({
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
@@ -54,15 +55,27 @@ export default function LegalModal({
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes legalSlideUp {
-          from { opacity: 0; transform: translateY(16px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes legalModalPop {
+          0% {
+            opacity: 0;
+            transform: scale(0.94) translateY(8px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
         }
 
         .legal-modal-overlay {
           position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           inset: 0;
-          z-index: 9999;
+          width: 100vw;
+          height: 100dvh;
+          z-index: 999999;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -71,20 +84,24 @@ export default function LegalModal({
           backdrop-filter: blur(6px);
           -webkit-backdrop-filter: blur(6px);
           animation: legalFadeIn 0.2s ease-out;
+          box-sizing: border-box;
+          overflow: hidden;
         }
 
         .legal-modal-card {
           width: 100%;
           max-width: 520px;
-          max-height: 88dvh;
+          max-height: calc(100dvh - 32px);
           background-color: #FFFFFF;
           border-radius: 20px;
-          box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.8);
+          box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.85);
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          animation: legalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: legalModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           box-sizing: border-box;
+          margin: auto;
+          position: relative;
         }
 
         .legal-modal-header {
@@ -299,9 +316,13 @@ export default function LegalModal({
 
         /* Mobile Screens (<= 480px) */
         @media (max-width: 480px) {
+          .legal-modal-overlay {
+            padding: 12px;
+          }
           .legal-modal-card {
-            max-height: 92dvh;
+            max-height: calc(100dvh - 24px);
             border-radius: 18px;
+            margin: auto;
           }
           .legal-modal-header {
             padding: 14px 16px 12px;
@@ -496,4 +517,10 @@ export default function LegalModal({
       </div>
     </div>
   );
-};
+
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return modalContent;
+}

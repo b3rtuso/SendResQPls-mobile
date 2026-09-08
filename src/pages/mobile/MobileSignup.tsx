@@ -40,13 +40,15 @@ export default function MobileSignup() {
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
+    height: '100%',
+    minHeight: 50,
     border: 'none',
     background: 'transparent',
     outline: 'none',
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: 'inherit',
     color: '#0F172A',
-    padding: '16px 16px 16px 46px',
+    padding: '0 16px 0 46px',
     boxSizing: 'border-box',
   };
 
@@ -244,18 +246,28 @@ export default function MobileSignup() {
 
         <form autoComplete="on" onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="input-group">
-            <Label>Full Name</Label>
-            <div className="input-wrapper">
+            <Label htmlFor="signup-name">Full Name</Label>
+            <div className="input-wrapper" style={{ height: 50 }}>
               <FaUser size={16} className="input-icon" />
-              <Input autoComplete="name" placeholder="Juan Dela Cruz" value={form.name} onChange={(e) => update('name', e.target.value)} style={inputStyle} />
+              <Input
+                id="signup-name"
+                name="name"
+                autoComplete="name"
+                placeholder="Juan Dela Cruz"
+                value={form.name}
+                onChange={(e) => update('name', e.target.value)}
+                style={inputStyle}
+              />
             </div>
           </div>
 
           <div className="input-group">
-            <Label>Phone Number *</Label>
-            <div className="input-wrapper">
+            <Label htmlFor="signup-phone">Phone Number *</Label>
+            <div className="input-wrapper" style={{ height: 50 }}>
               <FiPhone size={16} className="input-icon" />
               <Input
+                id="signup-phone"
+                name="phone"
                 type="tel"
                 autoComplete="tel"
                 placeholder="09292695926"
@@ -271,14 +283,16 @@ export default function MobileSignup() {
 
           {/* Email + Send Code */}
           <div className="input-group">
-            <Label>Email Address</Label> 
+            <Label htmlFor="signup-email">Email Address</Label> 
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
-              <div className="input-wrapper" style={{ flex: 1, minWidth: 0 }}>
+              <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50 }}>
                 <FaEnvelope size={16} className="input-icon" style={{ flexShrink: 0 }} />
                 <Input
+                  id="signup-email"
+                  name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder=""
+                  placeholder="juan@example.com"
                   value={form.email}
                   onChange={(e) => {
                     update('email', e.target.value);
@@ -306,6 +320,7 @@ export default function MobileSignup() {
                   opacity: (sendingCode || (cooldown > 0 && !verified)) ? 0.6 : 1,
                   fontFamily: 'var(--font)', transition: 'all 0.2s ease',
                   minHeight: 50,
+                  height: 50,
                 }}
               >
                 {verified ? (
@@ -336,18 +351,26 @@ export default function MobileSignup() {
           {/* Verification Code Input */}
           {codeSent && !verified && (
             <div className="input-group" style={{ animation: 'fadeIn 0.3s ease' }}>
-              <Label>Verification Code</Label>
+              <Label htmlFor="signup-code">Verification Code</Label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
-                <div className="input-wrapper" style={{ flex: 1, minWidth: 0 }}>
+                <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50 }}>
                   <FaLock size={16} className="input-icon" />
                   <Input
+                    id="signup-code"
+                    name="verificationCode"
                     type="text"
+                    inputMode="numeric"
                     autoComplete="one-time-code"
-                    placeholder="Enter the code"
+                    placeholder="6-digit code"
                     value={codeInput}
                     onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     maxLength={6}
-                    style={{ ...inputStyle, letterSpacing: 2, fontWeight: 700, fontSize: 18 }}
+                    style={{
+                      ...inputStyle,
+                      letterSpacing: codeInput ? '4px' : 'normal',
+                      fontWeight: codeInput ? 700 : 400,
+                      fontSize: codeInput ? 16 : 14,
+                    }}
                   />
                 </div>
                 <Button
@@ -362,6 +385,7 @@ export default function MobileSignup() {
                     border: 'none',
                     opacity: (verifying || codeInput.length !== 6) ? 0.5 : 1,
                     minHeight: 50,
+                    height: 50,
                   }}
                 >
                   {verifying ? '...' : 'Verify'}
@@ -371,10 +395,12 @@ export default function MobileSignup() {
           )}
 
           <div className="input-group">
-            <Label>Password</Label>
-            <div className="input-wrapper">
+            <Label htmlFor="signup-password">Password</Label>
+            <div className="input-wrapper" style={{ height: 50 }}>
               <FaLock size={16} className="input-icon" />
               <Input
+                id="signup-password"
+                name="password"
                 type={showPass ? 'text' : 'password'}
                 autoComplete="new-password"
                 placeholder="••••••••"
