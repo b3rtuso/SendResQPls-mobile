@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
+import LegalModal from '../../components/LegalModal';
 
 export default function MobileSignup() {
   const navigate = useNavigate();
@@ -17,6 +18,10 @@ export default function MobileSignup() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Terms and conditions agreement (persisted like onboarding)
+  const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('srq_terms_accepted') === '1');
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const [codeSent, setCodeSent] = useState(false);
   const [codeInput, setCodeInput] = useState('');
@@ -116,7 +121,20 @@ export default function MobileSignup() {
     }
   };
 
+  const handleToggleTerms = (checked: boolean) => {
+    setTermsAccepted(checked);
+    if (checked) {
+      localStorage.setItem('srq_terms_accepted', '1');
+    } else {
+      localStorage.removeItem('srq_terms_accepted');
+    }
+  };
+
   const handleSignup = async () => {
+    if (!termsAccepted) {
+      setError('Please read and agree to the Terms and Conditions to create an account.');
+      return;
+    }
     if (!form.name.trim()) {
       setError('Full name is required.');
       return;
@@ -143,6 +161,7 @@ export default function MobileSignup() {
         password: form.password,
         phoneNumber: phoneCheck.cleaned!,
       });
+      localStorage.setItem('srq_terms_accepted', '1');
       localStorage.setItem('userId', res.data?.id || '');
       localStorage.setItem('userName', form.name.trim());
       localStorage.setItem('userEmail', form.email.trim());
@@ -369,12 +388,82 @@ export default function MobileSignup() {
             </div>
           </div>
 
+          {/* Terms & Conditions Checkbox Row (Required for Signup) */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+              marginTop: 4,
+              marginBottom: 4,
+              padding: '12px 14px',
+              background: termsAccepted ? '#F8FAFC' : '#FEF2F2',
+              border: `1.5px solid ${termsAccepted ? '#E2E8F0' : '#FECACA'}`,
+              borderRadius: 14,
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <input
+              type="checkbox"
+              id="signup-terms-checkbox"
+              checked={termsAccepted}
+              onChange={(e) => handleToggleTerms(e.target.checked)}
+              style={{
+                width: 19,
+                height: 19,
+                marginTop: 2,
+                accentColor: '#2563EB',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            />
+            <label
+              htmlFor="signup-terms-checkbox"
+              style={{
+                fontSize: 12.5,
+                color: '#475569',
+                lineHeight: 1.45,
+                cursor: 'pointer',
+                userSelect: 'none',
+                flex: 1,
+              }}
+            >
+              I have read and agree to the{' '}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowTermsModal(true);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#2563EB',
+                  fontWeight: 700,
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontSize: 'inherit',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Terms and Conditions
+              </button>
+            </label>
+          </div>
+
           <Button
             type="button"
             className="auth-btn signup"
             onClick={handleSignup}
-            disabled={loading || !verified}
-            style={{ marginTop: 8, opacity: !verified ? 0.5 : 1, minHeight: 48 }}
+            disabled={loading || !verified || !termsAccepted}
+            style={{
+              marginTop: 8,
+              opacity: (!verified || !termsAccepted) ? 0.55 : 1,
+              cursor: (!verified || !termsAccepted) ? 'not-allowed' : 'pointer',
+              minHeight: 48,
+            }}
           >
             {loading ? 'Creating...' : 'Create Account'}
           </Button>
@@ -385,6 +474,15 @@ export default function MobileSignup() {
           <a href="#" onClick={(e) => { e.preventDefault(); navigate('/mobile/login'); }}>Log In</a>
         </p>
       </div>
+
+      {/* In-app Terms & Conditions Modal */}
+      <LegalModal
+        isOpen={showTermsModal}
+        initialDoc="terms"
+        onClose={() => setShowTermsModal(false)}
+        onAccept={() => handleToggleTerms(true)}
+        acceptLabel="Agree to Terms & Conditions"
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { FaEnvelope, FaLock } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import LegalModal from '../../components/LegalModal';
 
 export default function MobileLogin() {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ export default function MobileLogin() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  // Privacy policy agreement (persisted like onboarding)
+  const [privacyAccepted, setPrivacyAccepted] = useState(() => localStorage.getItem('srq_privacy_accepted') === '1');
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   // Field-level errors for inline UX
   const [emailError, setEmailError] = useState('');
   const [passError, setPassError] = useState('');
@@ -29,11 +33,24 @@ export default function MobileLogin() {
     }
   }, [location.search]);
 
+  const handleTogglePrivacy = (checked: boolean) => {
+    setPrivacyAccepted(checked);
+    if (checked) {
+      localStorage.setItem('srq_privacy_accepted', '1');
+    } else {
+      localStorage.removeItem('srq_privacy_accepted');
+    }
+  };
+
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     // Field-level validation
     let valid = true;
     setEmailError(''); setPassError(''); setGlobalError('');
+    if (!privacyAccepted) {
+      setGlobalError('Please read and agree to the Privacy Policy to log in.');
+      valid = false;
+    }
     if (!email.trim()) { setEmailError('Please enter your email address.'); valid = false; }
     else if (!/^[^@]+@[^@]+\.[^@]+$/.test(email.trim())) { setEmailError('Enter a valid email address.'); valid = false; }
     if (!password) { setPassError('Please enter your password.'); valid = false; }
@@ -314,8 +331,81 @@ export default function MobileLogin() {
           </button>
         </div>
 
+        {/* Privacy Policy Checkbox Row (Required for Login) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+            marginBottom: 20,
+            padding: '12px 14px',
+            background: privacyAccepted ? '#F8FAFC' : '#FEF2F2',
+            border: `1.5px solid ${privacyAccepted ? '#E2E8F0' : '#FECACA'}`,
+            borderRadius: 14,
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <input
+            type="checkbox"
+            id="login-privacy-checkbox"
+            checked={privacyAccepted}
+            onChange={(e) => handleTogglePrivacy(e.target.checked)}
+            style={{
+              width: 19,
+              height: 19,
+              marginTop: 2,
+              accentColor: '#2563EB',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          />
+          <label
+            htmlFor="login-privacy-checkbox"
+            style={{
+              fontSize: 12.5,
+              color: '#475569',
+              lineHeight: 1.45,
+              cursor: 'pointer',
+              userSelect: 'none',
+              flex: 1,
+            }}
+          >
+            I have read and agree to the{' '}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPrivacyModal(true);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#2563EB',
+                fontWeight: 700,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: 'inherit',
+                fontFamily: 'inherit',
+              }}
+            >
+              Privacy Policy
+            </button>
+          </label>
+        </div>
+
         {/* Login button */}
-        <Button type="submit" className="ml-auth-btn" disabled={loading} style={{ minHeight: 48 }}>
+        <Button
+          type="submit"
+          className="ml-auth-btn"
+          disabled={loading || !privacyAccepted}
+          style={{
+            minHeight: 48,
+            opacity: !privacyAccepted ? 0.55 : 1,
+            cursor: !privacyAccepted ? 'not-allowed' : 'pointer',
+          }}
+        >
           {loading
             ? <><span className="ml-spin" /> Please wait...</>
             : 'Log In'
@@ -334,6 +424,15 @@ export default function MobileLogin() {
           </button>
         </p>
       </form>
+
+      {/* In-app Privacy Policy Modal */}
+      <LegalModal
+        isOpen={showPrivacyModal}
+        initialDoc="privacy"
+        onClose={() => setShowPrivacyModal(false)}
+        onAccept={() => handleTogglePrivacy(true)}
+        acceptLabel="Agree to Privacy Policy"
+      />
 
       {/* Bottom spacer */}
       <div style={{ flex: 1 }} />

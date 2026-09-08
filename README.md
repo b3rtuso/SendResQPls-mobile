@@ -1,4 +1,4 @@
-﻿# SendResQPls — Mobile
+# SendResQPls — Mobile
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white&style=flat-square)
@@ -173,9 +173,10 @@ The following permissions are declared in `AndroidManifest.xml` and requested at
 
 ---
 
-## Privacy Policy
+## Legal & Compliance
 
-The app collects location data, incident photos, and account information solely for emergency response purposes. See [PRIVACY_POLICY.md](./PRIVACY_POLICY.md) for full details.
+- **Terms and Conditions:** Outlines user responsibilities, zero tolerance for hoax/false emergency reports under PD 1727, auxiliary service disclaimers, and jurisdiction. See [TERMS_AND_CONDITIONS.md](./TERMS_AND_CONDITIONS.md).
+- **Privacy Policy:** Complies with the Philippine Data Privacy Act of 2012 (RA 10173). Outlines data categories collected, life-safety dispatch purposes, strict non-commercial use, and user rights. See [PRIVACY_POLICY.md](./PRIVACY_POLICY.md).
 
 ---
 
