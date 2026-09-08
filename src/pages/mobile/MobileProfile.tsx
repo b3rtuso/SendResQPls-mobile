@@ -833,7 +833,7 @@ export default function MobileProfile() {
                 type="tel"
                 inputMode="numeric"
                 maxLength={11}
-                placeholder="09292695926 (11 digits *)"
+                placeholder="09292695926 (11 digits)"
                 value={newContact.phone}
                 onChange={e => setNewContact({ ...newContact, phone: e.target.value.replace(/\D/g, '').slice(0, 11) })}
                 style={{
