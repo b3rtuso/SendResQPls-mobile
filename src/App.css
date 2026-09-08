@@ -170,13 +170,15 @@ body:has(.mobile-shell)::-webkit-scrollbar {
 }
 
 /* Form Styles */
-.mobile-auth .input-group {
+.mobile-auth .input-group,
+.input-group {
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
 }
 
-.mobile-auth .input-group label {
+.mobile-auth .input-group label,
+.input-group label {
   display: block;
   font-size: 12.5px;
   font-weight: 700;
@@ -185,7 +187,8 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   letter-spacing: 0.01em;
 }
 
-.mobile-auth .input-wrapper {
+.mobile-auth .input-wrapper,
+.input-wrapper {
   display: flex;
   align-items: center;
   position: relative;
@@ -198,25 +201,32 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   height: 50px;
 }
 
-.mobile-auth .input-wrapper:focus-within {
+.mobile-auth .input-wrapper:focus-within,
+.input-wrapper:focus-within {
   background: #fff;
   border-color: #2563EB;
   box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 
-.mobile-auth .input-icon {
+.mobile-auth .input-icon,
+.input-icon {
   position: absolute;
   left: 14px;
   color: #94A3B8;
   pointer-events: none;
   transition: color 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.mobile-auth .input-wrapper:focus-within .input-icon {
+.mobile-auth .input-wrapper:focus-within .input-icon,
+.input-wrapper:focus-within .input-icon {
   color: #2563EB;
 }
 
-.mobile-auth .input-wrapper input {
+.mobile-auth .input-wrapper input,
+.input-wrapper input {
   width: 100%;
   height: 100% !important;
   border: none;
@@ -242,7 +252,8 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   --tw-ring-offset-shadow: none !important;
 }
 
-.mobile-auth .toggle-pass {
+.mobile-auth .toggle-pass,
+.toggle-pass {
   position: absolute;
   right: 14px;
   background: none;
@@ -256,7 +267,8 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   transition: color 0.15s;
 }
 
-.mobile-auth .toggle-pass:hover {
+.mobile-auth .toggle-pass:hover,
+.toggle-pass:hover {
   color: #475569;
 }
 
