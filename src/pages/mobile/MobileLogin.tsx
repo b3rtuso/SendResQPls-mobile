@@ -48,7 +48,7 @@ export default function MobileLogin() {
     let valid = true;
     setEmailError(''); setPassError(''); setGlobalError('');
     if (!privacyAccepted) {
-      setGlobalError('Please read and agree to the Privacy Policy to log in.');
+      setGlobalError('You need to read and check the Privacy Policy to log in.');
       valid = false;
     }
     if (!email.trim()) { setEmailError('Please enter your email address.'); valid = false; }
@@ -331,29 +331,27 @@ export default function MobileLogin() {
           </button>
         </div>
 
-        {/* Privacy Policy Checkbox Row (Required for Login) */}
+        {/* Privacy Policy Checkbox Row (Unboxed, Minimized) */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'flex-start',
-            gap: 10,
+            alignItems: 'center',
+            gap: 8,
             marginBottom: 20,
-            padding: '12px 14px',
-            background: privacyAccepted ? '#F8FAFC' : '#FEF2F2',
-            border: `1.5px solid ${privacyAccepted ? '#E2E8F0' : '#FECACA'}`,
-            borderRadius: 14,
-            transition: 'all 0.2s ease',
+            padding: '2px 0',
           }}
         >
           <input
             type="checkbox"
             id="login-privacy-checkbox"
             checked={privacyAccepted}
-            onChange={(e) => handleTogglePrivacy(e.target.checked)}
+            onChange={(e) => {
+              handleTogglePrivacy(e.target.checked);
+              if (globalError) setGlobalError('');
+            }}
             style={{
-              width: 19,
-              height: 19,
-              marginTop: 2,
+              width: 14,
+              height: 14,
               accentColor: '#2563EB',
               cursor: 'pointer',
               flexShrink: 0,
@@ -363,8 +361,8 @@ export default function MobileLogin() {
             htmlFor="login-privacy-checkbox"
             style={{
               fontSize: 12.5,
-              color: '#475569',
-              lineHeight: 1.45,
+              color: '#64748B',
+              lineHeight: 1.4,
               cursor: 'pointer',
               userSelect: 'none',
               flex: 1,
@@ -382,7 +380,7 @@ export default function MobileLogin() {
                 background: 'none',
                 border: 'none',
                 color: '#2563EB',
-                fontWeight: 700,
+                fontWeight: 600,
                 textDecoration: 'underline',
                 cursor: 'pointer',
                 padding: 0,
@@ -399,11 +397,9 @@ export default function MobileLogin() {
         <Button
           type="submit"
           className="ml-auth-btn"
-          disabled={loading || !privacyAccepted}
+          disabled={loading}
           style={{
             minHeight: 48,
-            opacity: !privacyAccepted ? 0.55 : 1,
-            cursor: !privacyAccepted ? 'not-allowed' : 'pointer',
           }}
         >
           {loading

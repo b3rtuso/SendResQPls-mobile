@@ -132,7 +132,7 @@ export default function MobileSignup() {
 
   const handleSignup = async () => {
     if (!termsAccepted) {
-      setError('Please read and agree to the Terms and Conditions to create an account.');
+      setError('You need to read and check the Terms and Conditions to create an account.');
       return;
     }
     if (!form.name.trim()) {
@@ -388,30 +388,28 @@ export default function MobileSignup() {
             </div>
           </div>
 
-          {/* Terms & Conditions Checkbox Row (Required for Signup) */}
+          {/* Terms & Conditions Checkbox Row (Unboxed, Minimized) */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: 10,
-              marginTop: 4,
+              alignItems: 'center',
+              gap: 8,
+              marginTop: 2,
               marginBottom: 4,
-              padding: '12px 14px',
-              background: termsAccepted ? '#F8FAFC' : '#FEF2F2',
-              border: `1.5px solid ${termsAccepted ? '#E2E8F0' : '#FECACA'}`,
-              borderRadius: 14,
-              transition: 'all 0.2s ease',
+              padding: '2px 0',
             }}
           >
             <input
               type="checkbox"
               id="signup-terms-checkbox"
               checked={termsAccepted}
-              onChange={(e) => handleToggleTerms(e.target.checked)}
+              onChange={(e) => {
+                handleToggleTerms(e.target.checked);
+                if (error) setError('');
+              }}
               style={{
-                width: 19,
-                height: 19,
-                marginTop: 2,
+                width: 14,
+                height: 14,
                 accentColor: '#2563EB',
                 cursor: 'pointer',
                 flexShrink: 0,
@@ -421,8 +419,8 @@ export default function MobileSignup() {
               htmlFor="signup-terms-checkbox"
               style={{
                 fontSize: 12.5,
-                color: '#475569',
-                lineHeight: 1.45,
+                color: '#64748B',
+                lineHeight: 1.4,
                 cursor: 'pointer',
                 userSelect: 'none',
                 flex: 1,
@@ -440,7 +438,7 @@ export default function MobileSignup() {
                   background: 'none',
                   border: 'none',
                   color: '#2563EB',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   textDecoration: 'underline',
                   cursor: 'pointer',
                   padding: 0,
@@ -457,11 +455,9 @@ export default function MobileSignup() {
             type="button"
             className="auth-btn signup"
             onClick={handleSignup}
-            disabled={loading || !verified || !termsAccepted}
+            disabled={loading}
             style={{
               marginTop: 8,
-              opacity: (!verified || !termsAccepted) ? 0.55 : 1,
-              cursor: (!verified || !termsAccepted) ? 'not-allowed' : 'pointer',
               minHeight: 48,
             }}
           >
