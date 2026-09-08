@@ -93,7 +93,7 @@ export default function MobileSignup() {
       await sendVerificationCode(form.email);
       setCodeSent(true);
       setCooldown(60);
-      toast({ type: 'success', priority: 'normal', title: 'Code sent! 📩', message: `Check your inbox or spam folder for ${form.email}` });
+      toast({ type: 'success', priority: 'normal', title: 'Code sent!', message: `Check your inbox or spam folder for ${form.email}` });
     } catch (err: any) {
       console.error('[SendCode] Error:', err.response?.data || err.message);
       setError(friendlySendCodeError(err));
@@ -112,7 +112,7 @@ export default function MobileSignup() {
     try {
       await verifyCode(form.email, codeInput);
       setVerified(true);
-      toast({ type: 'success', priority: 'normal', title: 'Verified! ✅', message: 'You can now complete your registration.' });
+      toast({ type: 'success', priority: 'normal', title: 'Verified!', message: 'You can now complete your registration.' });
     } catch (err: any) {
       const msg = err.response?.data?.error || 'Incorrect code. Please try again.';
       setError(msg);
@@ -166,7 +166,7 @@ export default function MobileSignup() {
       localStorage.setItem('userName', form.name.trim());
       localStorage.setItem('userEmail', form.email.trim());
       localStorage.setItem('userPhone', phoneCheck.cleaned!);
-      toast({ type: 'success', priority: 'important', title: 'Account created! 🎉', message: 'Redirecting to login…' });
+      toast({ type: 'success', priority: 'important', title: 'Account created!', message: 'Redirecting to login…' });
       setTimeout(() => navigate('/mobile/login'), 1500);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create account. Please try again.');
@@ -278,7 +278,7 @@ export default function MobileSignup() {
                 <Input
                   type="email"
                   autoComplete="email"
-                  placeholder="juan@example.com"
+                  placeholder=""
                   value={form.email}
                   onChange={(e) => {
                     update('email', e.target.value);
@@ -328,7 +328,7 @@ export default function MobileSignup() {
             )}
             {codeSent && !verified && !sendingCode && (
               <p style={{ fontSize: 11, color: '#64748B', marginTop: 6, lineHeight: 1.4 }}>
-                💡 Didn't get it? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
+                Didn't get it? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
               </p>
             )}
           </div>
