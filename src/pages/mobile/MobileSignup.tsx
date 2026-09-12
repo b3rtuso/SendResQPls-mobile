@@ -283,14 +283,14 @@ export default function MobileSignup() {
                 pattern="09[0-9]{9}"
                 maxLength={11}
                 autoComplete="tel"
-                placeholder="09292695926 (11 digits)"
+                placeholder="09123456789 (11 digits)"
                 value={form.phone}
                 onChange={(e) => update('phone', e.target.value.replace(/\D/g, '').slice(0, 11))}
                 style={inputStyle}
               />
             </div>
             <span style={{ fontSize: 11, color: '#64748B', marginTop: 4, display: 'block' }}>
-              Must be 11 digits starting with 09 (e.g. 09292695926, no +63)
+              Must be 11 digits starting with 09 (e.g. 09123456789, no +63)
             </span>
           </div>
 

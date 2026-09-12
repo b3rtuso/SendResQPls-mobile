@@ -682,7 +682,7 @@ export default function MobileProfile() {
         <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
           <Field label="Full Name" icon={FaUser} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
           <Field label="Email Address" icon={FaEnvelope} value={email} onChange={setEmail} placeholder="juan@example.com" type="email" />
-          <Field label="Phone Number *" icon={FiPhone} value={phone} onChange={v => setPhone(v.replace(/\D/g, '').slice(0, 11))} placeholder="09292695926 (11 digits)" type="tel" maxLength={11} inputMode="numeric" />
+          <Field label="Phone Number *" icon={FiPhone} value={phone} onChange={v => setPhone(v.replace(/\D/g, '').slice(0, 11))} placeholder="09123456789 (11 digits)" type="tel" maxLength={11} inputMode="numeric" />
 
           <button onClick={handleSaveProfile} disabled={saving} style={{
             width: '100%', padding: 'clamp(12px, 3.5vw, 15px)',
@@ -833,7 +833,7 @@ export default function MobileProfile() {
                 type="tel"
                 inputMode="numeric"
                 maxLength={11}
-                placeholder="09292695926 (11 digits)"
+                placeholder="09123456789 (11 digits)"
                 value={newContact.phone}
                 onChange={e => setNewContact({ ...newContact, phone: e.target.value.replace(/\D/g, '').slice(0, 11) })}
                 style={{
