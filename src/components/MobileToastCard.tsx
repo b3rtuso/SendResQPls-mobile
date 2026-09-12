@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Zap, Truck, Search } from 'lucide-react';
+import { X, Zap, Truck, Search, Check } from 'lucide-react';
 import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
 
@@ -151,7 +151,11 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
 
   const isReportSent = Boolean(
     (toast.type === 'success' || !toast.type) && (
-      (toast.title && toast.title.toLowerCase().includes('report') && (toast.title.toLowerCase().includes('sent') || toast.title.toLowerCase().includes('submitted'))) ||
+      (toast.title && toast.title.toLowerCase().includes('report') && (
+        toast.title.toLowerCase().includes('sent') ||
+        toast.title.toLowerCase().includes('submitted') ||
+        toast.title.toLowerCase().includes('received')
+      )) ||
       toast.status === 'REPORT_SENT'
     )
   );
@@ -249,7 +253,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             flexShrink: 0, width: 28, height: 28,
             color: '#16A34A', background: '#DCFCE7', borderRadius: 8,
           }}>
-            <IoIosSend size={18} />
+            <Check size={18} strokeWidth={2.6} />
           </div>
         ) : toast.status === 'REVIEWING' || toast.title?.toLowerCase().includes('review') ? (
           <div style={{
