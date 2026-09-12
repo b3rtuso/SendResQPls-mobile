@@ -11,7 +11,7 @@ import { FCM_FOREGROUND_EVENT } from '../../utils/pushNotificationHelper';
 import type { FcmNotificationPayload } from '../../utils/pushNotificationHelper';
 import { Button } from '@/components/ui/button';
 import { getNearestBarangay } from '../../data/balayan-data';
-import { MobileHistorySkeleton } from '../../components/PageLoader';
+import { MobileHistorySkeleton, MobileTrackerModalSkeleton } from '../../components/PageLoader';
 
 
 const STATUS_ICONS: Record<Status, any> = {
@@ -144,6 +144,7 @@ export default function MobileHistory() {
   const [statusFilter, setStatusFilter] = useState<FilterTab>('ALL');
   const [page, setPage] = useState(1);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [loadingTracker, setLoadingTracker] = useState(false);
 
   // Pull-to-refresh states & refs
   const [pullDistance, setPullDistance] = useState(0);
@@ -221,11 +222,15 @@ export default function MobileHistory() {
       setSelectedIncident(found);
     } else if (!loading) {
       // If list finished loading and not found in recent list, fetch directly
+      setLoadingTracker(true);
       getIncident(targetIncidentId)
         .then(res => {
           if (res.data) setSelectedIncident(res.data);
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+          setLoadingTracker(false);
+        });
     }
   }, [targetIncidentId, allIncidents, loading]);
 
@@ -877,10 +882,10 @@ export default function MobileHistory() {
       </div>
 
       {/* ─── LIVE DELIVERY-STYLE INCIDENT STATUS TRACKER MODAL ─── */}
-      {selectedIncident && typeof document !== 'undefined' && createPortal(
+      {(selectedIncident || loadingTracker) && typeof document !== 'undefined' && createPortal(
         <div
           className="srq-tracker-overlay"
-          onClick={() => setSelectedIncident(null)}
+          onClick={() => { setSelectedIncident(null); setLoadingTracker(false); }}
           onTouchStart={e => e.stopPropagation()}
           onTouchMove={e => e.stopPropagation()}
           onTouchEnd={e => e.stopPropagation()}
@@ -888,14 +893,24 @@ export default function MobileHistory() {
           aria-modal="true"
           style={{ touchAction: 'none' }}
         >
-          <div
-            className="srq-tracker-sheet"
-            onClick={e => e.stopPropagation()}
-            onTouchStart={e => e.stopPropagation()}
-            onTouchMove={e => e.stopPropagation()}
-            onTouchEnd={e => e.stopPropagation()}
-            style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
-          >
+          {loadingTracker && !selectedIncident ? (
+            <div
+              onClick={e => e.stopPropagation()}
+              onTouchStart={e => e.stopPropagation()}
+              onTouchMove={e => e.stopPropagation()}
+              onTouchEnd={e => e.stopPropagation()}
+            >
+              <MobileTrackerModalSkeleton />
+            </div>
+          ) : selectedIncident ? (
+            <div
+              className="srq-tracker-sheet"
+              onClick={e => e.stopPropagation()}
+              onTouchStart={e => e.stopPropagation()}
+              onTouchMove={e => e.stopPropagation()}
+              onTouchEnd={e => e.stopPropagation()}
+              style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
+            >
             {/* Drag Handle */}
             <div className="srq-tracker-handle" />
 
@@ -1275,6 +1290,7 @@ export default function MobileHistory() {
               <span>Call MDRRMO Balayan (0917-123-4567)</span>
             </a>
           </div>
+        ) : null}
         </div>,
         document.body
       )}
