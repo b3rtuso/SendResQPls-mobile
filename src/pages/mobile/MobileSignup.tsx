@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EyeOff, Eye, CheckCircle } from 'lucide-react';
+import { EyeOff, Eye, CheckCircle, ExternalLink, Clipboard, X } from 'lucide-react';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
+import { SiGmail } from 'react-icons/si';
 import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
+import { openGmailApp, extractVerificationCode } from '../../utils/mailHelper';
 import LegalModal from '../../components/LegalModal';
 
 export default function MobileSignup() {
@@ -120,6 +122,37 @@ export default function MobileSignup() {
       setError(msg);
     } finally {
       setVerifying(false);
+    }
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text');
+    const code = extractVerificationCode(pastedText);
+    if (code) {
+      setCodeInput(code);
+      setError('');
+      toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Loaded ${code} from clipboard` });
+    }
+  };
+
+  const handleQuickPaste = async () => {
+    try {
+      if (!navigator.clipboard?.readText) {
+        toast({ type: 'info', priority: 'normal', title: 'Manual paste', message: 'Long press the code field to paste your code.' });
+        return;
+      }
+      const text = await navigator.clipboard.readText();
+      const code = extractVerificationCode(text);
+      if (code) {
+        setCodeInput(code);
+        setError('');
+        toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Loaded ${code} from clipboard` });
+      } else {
+        toast({ type: 'warning', priority: 'normal', title: 'No code detected', message: 'Copy the 6-digit code from your email first.' });
+      }
+    } catch {
+      toast({ type: 'info', priority: 'normal', title: 'Manual paste', message: 'Long press the code box to paste.' });
     }
   };
 
@@ -359,14 +392,83 @@ export default function MobileSignup() {
                 Didn't get it? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
               </p>
             )}
+            {codeSent && !verified && (
+              <div
+                style={{
+                  marginTop: 10,
+                  padding: '10px 12px',
+                  background: 'linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 100%)',
+                  border: '1px solid #FECACA',
+                  borderRadius: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 10,
+                  boxShadow: '0 2px 6px rgba(234,67,53,0.06)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 8,
+                      background: '#FEE2E2',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      color: '#EA4335',
+                    }}
+                  >
+                    <SiGmail size={16} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
+                      Check your Email
+                    </div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      Code sent to {form.email}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => openGmailApp(form.email)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    background: '#EA4335',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '7px 11px',
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 6px rgba(234,67,53,0.25)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <SiGmail size={13} />
+                  Open Gmail
+                  <ExternalLink size={11} style={{ opacity: 0.8 }} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Verification Code Input */}
           {codeSent && !verified && (
             <div className="input-group" style={{ animation: 'fadeIn 0.3s ease' }}>
-              <Label htmlFor="signup-code">Verification Code</Label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <Label htmlFor="signup-code" style={{ marginBottom: 0 }}>Verification Code</Label>
+                <span style={{ fontSize: 11, color: '#64748B' }}>Enter 6-digit code</span>
+              </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
-                <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50 }}>
+                <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50, position: 'relative' }}>
                   <FaLock size={16} className="input-icon" />
                   <Input
                     id="signup-code"
@@ -376,15 +478,72 @@ export default function MobileSignup() {
                     autoComplete="one-time-code"
                     placeholder="6-digit code"
                     value={codeInput}
-                    onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    maxLength={6}
+                    onChange={(e) => {
+                      const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setCodeInput(clean);
+                      if (error) setError('');
+                    }}
+                    onPaste={handleCodePaste}
                     style={{
                       ...inputStyle,
                       letterSpacing: codeInput ? '4px' : 'normal',
                       fontWeight: codeInput ? 700 : 400,
                       fontSize: codeInput ? 16 : 14,
+                      paddingRight: codeInput ? 42 : 78,
                     }}
                   />
+                  {!codeInput ? (
+                    <button
+                      type="button"
+                      onClick={handleQuickPaste}
+                      title="Paste from clipboard"
+                      style={{
+                        position: 'absolute',
+                        right: 8,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        background: '#EFF6FF',
+                        border: '1px solid #BFDBFE',
+                        borderRadius: 8,
+                        padding: '5px 8px',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: '#1D4ED8',
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                      }}
+                    >
+                      <Clipboard size={12} />
+                      Paste
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCodeInput('')}
+                      title="Clear code"
+                      style={{
+                        position: 'absolute',
+                        right: 12,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#E2E8F0',
+                        border: 'none',
+                        color: '#64748B',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
                 </div>
                 <Button
                   type="button"

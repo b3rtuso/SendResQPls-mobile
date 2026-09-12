@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, ArrowLeft, AlertTriangle, CheckCircle2, Send } from 'lucide-react';
+import { Mail, ArrowLeft, AlertTriangle, CheckCircle2, Send, ExternalLink } from 'lucide-react';
+import { SiGmail } from 'react-icons/si';
 import { forgotPassword } from '../../api/client';
+import { openGmailApp } from '../../utils/mailHelper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -247,16 +249,43 @@ export default function MobileForgotPassword() {
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>
               Reset Link Sent!
             </h2>
-            <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 20px' }}>
+            <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 24px' }}>
               We have sent a secure password reset link to <strong>{email}</strong>. Please check your inbox or spam folder. The link will expire in 30 minutes.
             </p>
-            <button
-              onClick={() => navigate('/mobile/login')}
-              className="mf-auth-btn"
-              style={{ background: 'linear-gradient(135deg, #10B981, #059669)', boxShadow: '0 4px 16px rgba(16,185,129,0.35)' }}
-            >
-              Return to Login
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => openGmailApp(email)}
+                className="mf-auth-btn"
+                style={{
+                  background: '#EA4335',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  boxShadow: '0 4px 16px rgba(234,67,53,0.32)',
+                }}
+              >
+                <SiGmail size={18} />
+                <span>Open Gmail</span>
+                <ExternalLink size={14} style={{ opacity: 0.8 }} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('/mobile/login')}
+                className="mf-auth-btn"
+                style={{
+                  background: '#F8FAFC',
+                  color: '#475569',
+                  border: '1.5px solid #CBD5E1',
+                  boxShadow: 'none',
+                }}
+              >
+                Return to Login
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
