@@ -11,6 +11,13 @@ a, button, img, svg, nav {
   -webkit-user-select: none !important;
 }
 
+/* Allow native text selection and long-press callout (Paste/Copy) on inputs and textareas */
+input, textarea, [contenteditable="true"] {
+  -webkit-touch-callout: default !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
 /* ===== GLOBAL ANIMATIONS ===== */
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .spin { animation: spin 1s linear infinite; }

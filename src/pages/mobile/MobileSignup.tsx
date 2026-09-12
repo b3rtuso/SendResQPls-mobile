@@ -126,13 +126,20 @@ export default function MobileSignup() {
   };
 
   const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pastedText = e.clipboardData.getData('text');
-    const code = extractVerificationCode(pastedText);
-    if (code) {
-      setCodeInput(code);
-      setError('');
-      toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Loaded ${code} from clipboard` });
+    try {
+      const pastedText = e.clipboardData?.getData('text');
+      if (pastedText) {
+        const code = extractVerificationCode(pastedText);
+        if (code) {
+          e.preventDefault();
+          setCodeInput(code);
+          if (error) setError('');
+          toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Code ${code} entered` });
+          return;
+        }
+      }
+    } catch {
+      // Fallback: let native paste event proceed into the input
     }
   };
 
@@ -460,7 +467,8 @@ export default function MobileSignup() {
                     placeholder="6-digit code"
                     value={codeInput}
                     onChange={(e) => {
-                      const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      const raw = e.target.value;
+                      const clean = extractVerificationCode(raw) || raw.replace(/\D/g, '').slice(0, 6);
                       setCodeInput(clean);
                       if (error) setError('');
                     }}
@@ -471,6 +479,8 @@ export default function MobileSignup() {
                       fontWeight: codeInput ? 700 : 400,
                       fontSize: codeInput ? 16 : 14,
                       paddingRight: codeInput ? 38 : 16,
+                      userSelect: 'text',
+                      WebkitUserSelect: 'text',
                     }}
                   />
                   {codeInput && (
