@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(LocationAccuracyPlugin.class);
+        registerPlugin(MailLauncherPlugin.class);
         super.onCreate(savedInstanceState);
     }
 

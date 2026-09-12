@@ -2,15 +2,49 @@
  * Helper utility to launch native Gmail application on mobile devices,
  * with fallbacks to webmail and domain-aware routing.
  */
+import { registerPlugin, Capacitor } from '@capacitor/core';
 
-export function openGmailApp(email?: string): void {
+interface MailLauncherPlugin {
+  openGmail(): Promise<void>;
+}
+
+const MailLauncher = registerPlugin<MailLauncherPlugin>('MailLauncher');
+
+export async function openGmailApp(email?: string): Promise<void> {
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+  // 1. If running natively in the Android APK, use the custom Android Plugin
+  // which launches the native Gmail application directly via PackageManager
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await MailLauncher.openGmail();
+      return;
+    } catch (err) {
+      console.warn('[openGmailApp] Native MailLauncher error, attempting intent fallback:', err);
+    }
+  }
+
+  // 2. If user is on Android browser, trigger Android Intent to open the Gmail app directly
+  if (isAndroid) {
+    try {
+      window.location.href =
+        'intent://#Intent;package=com.google.android.gm;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end';
+      return;
+    } catch {
+      // ignore
+    }
+  }
+
+  // 3. If iOS mobile, open native Gmail app scheme
+  if (isIOS) {
+    window.location.href = 'googlegmail://';
+    return;
+  }
+
+  // 4. Desktop / Laptop fallback only (where native mobile apps don't exist)
   const cleanEmail = (email || '').trim().toLowerCase();
   const domain = cleanEmail.split('@')[1];
-
-  // If user provided a specific non-Gmail domain, optionally route to that provider
   if (domain && (domain.includes('yahoo') || domain.includes('ymail'))) {
     window.open('https://mail.yahoo.com', '_blank');
     return;
@@ -20,34 +54,7 @@ export function openGmailApp(email?: string): void {
     return;
   }
 
-  // Primary: Launch Gmail app
-  if (isAndroid) {
-    try {
-      // Android Intent targeting the native Gmail app package
-      window.location.href =
-        'intent://#Intent;package=com.google.android.gm;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end';
-    } catch {
-      window.open('https://mail.google.com', '_blank');
-    }
-
-    // Safety fallback: If Android intent didn't blur/switch active window, open webmail
-    setTimeout(() => {
-      if (document.hasFocus()) {
-        window.open('https://mail.google.com', '_blank');
-      }
-    }, 1200);
-  } else if (isIOS) {
-    // iOS Gmail app URL scheme
-    window.location.href = 'googlegmail://';
-    setTimeout(() => {
-      if (document.hasFocus()) {
-        window.open('https://mail.google.com', '_blank');
-      }
-    }, 1200);
-  } else {
-    // Desktop or mobile browser fallback
-    window.open('https://mail.google.com', '_blank');
-  }
+  window.open('https://mail.google.com', '_blank');
 }
 
 /**
