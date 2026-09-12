@@ -4,13 +4,14 @@ import { EyeOff, Eye, CheckCircle, ExternalLink, X } from 'lucide-react';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { SiGmail } from 'react-icons/si';
+import { App } from '@capacitor/app';
 import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
-import { openGmailApp, extractVerificationCode } from '../../utils/mailHelper';
+import { openGmailApp, extractVerificationCode, getNativeClipboard } from '../../utils/mailHelper';
 import LegalModal from '../../components/LegalModal';
 
 export default function MobileSignup() {
@@ -31,6 +32,7 @@ export default function MobileSignup() {
   const [sendingCode, setSendingCode] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [clipboardCode, setClipboardCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -142,6 +144,54 @@ export default function MobileSignup() {
       // Fallback: let native paste event proceed into the input
     }
   };
+
+  const checkClipboardForCode = async (autoFill = false) => {
+    if (!codeSent || verified) return;
+    try {
+      const text = await getNativeClipboard();
+      const code = extractVerificationCode(text);
+      if (code && code.length === 6) {
+        if (autoFill && !codeInput) {
+          setCodeInput(code);
+          if (error) setError('');
+          toast({
+            type: 'info',
+            priority: 'normal',
+            title: 'Code detected!',
+            message: `Code ${code} pasted from clipboard`,
+          });
+        } else if (!codeInput || codeInput !== code) {
+          setClipboardCode(code);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    if (!codeSent || verified) return;
+
+    // Check clipboard when verification mode becomes active
+    checkClipboardForCode(true);
+
+    let removeAppListener: (() => void) | null = null;
+    App.addListener('resume', () => {
+      checkClipboardForCode(true);
+    }).then((handle) => {
+      removeAppListener = () => handle.remove();
+    }).catch(() => {});
+
+    const onFocus = () => {
+      checkClipboardForCode(true);
+    };
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      if (removeAppListener) removeAppListener();
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [codeSent, verified, codeInput]);
 
 
   const handleToggleTerms = (checked: boolean) => {
@@ -453,7 +503,34 @@ export default function MobileSignup() {
             <div className="input-group" style={{ animation: 'fadeIn 0.3s ease' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <Label htmlFor="signup-code" style={{ marginBottom: 0 }}>Verification Code</Label>
-                <span style={{ fontSize: 11, color: '#64748B' }}>Enter 6-digit code</span>
+                {clipboardCode && !codeInput ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCodeInput(clipboardCode);
+                      setClipboardCode(null);
+                      if (error) setError('');
+                      toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Code ${clipboardCode} entered` });
+                    }}
+                    style={{
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      borderRadius: 6,
+                      color: '#1D4ED8',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <span>Paste {clipboardCode}</span>
+                  </button>
+                ) : (
+                  <span style={{ fontSize: 11, color: '#64748B' }}>Enter 6-digit code</span>
+                )}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
                 <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50, position: 'relative' }}>
@@ -466,6 +543,8 @@ export default function MobileSignup() {
                     autoComplete="one-time-code"
                     placeholder="6-digit code"
                     value={codeInput}
+                    onFocus={() => checkClipboardForCode(false)}
+                    onClick={() => checkClipboardForCode(false)}
                     onChange={(e) => {
                       const raw = e.target.value;
                       const clean = extractVerificationCode(raw) || raw.replace(/\D/g, '').slice(0, 6);

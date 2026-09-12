@@ -1,11 +1,13 @@
 /**
  * Helper utility to launch native Gmail application on mobile devices,
  * with fallbacks to webmail and domain-aware routing.
+ * Also provides native bridge to read system clipboard safely.
  */
 import { registerPlugin, Capacitor } from '@capacitor/core';
 
 interface MailLauncherPlugin {
   openGmail(): Promise<void>;
+  getClipboard(): Promise<{ value: string }>;
 }
 
 const MailLauncher = registerPlugin<MailLauncherPlugin>('MailLauncher');
@@ -55,6 +57,34 @@ export async function openGmailApp(email?: string): Promise<void> {
   }
 
   window.open('https://mail.google.com', '_blank');
+}
+
+/**
+ * Reads system clipboard text via native Android ClipboardManager when available,
+ * with fallback to web navigator.clipboard.
+ */
+export async function getNativeClipboard(): Promise<string> {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const res = await MailLauncher.getClipboard();
+      if (res && typeof res.value === 'string') {
+        return res.value;
+      }
+    } catch (err) {
+      console.warn('[getNativeClipboard] Native read failed:', err);
+    }
+  }
+
+  // Browser fallback
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.readText) {
+      return await navigator.clipboard.readText();
+    }
+  } catch {
+    // Ignore web permission restrictions
+  }
+
+  return '';
 }
 
 /**
