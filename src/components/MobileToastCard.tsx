@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Zap, Truck } from 'lucide-react';
+import { X, Zap, Truck, Search } from 'lucide-react';
 import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
 
@@ -249,9 +249,15 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             flexShrink: 0, width: 28, height: 28,
             color: '#16A34A', background: '#DCFCE7', borderRadius: 8,
           }}>
-            <svg style={{ width: 16, height: 16 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 11.917 9.724 16.5 19 7.5" />
-            </svg>
+            <IoIosSend size={18} />
+          </div>
+        ) : toast.status === 'REVIEWING' || toast.title?.toLowerCase().includes('review') ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: '#D97706', background: '#FEF3C7', borderRadius: 8,
+          }}>
+            <Search size={16} />
           </div>
         ) : toast.type === 'warning' ? (
           <div style={{
