@@ -70,6 +70,21 @@ export default function MobileReport() {
     }
   }, []);
 
+  // ── Lock background scroll & gestures when any modal is open ──
+  useEffect(() => {
+    const isAnyModalOpen = showReviewModal || showManualBarangayModal || showLocationGuideModal;
+    if (isAnyModalOpen) {
+      const prevOverflow = document.body.style.overflow;
+      const prevTouchAction = document.body.style.touchAction;
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        document.body.style.touchAction = prevTouchAction;
+      };
+    }
+  }, [showReviewModal, showManualBarangayModal, showLocationGuideModal]);
+
   // Prune stale reports on mount and refresh pending count
   useEffect(() => {
     pruneStaleReports().then(() => setPendingCount(getPendingCount()));
@@ -805,14 +820,24 @@ export default function MobileReport() {
         <div
           onClick={() => setShowManualBarangayModal(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
-            background: 'rgba(15, 23, 42, 0.7)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100dvh',
+            zIndex: 100000,
+            background: 'rgba(15, 23, 42, 0.72)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 20,
+            padding: 'clamp(12px, 4vw, 20px)',
+            boxSizing: 'border-box',
+            overscrollBehavior: 'contain',
+            touchAction: 'none',
           }}
         >
           <div
@@ -820,11 +845,16 @@ export default function MobileReport() {
             style={{
               background: 'white',
               borderRadius: 24,
-              padding: '28px 24px 28px',
-              maxWidth: 420,
-              width: '100%',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+              padding: 'clamp(20px, 4vw, 28px) clamp(16px, 4vw, 24px)',
+              width: 'min(420px, calc(100vw - 32px))',
+              maxHeight: 'min(90dvh, 580px)',
+              margin: 'auto',
+              overflowY: 'auto',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
               animation: 'scaleUp 0.28s cubic-bezier(0.16,1,0.3,1) both',
+              boxSizing: 'border-box',
+              overscrollBehavior: 'contain',
+              touchAction: 'pan-y',
             }}
           >
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -904,14 +934,24 @@ export default function MobileReport() {
         <div
           onClick={() => setShowReviewModal(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
-            background: 'rgba(15, 23, 42, 0.7)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100dvh',
+            zIndex: 100000,
+            background: 'rgba(15, 23, 42, 0.72)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 20,
+            padding: 'clamp(12px, 4vw, 20px)',
+            boxSizing: 'border-box',
+            overscrollBehavior: 'contain',
+            touchAction: 'none',
           }}
         >
           <div
@@ -919,11 +959,16 @@ export default function MobileReport() {
             style={{
               background: 'white',
               borderRadius: 24,
-              padding: '28px 24px 28px',
-              maxWidth: 420,
-              width: '100%',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+              padding: 'clamp(20px, 4vw, 28px) clamp(16px, 4vw, 24px)',
+              width: 'min(420px, calc(100vw - 32px))',
+              maxHeight: 'min(90dvh, 580px)',
+              margin: 'auto',
+              overflowY: 'auto',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
               animation: 'modalScaleIn 0.28s cubic-bezier(0.16,1,0.3,1) both',
+              boxSizing: 'border-box',
+              overscrollBehavior: 'contain',
+              touchAction: 'pan-y',
             }}
           >
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -1025,15 +1070,24 @@ export default function MobileReport() {
         <div
           onClick={() => setShowLocationGuideModal(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
-            background: 'rgba(15, 23, 42, 0.7)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100dvh',
+            zIndex: 100000,
+            background: 'rgba(15, 23, 42, 0.72)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 'clamp(12px, 3vw, 20px)',
-            overflowY: 'auto',
+            padding: 'clamp(12px, 4vw, 20px)',
+            boxSizing: 'border-box',
+            overscrollBehavior: 'contain',
+            touchAction: 'none',
           }}
         >
           <div
@@ -1043,10 +1097,14 @@ export default function MobileReport() {
               borderRadius: 24,
               padding: 'clamp(20px, 4vw, 28px) clamp(16px, 4vw, 24px)',
               width: 'min(420px, calc(100vw - 32px))',
-              maxHeight: 'calc(100vh - 32px)',
+              maxHeight: 'min(90dvh, 600px)',
+              margin: 'auto',
               overflowY: 'auto',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.32)',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
               animation: 'modalScaleIn 0.28s cubic-bezier(0.16,1,0.3,1) both',
+              boxSizing: 'border-box',
+              overscrollBehavior: 'contain',
+              touchAction: 'pan-y',
             }}
           >
             <div style={{ textAlign: 'center', marginBottom: 18 }}>

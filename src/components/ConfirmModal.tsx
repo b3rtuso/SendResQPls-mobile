@@ -48,10 +48,13 @@ export default function ConfirmModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
+    const prevTouchAction = document.body.style.touchAction;
     document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouchAction;
     };
   }, [isOpen]);
 
@@ -95,7 +98,12 @@ export default function ConfirmModal({
       <div
         style={{
           position: 'fixed',
-          inset: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100dvh',
           zIndex: 100000,
           background: 'rgba(15, 23, 42, 0.65)',
           backdropFilter: 'blur(6px)',
@@ -103,8 +111,10 @@ export default function ConfirmModal({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 16,
+          padding: 'clamp(12px, 4vw, 20px)',
           boxSizing: 'border-box',
+          overscrollBehavior: 'contain',
+          touchAction: 'none',
           animation: 'fadeIn 0.2s ease-out',
         }}
         onClick={onCancel}
@@ -114,8 +124,10 @@ export default function ConfirmModal({
           aria-modal="true"
           onClick={(e) => e.stopPropagation()}
           style={{
-            width: '100%',
-            maxWidth: 380,
+            width: 'min(380px, calc(100vw - 32px))',
+            maxHeight: 'min(90dvh, 580px)',
+            margin: 'auto',
+            overflowY: 'auto',
             background: '#FFFFFF',
             border: '1px solid #FEE2E2',
             borderRadius: 18,
@@ -127,6 +139,8 @@ export default function ConfirmModal({
             flexDirection: 'column',
             gap: 12,
             boxSizing: 'border-box',
+            overscrollBehavior: 'contain',
+            touchAction: 'pan-y',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
@@ -258,7 +272,12 @@ export default function ConfirmModal({
     <div
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100dvh',
         zIndex: 100000,
         background: 'rgba(15, 23, 42, 0.65)',
         backdropFilter: 'blur(6px)',
@@ -266,8 +285,11 @@ export default function ConfirmModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 16,
+        padding: 'clamp(12px, 4vw, 20px)',
         boxSizing: 'border-box',
+        overscrollBehavior: 'contain',
+        touchAction: 'none',
+        animation: 'fadeIn 0.2s ease-out',
       }}
       onClick={onCancel}
     >
@@ -276,8 +298,10 @@ export default function ConfirmModal({
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
-          maxWidth: 380,
+          width: 'min(380px, calc(100vw - 32px))',
+          maxHeight: 'min(90dvh, 580px)',
+          margin: 'auto',
+          overflowY: 'auto',
           background: '#FFFFFF',
           border: '1px solid #E2E8F0',
           borderRadius: 18,
@@ -289,6 +313,8 @@ export default function ConfirmModal({
           flexDirection: 'column',
           gap: 12,
           boxSizing: 'border-box',
+          overscrollBehavior: 'contain',
+          touchAction: 'pan-y',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
