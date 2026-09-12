@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EyeOff, Eye, CheckCircle, ExternalLink, Clipboard, X } from 'lucide-react';
+import { EyeOff, Eye, CheckCircle, ExternalLink, X } from 'lucide-react';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { SiGmail } from 'react-icons/si';
@@ -136,25 +136,6 @@ export default function MobileSignup() {
     }
   };
 
-  const handleQuickPaste = async () => {
-    try {
-      if (!navigator.clipboard?.readText) {
-        toast({ type: 'info', priority: 'normal', title: 'Manual paste', message: 'Long press the code field to paste your code.' });
-        return;
-      }
-      const text = await navigator.clipboard.readText();
-      const code = extractVerificationCode(text);
-      if (code) {
-        setCodeInput(code);
-        setError('');
-        toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Loaded ${code} from clipboard` });
-      } else {
-        toast({ type: 'warning', priority: 'normal', title: 'No code detected', message: 'Copy the 6-digit code from your email first.' });
-      }
-    } catch {
-      toast({ type: 'info', priority: 'normal', title: 'Manual paste', message: 'Long press the code box to paste.' });
-    }
-  };
 
   const handleToggleTerms = (checked: boolean) => {
     setTermsAccepted(checked);
@@ -489,37 +470,10 @@ export default function MobileSignup() {
                       letterSpacing: codeInput ? '4px' : 'normal',
                       fontWeight: codeInput ? 700 : 400,
                       fontSize: codeInput ? 16 : 14,
-                      paddingRight: codeInput ? 42 : 78,
+                      paddingRight: codeInput ? 38 : 16,
                     }}
                   />
-                  {!codeInput ? (
-                    <button
-                      type="button"
-                      onClick={handleQuickPaste}
-                      title="Paste from clipboard"
-                      style={{
-                        position: 'absolute',
-                        right: 8,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        background: '#EFF6FF',
-                        border: '1px solid #BFDBFE',
-                        borderRadius: 8,
-                        padding: '5px 8px',
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: '#1D4ED8',
-                        cursor: 'pointer',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-                      }}
-                    >
-                      <Clipboard size={12} />
-                      Paste
-                    </button>
-                  ) : (
+                  {codeInput && (
                     <button
                       type="button"
                       onClick={() => setCodeInput('')}
