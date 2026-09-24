@@ -170,6 +170,17 @@ function App() {
               </MobileToastProvider>
             }
           />
+          {/* Direct top-level reset-password route */}
+          <Route
+            path="/reset-password"
+            element={
+              <MobileToastProvider>
+                <ConfirmProvider>
+                  <MobileResetPassword />
+                </ConfirmProvider>
+              </MobileToastProvider>
+            }
+          />
           {/* Redirect root to /mobile */}
           <Route path="/" element={<Navigate to="/mobile" replace />} />
           <Route path="*" element={<Navigate to="/mobile" replace />} />

@@ -14,11 +14,23 @@
  *   If the token is absent   → regular browser visitor   → redirected to /admin/login.
  */
 export default function middleware(request: Request): Response | undefined {
+  const url = new URL(request.url);
+
+  // Always allow password reset routes in any browser (users click these links from email)
+  if (
+    url.pathname === '/mobile/reset-password' ||
+    url.pathname.startsWith('/mobile/reset-password') ||
+    url.pathname === '/reset-password' ||
+    url.pathname.startsWith('/reset-password')
+  ) {
+    return undefined;
+  }
+
   const ua = request.headers.get('user-agent') ?? '';
 
   if (!ua.includes('SendResQPls-App')) {
-    // Block: not the app — send to install page
-    return Response.redirect(new URL('/get-the-app', request.url), 302);
+    // Block: not the native app — redirect to official landing page
+    return Response.redirect(new URL('https://sendresqpls-landing.vercel.app', request.url), 302);
   }
 
   // Allow: it is the Capacitor APK — return undefined to continue normally
