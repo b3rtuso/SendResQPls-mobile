@@ -1,8 +1,33 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+dist-ssr/
+
+# Environment files
 .env
 .env.local
-.env.production
-android/app/build
-android/.gradle
-.idea
+.env.*.local
+!.env.example
+!.env.production
+
+# Android build outputs & local config
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/release/
+*.keystore
+*.jks
+
+# Firebase credentials
+android/app/google-services.json
+!android/app/google-services.json.example
+
+# IDE & OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
