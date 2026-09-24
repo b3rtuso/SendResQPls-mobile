@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, AlertCircle, ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-// Pull notifications from localStorage (written by MobileHome polling)
+// Pull notifications from localStorage
 const NOTIF_KEY = 'srq_notifications';
 
 export function getStoredNotifications(): StoredNotif[] {
@@ -15,10 +15,33 @@ export function getStoredNotifications(): StoredNotif[] {
 
 export function saveNotifications(notifs: StoredNotif[]) {
   localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs));
+  window.dispatchEvent(new CustomEvent('srq-notifications-updated'));
 }
 
 export function clearNotifications() {
   localStorage.removeItem(NOTIF_KEY);
+  window.dispatchEvent(new CustomEvent('srq-notifications-updated'));
+}
+
+export function addNotification(notif: {
+  id: string;
+  type: string;
+  status: string;
+  time?: string;
+  read?: boolean;
+}) {
+  const existing = getStoredNotifications();
+  const duplicate = existing.some(n => n.id === notif.id && n.status === notif.status);
+  if (duplicate) return;
+
+  const newEntry: StoredNotif = {
+    id: notif.id,
+    type: notif.type || 'Emergency Update',
+    status: notif.status || 'PENDING',
+    time: notif.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    read: notif.read ?? false,
+  };
+  saveNotifications([newEntry, ...existing].slice(0, 50));
 }
 
 export interface StoredNotif {
@@ -40,6 +63,19 @@ const STATUS_META: Record<string, { label: string; color: string; bg: string; bo
 export default function MobileNotifications() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<StoredNotif[]>(() => getStoredNotifications());
+
+  // Real-time synchronization when notifications arrive
+  useEffect(() => {
+    const handleUpdate = () => {
+      setNotifications(getStoredNotifications());
+    };
+    window.addEventListener('srq-notifications-updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('srq-notifications-updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
 
   const handleClearAll = () => {
     clearNotifications();

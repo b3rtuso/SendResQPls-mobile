@@ -14,6 +14,7 @@ import BottomNav from './components/BottomNav';
 import { MobileToastProvider } from './components/MobileToastProvider';
 import { ConfirmProvider } from './contexts/ConfirmContext';
 import FcmBannerOverlay from './components/FcmBannerOverlay';
+import GlobalStatusSync from './components/GlobalStatusSync';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useState, useEffect } from 'react';
 import { registerPushNavigate, unregisterPushNavigate, consumePendingRoute } from './utils/pushNotificationHelper';
@@ -92,6 +93,7 @@ function AuthenticatedMobileLayout() {
 
   return (
     <div className="mobile-shell">
+      <GlobalStatusSync />
       {/* Scrollable animated viewport for the active tab */}
       <div key={location.pathname} className="mobile-tab-view">
         <Outlet />

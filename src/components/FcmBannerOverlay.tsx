@@ -3,6 +3,7 @@ import { FCM_FOREGROUND_EVENT } from "../utils/pushNotificationHelper";
 import type { FcmNotificationPayload } from "../utils/pushNotificationHelper";
 import { useMobileToast } from "../contexts/MobileToastContext";
 import type { MobileToastType, MobileToastPriority } from "../contexts/MobileToastContext";
+import { addNotification } from "../pages/mobile/MobileNotifications";
 
 /**
  * FcmBannerOverlay — now a thin event bridge only.
@@ -49,6 +50,14 @@ export default function FcmBannerOverlay() {
         navigateTo = '/mobile/history';
       } else if (payload.incidentId) {
         navigateTo = `/mobile/history?incidentId=${payload.incidentId}`;
+      }
+
+      if (payload.incidentId) {
+        addNotification({
+          id: payload.incidentId,
+          type: payload.title || 'Emergency Update',
+          status: payload.status || 'DISPATCHED',
+        });
       }
 
       push({

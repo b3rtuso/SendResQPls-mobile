@@ -113,7 +113,8 @@ export const getIncidentsByRange = (from: string, to: string) =>
   cachedGet(`/incidents?from=${from}&to=${to}`, 60000);
 export const getIncident = (id: string) => cachedGet(`/incidents/${id}`, 30000);
 export const getIncidentStats = () => cachedGet('/incidents/stats', 60000);
-export const getMyIncidents = (userId: string) => cachedGet(`/incidents/my/${userId}`, 180000);
+export const getMyIncidents = (userId: string, skipCache = false) =>
+  skipCache ? api.get(`/incidents/my/${userId}`) : cachedGet(`/incidents/my/${userId}`, 60000);
 
 export const reverseGeocode = (lat: number, lng: number) =>
   cachedGet(`/incidents/geocode/reverse?lat=${lat}&lng=${lng}`, 300000);

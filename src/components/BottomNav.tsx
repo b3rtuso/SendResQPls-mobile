@@ -14,13 +14,27 @@ const tabs = [
 ];
 
 export default function BottomNav() {
-  const unread = getStoredNotifications().filter(n => !n.read).length;
+  const [unread, setUnread] = useState(() => getStoredNotifications().filter(n => !n.read).length);
   const location = useLocation();
   const [optimisticTab, setOptimisticTab] = useState<string | null>(null);
 
-  // Clear optimistic tab when route settles
+  // Synchronize unread badge reactively whenever notifications change
+  useEffect(() => {
+    const updateUnread = () => {
+      setUnread(getStoredNotifications().filter(n => !n.read).length);
+    };
+    window.addEventListener('srq-notifications-updated', updateUnread);
+    window.addEventListener('storage', updateUnread);
+    return () => {
+      window.removeEventListener('srq-notifications-updated', updateUnread);
+      window.removeEventListener('storage', updateUnread);
+    };
+  }, []);
+
+  // Clear optimistic tab and recheck unread when route settles
   useEffect(() => {
     setOptimisticTab(null);
+    setUnread(getStoredNotifications().filter(n => !n.read).length);
   }, [location.pathname]);
 
   const isTabActive = (to: string, end: boolean) => {

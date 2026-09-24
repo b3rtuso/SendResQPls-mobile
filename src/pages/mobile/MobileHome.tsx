@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Wind, ChevronDown, WifiOff } from 'lucide-react';
 import { FaFire, FaHouseFloodWater, FaLocationDot, FaPlus } from 'react-icons/fa6';
@@ -6,9 +6,7 @@ import { FaCog } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
 import { MdLandslide } from 'react-icons/md';
-import { getMyIncidents } from '../../api/client';
 import { setupPushNotifications } from '../../utils/pushNotificationHelper';
-import { getStoredNotifications, saveNotifications, type StoredNotif } from './MobileNotifications';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -32,15 +30,11 @@ const safetyTips = [
 
 import { useLocationChecker } from '../../utils/useLocationChecker';
 
-const STATUS_KEY = 'srq_last_statuses';
-
 export default function MobileHome() {
   const navigate = useNavigate();
   const userName = localStorage.getItem('userName') || 'User';
   const initials = userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const userId = localStorage.getItem('userId');
-
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Real-time location state via useLocationChecker (framework: Phone GPS ON? -> Allowed? -> Continue)
   const { isLocationOn, status: locStatus, recheckLocation, requestLocation, requesting: locRequesting, openAppSettings } = useLocationChecker();
@@ -48,43 +42,6 @@ export default function MobileHome() {
 
   // Online/offline state
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  // Unified polling — writes new notifications to localStorage for the notifications page
-  const checkForUpdates = async () => {
-    if (!userId) return;
-    try {
-      const res = await getMyIncidents(userId);
-      const incidents = res.data || [];
-      const stored: Record<string, string> = JSON.parse(localStorage.getItem(STATUS_KEY) || '{}');
-      const newNotifs: StoredNotif[] = [];
-
-      incidents.forEach((inc: any) => {
-        const prev = stored[inc.id];
-        if (prev && prev !== inc.status) {
-          newNotifs.push({
-            id: inc.id,
-            type: inc.aiDetectedType || 'Emergency',
-            status: inc.status,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            read: false,
-          });
-        }
-        stored[inc.id] = inc.status;
-      });
-
-      localStorage.setItem(STATUS_KEY, JSON.stringify(stored));
-      if (newNotifs.length > 0) {
-        const existing = getStoredNotifications();
-        saveNotifications([...newNotifs, ...existing].slice(0, 30));
-      }
-    } catch { /* silent */ }
-  };
-
-  useEffect(() => {
-    checkForUpdates(); // Uses SWR cache + background revalidation
-    pollRef.current = setInterval(() => checkForUpdates(), 30000); // Poll every 30s
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [userId]);
 
   // Online / offline detection
   useEffect(() => {

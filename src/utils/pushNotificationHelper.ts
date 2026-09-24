@@ -1,6 +1,7 @@
 import { PushNotifications } from '@capacitor/push-notifications';
 import { updateProfile } from '../api/client';
 import { Capacitor } from '@capacitor/core';
+import { addNotification } from '../pages/mobile/MobileNotifications';
 
 // Custom event name used to broadcast incoming FCM notifications to the UI
 export const FCM_FOREGROUND_EVENT = 'srq-push-foreground';
@@ -143,6 +144,15 @@ export async function setupPushNotifications(): Promise<void> {
         status: notification.data?.status,
         type: notification.data?.type,
       };
+
+      if (notification.data?.incidentId) {
+        addNotification({
+          id: notification.data.incidentId,
+          type: notification.title || 'Emergency Update',
+          status: notification.data.status || 'DISPATCHED',
+        });
+      }
+
       window.dispatchEvent(
         new CustomEvent(FCM_FOREGROUND_EVENT, { detail: payload })
       );
@@ -153,6 +163,15 @@ export async function setupPushNotifications(): Promise<void> {
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
       console.log('[Push] Notification tapped:', action.notification?.title);
       const data = action.notification?.data || {};
+
+      if (data.incidentId) {
+        addNotification({
+          id: data.incidentId,
+          type: action.notification?.title || 'Emergency Update',
+          status: data.status || 'DISPATCHED',
+          read: true,
+        });
+      }
 
       if (data.type === 'NEW_INCIDENT' && data.incidentId) {
         // Admin: go to the specific incident detail page
