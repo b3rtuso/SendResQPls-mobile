@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, EyeOff, Eye, CheckCircle2, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Lock, EyeOff, Eye, CheckCircle2, ArrowLeft, AlertTriangle, Smartphone } from 'lucide-react';
 import { resetPassword } from '../../api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,8 @@ export default function MobileResetPassword() {
 
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
-  const [showPass, setShowPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
@@ -151,28 +152,30 @@ export default function MobileResetPassword() {
       {/* Branded Header */}
       <div className="mr-header">
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <button
-            type="button"
-            onClick={() => navigate('/mobile/login')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              borderRadius: 20,
-              padding: '6px 14px',
-              color: 'white',
-              fontSize: 12.5,
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginBottom: 16,
-              fontFamily: 'inherit',
-              backdropFilter: 'blur(8px)',
-            }}
-          >
-            <ArrowLeft size={14} /> Back to Login
-          </button>
+          {!done && (
+            <button
+              type="button"
+              onClick={() => navigate('/mobile/login')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: 20,
+                padding: '6px 14px',
+                color: 'white',
+                fontSize: 12.5,
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginBottom: 16,
+                fontFamily: 'inherit',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              <ArrowLeft size={14} /> Back to Login
+            </button>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <img
@@ -198,7 +201,7 @@ export default function MobileResetPassword() {
           </div>
 
           <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, letterSpacing: '-0.4px', margin: 0 }}>
-            Reset Password
+            {done ? 'Password Updated' : 'Reset Password'}
           </h1>
         </div>
       </div>
@@ -206,10 +209,10 @@ export default function MobileResetPassword() {
       {/* Floating Form Card */}
       <div className="mr-form-card">
         {done ? (
-          <div style={{ textAlign: 'center', padding: '12px 6px' }}>
+          <div style={{ textAlign: 'center', padding: '10px 4px 6px' }}>
             <div style={{
-              width: 58,
-              height: 58,
+              width: 60,
+              height: 60,
               borderRadius: '50%',
               background: '#DCFCE7',
               color: '#16A34A',
@@ -217,23 +220,71 @@ export default function MobileResetPassword() {
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px',
-              boxShadow: '0 4px 16px rgba(22, 163, 74, 0.2)',
+              boxShadow: '0 6px 20px rgba(22, 163, 74, 0.25)',
             }}>
-              <CheckCircle2 size={32} />
+              <CheckCircle2 size={34} />
             </div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>
-              Password Updated!
+
+            <h2 style={{ fontSize: 21, fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.3px' }}>
+              Password Successfully Saved!
             </h2>
-            <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 20px' }}>
-              Your password has been successfully updated. You can now log in using your new credentials.
+            <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 22px' }}>
+              Your new password is now active. Please return to the <strong>SendResQPls</strong> app on your device to log in.
             </p>
-            <button
-              onClick={() => navigate('/mobile/login')}
+
+            {/* Step-by-step instructions card */}
+            <div style={{
+              background: '#F8FAFC',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: 16,
+              padding: '18px 16px',
+              textAlign: 'left',
+              marginBottom: 22,
+            }}>
+              <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
+                Next Steps
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%', background: '#2563EB', color: 'white',
+                  fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  1
+                </div>
+                <div style={{ fontSize: 13.5, color: '#334155', lineHeight: 1.45 }}>
+                  Open the <strong>SendResQPls</strong> app on your smartphone.
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%', background: '#2563EB', color: 'white',
+                  fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  2
+                </div>
+                <div style={{ fontSize: 13.5, color: '#334155', lineHeight: 1.45 }}>
+                  Sign in using your registered email and your <strong>new password</strong>.
+                </div>
+              </div>
+            </div>
+
+            {/* Quick App Launcher */}
+            <a
+              href="intent://#Intent;package=com.mdrrmo.balayan.sendresqpls;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end"
               className="mr-auth-btn"
-              style={{ background: 'linear-gradient(135deg, #10B981, #059669)', boxShadow: '0 4px 16px rgba(16,185,129,0.35)' }}
+              style={{
+                textDecoration: 'none',
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                boxShadow: '0 4px 16px rgba(16,185,129,0.35)',
+                marginBottom: 14,
+              }}
             >
-              Go to Login
-            </button>
+              <Smartphone size={18} /> Open SendResQPls App
+            </a>
+
+            <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
+              You may now safely close this browser window.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleReset} noValidate>
@@ -283,7 +334,7 @@ export default function MobileResetPassword() {
                 </span>
                 <Input
                   id="reset-new-password"
-                  type={showPass ? 'text' : 'password'}
+                  type={showNewPass ? 'text' : 'password'}
                   className={error ? 'mr-input-error' : ''}
                   placeholder="At least 6 characters"
                   autoComplete="new-password"
@@ -310,8 +361,8 @@ export default function MobileResetPassword() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowPass(!showPass)}
-                  aria-label={showPass ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowNewPass(!showNewPass)}
+                  aria-label={showNewPass ? 'Hide password' : 'Show password'}
                   style={{
                     position: 'absolute',
                     right: 4,
@@ -320,7 +371,7 @@ export default function MobileResetPassword() {
                     color: '#94A3B8',
                   }}
                 >
-                  {showPass ? <Eye size={18} /> : <EyeOff size={18} />}
+                  {showNewPass ? <Eye size={18} /> : <EyeOff size={18} />}
                 </Button>
               </div>
             </div>
@@ -349,7 +400,7 @@ export default function MobileResetPassword() {
                 </span>
                 <Input
                   id="reset-confirm-password"
-                  type={showPass ? 'text' : 'password'}
+                  type={showConfirmPass ? 'text' : 'password'}
                   className={error ? 'mr-input-error' : ''}
                   placeholder="Repeat new password"
                   autoComplete="new-password"
@@ -368,10 +419,26 @@ export default function MobileResetPassword() {
                     outline: 'none',
                     fontSize: 15,
                     color: '#0F172A',
-                    padding: '16px 16px 16px 46px',
+                    padding: '16px 52px 16px 46px',
                     boxSizing: 'border-box',
                   }}
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowConfirmPass(!showConfirmPass)}
+                  aria-label={showConfirmPass ? 'Hide confirm password' : 'Show confirm password'}
+                  style={{
+                    position: 'absolute',
+                    right: 4,
+                    width: 44,
+                    height: 44,
+                    color: '#94A3B8',
+                  }}
+                >
+                  {showConfirmPass ? <Eye size={18} /> : <EyeOff size={18} />}
+                </Button>
               </div>
             </div>
 
