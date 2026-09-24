@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, AlertCircle, ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getDepartmentTheme } from '../../utils/departmentUtils';
 
 // Pull notifications from localStorage
 const NOTIF_KEY = 'srq_notifications';
@@ -27,17 +28,21 @@ export function addNotification(notif: {
   id: string;
   type: string;
   status: string;
+  department?: string;
   time?: string;
   read?: boolean;
 }) {
   const existing = getStoredNotifications();
-  const duplicate = existing.some(n => n.id === notif.id && n.status === notif.status);
+  const duplicate = existing.some(
+    n => n.id === notif.id && n.status === notif.status && (n.department || '') === (notif.department || '')
+  );
   if (duplicate) return;
 
   const newEntry: StoredNotif = {
     id: notif.id,
     type: notif.type || 'Emergency Update',
     status: notif.status || 'PENDING',
+    department: notif.department,
     time: notif.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     read: notif.read ?? false,
   };
@@ -48,6 +53,7 @@ export interface StoredNotif {
   id: string;
   type: string;
   status: string;
+  department?: string;
   time: string;
   read: boolean;
 }
@@ -240,7 +246,16 @@ export default function MobileNotifications() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {notifications.map((n, i) => {
               const meta = STATUS_META[n.status] || STATUS_META.PENDING;
-              const Icon = meta.icon;
+              const deptTheme = n.department ? getDepartmentTheme(n.department) : null;
+              const Icon = deptTheme?.icon || meta.icon;
+              const iconColor = deptTheme?.color || meta.color;
+              const iconBg = deptTheme?.bgLight || meta.bg;
+              const iconBorder = deptTheme?.borderLight || `${meta.color}25`;
+
+              const statusText = n.department && n.status === 'DISPATCHED'
+                ? `${deptTheme?.name || n.department} Dispatched`
+                : meta.label;
+
               return (
                 <div
                   key={`${n.id}-${i}`}
@@ -260,11 +275,11 @@ export default function MobileNotifications() {
                   {/* Icon square with tinted bg */}
                   <div style={{
                     width: 42, height: 42, borderRadius: 12,
-                    background: meta.bg, flexShrink: 0,
-                    border: `1.5px solid ${meta.color}25`,
+                    background: iconBg, flexShrink: 0,
+                    border: `1.5px solid ${iconBorder}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <Icon size={20} color={meta.color} strokeWidth={2.2} />
+                    <Icon size={20} color={iconColor} strokeWidth={2.2} />
                   </div>
 
                   {/* Text block */}
@@ -277,15 +292,30 @@ export default function MobileNotifications() {
                         {n.time}
                       </div>
                     </div>
-                    <div style={{ fontSize: 12.5, color: meta.color, fontWeight: 700, lineHeight: 1.35 }}>
-                      {meta.label}
+                    <div style={{ fontSize: 12.5, color: iconColor, fontWeight: 700, lineHeight: 1.35 }}>
+                      {statusText}
                     </div>
+
+                    {/* Department pill if assigned */}
+                    {deptTheme && (
+                      <div style={{ marginTop: 4 }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          fontSize: 10, fontWeight: 800, color: deptTheme.color,
+                          background: deptTheme.bgLight, border: `1px solid ${deptTheme.borderLight}`,
+                          padding: '1px 6px', borderRadius: 6,
+                        }}>
+                          Unit: {deptTheme.shortName}
+                        </span>
+                      </div>
+                    )}
+
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
                       {!n.read ? (
                         <span style={{
-                          fontSize: 9.5, fontWeight: 800, color: meta.color,
-                          background: `${meta.color}14`,
-                          border: `1px solid ${meta.color}30`,
+                          fontSize: 9.5, fontWeight: 800, color: iconColor,
+                          background: `${iconColor}14`,
+                          border: `1px solid ${iconColor}30`,
                           borderRadius: 6, padding: '1px 6px',
                           letterSpacing: '0.04em', textTransform: 'uppercase',
                         }}>

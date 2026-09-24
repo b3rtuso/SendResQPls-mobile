@@ -2,9 +2,14 @@ import { useEffect, useRef } from 'react';
 import { getMyIncidents } from '../api/client';
 import { addNotification } from '../pages/mobile/MobileNotifications';
 import { useMobileToast } from '../contexts/MobileToastContext';
-import { FCM_FOREGROUND_EVENT } from '../utils/pushNotificationHelper';
+import { INCIDENT_SYNC_EVENT } from '../utils/pushNotificationHelper';
 
 const STATUS_KEY = 'srq_last_statuses';
+
+interface StoredIncidentState {
+  status: string;
+  department?: string;
+}
 
 const STATUS_TITLES: Record<string, string> = {
   DISPATCHED: '🚨 Responders Dispatched!',
@@ -27,10 +32,11 @@ const STATUS_MESSAGES: Record<string, string> = {
  * 
  * Runs globally across all tabs in AuthenticatedMobileLayout.
  * Polls the user's incidents every 12 seconds with skipCache=true.
- * When an admin updates an incident status:
+ * When an admin updates an incident status or assigns a department:
  * 1. Saves update to srq_notifications (so it appears on the Alerts tab)
  * 2. Pops an in-app toast card using useMobileToast
- * 3. Dispatches FCM_FOREGROUND_EVENT so MobileHistory live-patches its state
+ * 3. Dispatches INCIDENT_SYNC_EVENT so MobileHistory live-patches its state
+ *    (Uses dedicated event instead of FCM_FOREGROUND_EVENT to prevent double-firing)
  * 4. Works consistently on both native Android and web browsers!
  */
 export default function GlobalStatusSync() {
@@ -50,23 +56,42 @@ export default function GlobalStatusSync() {
       try {
         const res = await getMyIncidents(userId, true); // bypass cache for real-time check
         const incidents: any[] = res?.data || [];
-        const stored: Record<string, string> = JSON.parse(localStorage.getItem(STATUS_KEY) || '{}');
+        const rawStored = JSON.parse(localStorage.getItem(STATUS_KEY) || '{}');
+        const stored: Record<string, StoredIncidentState> = {};
+        for (const [k, v] of Object.entries(rawStored)) {
+          if (typeof v === 'string') {
+            stored[k] = { status: v };
+          } else if (v && typeof v === 'object') {
+            stored[k] = v as StoredIncidentState;
+          }
+        }
         const isFirstRun = Object.keys(stored).length === 0;
 
         for (const inc of incidents) {
-          const prevStatus = stored[inc.id];
+          const prev = stored[inc.id];
+          const statusChanged = prev && prev.status !== inc.status;
+          const deptChanged = prev && Boolean(inc.assignedDepartment && prev.department !== inc.assignedDepartment);
 
-          // If there is an existing record and status has changed
-          if (!isFirstRun && prevStatus && prevStatus !== inc.status) {
+          // If there is an existing record and status or assigned department has changed
+          if (!isFirstRun && prev && (statusChanged || deptChanged)) {
             const statusKey = inc.status;
-            const title = STATUS_TITLES[statusKey] || `Report Status: ${statusKey}`;
-            const message = STATUS_MESSAGES[statusKey] || `Your report status was updated to ${statusKey}.`;
+            let title = STATUS_TITLES[statusKey] || `Report Status: ${statusKey}`;
+            let message = STATUS_MESSAGES[statusKey] || `Your report status was updated to ${statusKey}.`;
+
+            if (deptChanged && !statusChanged) {
+              title = `🚒 Unit Assigned: ${inc.assignedDepartment}`;
+              message = `${inc.assignedDepartment} has been assigned to respond to your emergency report.`;
+            } else if (inc.assignedDepartment && inc.status === 'DISPATCHED') {
+              title = `🚨 ${inc.assignedDepartment} Dispatched!`;
+              message = `${inc.assignedDepartment} responders have been dispatched to your location.`;
+            }
 
             // 1. Add to permanent Alerts tab
             addNotification({
               id: inc.id,
-              type: inc.aiDetectedType || 'Emergency',
+              type: inc.aiDetectedType || 'Emergency Update',
               status: inc.status,
+              department: inc.assignedDepartment,
             });
 
             // 2. Show floating Facebook-style toast card
@@ -76,25 +101,28 @@ export default function GlobalStatusSync() {
               type: statusKey === 'RESOLVED' ? 'success' : statusKey === 'REJECTED' ? 'error' : statusKey === 'DISPATCHED' ? 'incident' : 'warning',
               priority: statusKey === 'DISPATCHED' || statusKey === 'REJECTED' ? 'important' : 'normal',
               status: inc.status,
+              department: inc.assignedDepartment,
               incidentId: inc.id,
               navigateTo: `/mobile/history?incidentId=${inc.id}`,
             });
 
-            // 3. Dispatch FCM_FOREGROUND_EVENT so MobileHistory live-updates without full refetch
+            // 3. Dispatch dedicated sync event for MobileHistory (prevents FcmBannerOverlay duplicate popup)
             window.dispatchEvent(
-              new CustomEvent(FCM_FOREGROUND_EVENT, {
+              new CustomEvent(INCIDENT_SYNC_EVENT, {
                 detail: {
                   title,
                   body: message,
                   incidentId: inc.id,
                   status: inc.status,
+                  department: inc.assignedDepartment,
+                  assignedDepartment: inc.assignedDepartment,
                   type: inc.aiDetectedType,
                 },
               })
             );
           }
 
-          stored[inc.id] = inc.status;
+          stored[inc.id] = { status: inc.status, department: inc.assignedDepartment };
         }
 
         localStorage.setItem(STATUS_KEY, JSON.stringify(stored));

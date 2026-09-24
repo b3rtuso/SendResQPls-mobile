@@ -7,7 +7,7 @@ import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
 import { CacheManager } from '../../api/cacheManager';
 import type { Incident, Status } from '../../types';
-import { FCM_FOREGROUND_EVENT } from '../../utils/pushNotificationHelper';
+import { FCM_FOREGROUND_EVENT, INCIDENT_SYNC_EVENT } from '../../utils/pushNotificationHelper';
 import type { FcmNotificationPayload } from '../../utils/pushNotificationHelper';
 import { Button } from '@/components/ui/button';
 import { getNearestBarangay } from '../../data/balayan-data';
@@ -244,14 +244,22 @@ export default function MobileHistory() {
         setAllIncidents(prev =>
           prev.map(inc =>
             inc.id === payload.incidentId
-              ? { ...inc, status: payload.status as Status }
+              ? {
+                  ...inc,
+                  status: payload.status as Status,
+                  assignedDepartment: ((payload.department as any) || (payload as any).assignedDepartment || inc.assignedDepartment),
+                }
               : inc
           )
         );
       }
     };
     window.addEventListener(FCM_FOREGROUND_EVENT, handler);
-    return () => window.removeEventListener(FCM_FOREGROUND_EVENT, handler);
+    window.addEventListener(INCIDENT_SYNC_EVENT, handler);
+    return () => {
+      window.removeEventListener(FCM_FOREGROUND_EVENT, handler);
+      window.removeEventListener(INCIDENT_SYNC_EVENT, handler);
+    };
   }, []);
 
   // ── Visibility change: full refresh when user returns from background ───────

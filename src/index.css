@@ -148,19 +148,24 @@ textarea {
   padding-right: 12px;
 }
 
+html,
 body {
   font-family: var(--font);
-  background: var(--bg-body);
+  background: #FFFFFF;
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  overscroll-behavior-x: none !important;
 }
 
 #root {
   display: flex;
   min-height: 100vh;
+  overscroll-behavior: none !important;
 }
 
 /* ===== LAYOUT ===== */

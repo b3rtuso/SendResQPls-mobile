@@ -57,6 +57,7 @@ export default function FcmBannerOverlay() {
           id: payload.incidentId,
           type: payload.title || 'Emergency Update',
           status: payload.status || 'DISPATCHED',
+          department: payload.department,
         });
       }
 
@@ -66,6 +67,7 @@ export default function FcmBannerOverlay() {
         type,
         priority,
         status:     payload.status ?? payload.type,
+        department: payload.department,
         incidentId: payload.incidentId,
         navigateTo,
         // Critical (NEW_INCIDENT) never auto-dismisses; others use context default

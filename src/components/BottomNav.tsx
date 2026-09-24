@@ -71,6 +71,12 @@ export default function BottomNav() {
           box-sizing: border-box !important;
           overflow: hidden !important;
           touch-action: manipulation !important;
+          transform: translateZ(0) !important;
+          -webkit-transform: translateZ(0) !important;
+          isolation: isolate !important;
+          backface-visibility: hidden !important;
+          -webkit-backface-visibility: hidden !important;
+          will-change: transform !important;
         }
 
         /* ── Individual Tab ── */

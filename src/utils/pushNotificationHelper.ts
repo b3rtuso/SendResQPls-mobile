@@ -5,6 +5,7 @@ import { addNotification } from '../pages/mobile/MobileNotifications';
 
 // Custom event name used to broadcast incoming FCM notifications to the UI
 export const FCM_FOREGROUND_EVENT = 'srq-push-foreground';
+export const INCIDENT_SYNC_EVENT = 'srq-incident-status-synced';
 
 export interface FcmNotificationPayload {
   title: string;
@@ -12,6 +13,7 @@ export interface FcmNotificationPayload {
   incidentId?: string;
   status?: string;
   type?: string;
+  department?: string;
 }
 
 // ── Pending route store ──────────────────────────────────────────────────────
@@ -137,12 +139,14 @@ export async function setupPushNotifications(): Promise<void> {
     // Android does NOT auto-show a heads-up notification in foreground.
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
       console.log('[Push] Foreground notification received:', notification.title);
+      const dept = notification.data?.assignedDepartment || notification.data?.department;
       const payload: FcmNotificationPayload = {
         title: notification.title || 'SendResqPls',
         body: notification.body || '',
         incidentId: notification.data?.incidentId,
         status: notification.data?.status,
         type: notification.data?.type,
+        department: dept,
       };
 
       if (notification.data?.incidentId) {
@@ -150,6 +154,7 @@ export async function setupPushNotifications(): Promise<void> {
           id: notification.data.incidentId,
           type: notification.title || 'Emergency Update',
           status: notification.data.status || 'DISPATCHED',
+          department: dept,
         });
       }
 
@@ -163,12 +168,14 @@ export async function setupPushNotifications(): Promise<void> {
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
       console.log('[Push] Notification tapped:', action.notification?.title);
       const data = action.notification?.data || {};
+      const dept = data.assignedDepartment || data.department;
 
       if (data.incidentId) {
         addNotification({
           id: data.incidentId,
           type: action.notification?.title || 'Emergency Update',
           status: data.status || 'DISPATCHED',
+          department: dept,
           read: true,
         });
       }

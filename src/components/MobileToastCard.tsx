@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Zap, Truck, Search, Check } from 'lucide-react';
 import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
+import { getDepartmentTheme } from '../utils/departmentUtils';
 
 interface MobileToastCardProps {
   toast: MobileToastItem;
@@ -34,6 +35,7 @@ const STATUS_COLOR: Record<string, string> = {
 export default function MobileToastCard({ toast, onDismiss, index }: MobileToastCardProps) {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
+  const deptTheme = toast.department ? getDepartmentTheme(toast.department) : null;
 
   // Swipe state
   const [swipeX, setSwipeX] = useState(0);
@@ -210,6 +212,15 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             color: '#16A34A', background: '#DCFCE7', borderRadius: 8,
           }}>
             {toast.icon}
+          </div>
+        ) : deptTheme ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: deptTheme.color, background: deptTheme.bgLight, borderRadius: 8,
+            border: `1px solid ${deptTheme.borderLight}`,
+          }}>
+            <deptTheme.icon size={16} />
           </div>
         ) : isReportSent ? (
           <div style={{
