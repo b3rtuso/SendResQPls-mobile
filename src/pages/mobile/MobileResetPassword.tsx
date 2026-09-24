@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, EyeOff, Eye, CheckCircle2, ArrowLeft, AlertTriangle, Smartphone } from 'lucide-react';
+import { Lock, EyeOff, Eye, CheckCircle2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { resetPassword } from '../../api/client';
+import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,8 @@ export default function MobileResetPassword() {
   const [error, setError] = useState('');
   const [focusField, setFocusField] = useState<'new' | 'confirm' | null>(null);
 
+  const passCriteria = checkPasswordCriteria(newPass);
+
   useEffect(() => {
     if (!token) setError('Invalid or expired reset link. Please request a new one.');
   }, [token]);
@@ -27,8 +30,22 @@ export default function MobileResetPassword() {
   const handleReset = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!newPass) { setError('Please enter a new password.'); return; }
-    if (newPass.length < 6) { setError('Password must be at least 6 characters.'); return; }
-    if (newPass !== confirmPass) { setError('Passwords do not match. Please try again.'); return; }
+    
+    const passCheck = validatePassword(newPass);
+    if (!passCheck.valid) {
+      setError(passCheck.error || 'Password does not meet security requirements.');
+      return;
+    }
+
+    if (!confirmPass) {
+      setError('Please confirm your new password.');
+      return;
+    }
+
+    if (newPass !== confirmPass) {
+      setError('Passwords do not match. Please try again.');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -268,28 +285,14 @@ export default function MobileResetPassword() {
               </div>
             </div>
 
-            {/* Quick App Launcher */}
-            <a
-              href="intent://#Intent;package=com.mdrrmo.balayan.sendresqpls;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end"
-              className="mr-auth-btn"
-              style={{
-                textDecoration: 'none',
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                boxShadow: '0 4px 16px rgba(16,185,129,0.35)',
-                marginBottom: 14,
-              }}
-            >
-              <Smartphone size={18} /> Open SendResQPls App
-            </a>
-
-            <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: '#64748B', margin: '20px 0 6px', lineHeight: 1.5, fontWeight: 500 }}>
               You may now safely close this browser window.
             </p>
           </div>
         ) : (
           <form onSubmit={handleReset} noValidate>
             <p style={{ fontSize: 13.5, color: '#64748B', margin: '0 0 20px', lineHeight: 1.55 }}>
-              Choose a strong password with at least 6 characters for your SendResQPls account.
+              Choose a strong password with at least 8 characters, including numbers and letters, for your SendResQPls account.
             </p>
 
             {error && (
@@ -311,7 +314,7 @@ export default function MobileResetPassword() {
             )}
 
             {/* New Password */}
-            <div style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 16 }}>
               <Label htmlFor="reset-new-password" style={{
                 display: 'block',
                 fontSize: 12.5,
@@ -336,7 +339,7 @@ export default function MobileResetPassword() {
                   id="reset-new-password"
                   type={showNewPass ? 'text' : 'password'}
                   className={error ? 'mr-input-error' : ''}
-                  placeholder="At least 6 characters"
+                  placeholder="Min. 8 chars, number & letters"
                   autoComplete="new-password"
                   value={newPass}
                   onChange={(e) => {
@@ -373,6 +376,72 @@ export default function MobileResetPassword() {
                 >
                   {showNewPass ? <Eye size={18} /> : <EyeOff size={18} />}
                 </Button>
+              </div>
+
+              {/* Dynamic live password checklist */}
+              <div style={{
+                marginTop: 10,
+                padding: '12px 14px',
+                background: '#F8FAFC',
+                borderRadius: 14,
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Password Requirements:
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '6px 12px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 12,
+                    color: passCriteria.length ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.length ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={13} style={{ flexShrink: 0, opacity: passCriteria.length ? 1 : 0.4 }} />
+                    <span>8+ characters</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 12,
+                    color: passCriteria.hasNumber ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasNumber ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={13} style={{ flexShrink: 0, opacity: passCriteria.hasNumber ? 1 : 0.4 }} />
+                    <span>At least 1 number</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 12,
+                    color: passCriteria.hasUpper ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasUpper ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={13} style={{ flexShrink: 0, opacity: passCriteria.hasUpper ? 1 : 0.4 }} />
+                    <span>Uppercase (A-Z)</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 12,
+                    color: passCriteria.hasLower ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasLower ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={13} style={{ flexShrink: 0, opacity: passCriteria.hasLower ? 1 : 0.4 }} />
+                    <span>Lowercase (a-z)</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -440,6 +509,21 @@ export default function MobileResetPassword() {
                   {showConfirmPass ? <Eye size={18} /> : <EyeOff size={18} />}
                 </Button>
               </div>
+
+              {confirmPass.length > 0 && (
+                <div style={{
+                  marginTop: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 12,
+                  color: confirmPass === newPass ? '#16A34A' : '#EF4444',
+                  fontWeight: 600,
+                }}>
+                  <CheckCircle2 size={13} style={{ opacity: confirmPass === newPass ? 1 : 0.5 }} />
+                  <span>{confirmPass === newPass ? 'Passwords match' : 'Passwords do not match'}</span>
+                </div>
+              )}
             </div>
 
             <Button type="submit" className="mr-auth-btn" disabled={loading || !token} style={{ minHeight: 48 }}>

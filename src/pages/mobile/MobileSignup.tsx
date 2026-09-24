@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
 import { openGmailApp, extractVerificationCode, getNativeClipboard } from '../../utils/mailHelper';
+import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import LegalModal from '../../components/LegalModal';
 
 export default function MobileSignup() {
@@ -21,6 +22,8 @@ export default function MobileSignup() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const passCriteria = checkPasswordCriteria(form.password);
 
   // Terms and conditions agreement (persisted like onboarding)
   const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('srq_terms_accepted') === '1');
@@ -221,8 +224,9 @@ export default function MobileSignup() {
       setError('Please verify your email address first.');
       return;
     }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    const passCheck = validatePassword(form.password);
+    if (!passCheck.valid) {
+      setError(passCheck.error || 'Password does not meet security requirements.');
       return;
     }
     setLoading(true);
@@ -618,7 +622,7 @@ export default function MobileSignup() {
                 name="password"
                 type={showPass ? 'text' : 'password'}
                 autoComplete="new-password"
-                placeholder="••••••••"
+                placeholder="Min. 8 chars, number & letters"
                 value={form.password}
                 onChange={(e) => update('password', e.target.value)}
                 style={{ ...inputStyle, paddingRight: 52 }}
@@ -627,6 +631,70 @@ export default function MobileSignup() {
                 {showPass ? <Eye size={18} /> : <EyeOff size={18} />}
               </Button>
             </div>
+
+            {/* Live Password Requirements Checklist */}
+            {form.password.length > 0 && (
+              <div style={{
+                marginTop: 8,
+                padding: '10px 12px',
+                background: '#F8FAFC',
+                borderRadius: 12,
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Password Requirements:
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '4px 10px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.length ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.length ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.length ? 1 : 0.4 }} />
+                    <span>8+ characters</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.hasNumber ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasNumber ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasNumber ? 1 : 0.4 }} />
+                    <span>At least 1 number</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.hasUpper ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasUpper ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasUpper ? 1 : 0.4 }} />
+                    <span>Uppercase (A-Z)</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.hasLower ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasLower ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasLower ? 1 : 0.4 }} />
+                    <span>Lowercase (a-z)</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Terms & Conditions Checkbox Row (Unboxed, Minimized) */}

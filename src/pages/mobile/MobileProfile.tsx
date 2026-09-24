@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
+import { validatePassword } from '../../utils/passwordValidator';
 
 type Section = 'main' | 'account' | 'contacts' | 'notifications' | 'help';
 
@@ -336,7 +337,11 @@ export default function MobileProfile() {
 
   const handleChangePassword = async () => {
     if (!currentPass || !newPass) { showToast({ type: 'error', priority: 'normal', title: 'Fill in both fields' }); return; }
-    if (newPass.length < 6) { showToast({ type: 'error', priority: 'normal', title: 'Password must be at least 6 characters' }); return; }
+    const passCheck = validatePassword(newPass);
+    if (!passCheck.valid) {
+      showToast({ type: 'error', priority: 'normal', title: 'Invalid Password', message: passCheck.error });
+      return;
+    }
 
     const isConfirmed = await confirm({
       type: 'update',
@@ -746,7 +751,7 @@ export default function MobileProfile() {
               <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
                 type={showNewPass ? 'text' : 'password'}
-                placeholder="New password (min 6 chars)"
+                placeholder="New password (min. 8 chars, number & letters)"
                 value={newPass}
                 onChange={e => setNewPass(e.target.value)}
                 style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 14, fontFamily: 'var(--font)', minWidth: 0 }}
