@@ -16,13 +16,10 @@
 export default function middleware(request: Request): Response | undefined {
   const url = new URL(request.url);
 
+  const pathname = url.pathname.toLowerCase();
+
   // Always allow password reset routes in any browser (users click these links from email)
-  if (
-    url.pathname === '/mobile/reset-password' ||
-    url.pathname.startsWith('/mobile/reset-password') ||
-    url.pathname === '/reset-password' ||
-    url.pathname.startsWith('/reset-password')
-  ) {
+  if (pathname.includes('reset-password')) {
     return undefined;
   }
 
