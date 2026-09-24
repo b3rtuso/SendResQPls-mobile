@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -21,9 +21,22 @@
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js").catch(() => {});
+    // If opening a password reset link, immediately unregister any active service worker
+    // and wipe local caches to ensure fresh network delivery without stale 302 redirects.
+    if (window.location.pathname.toLowerCase().includes('reset-password')) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) reg.unregister();
+        }).catch(() => {});
+      }
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          for (const name of names) caches.delete(name);
+        }).catch(() => {});
+      }
+    } else if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
       });
     }
   </script>

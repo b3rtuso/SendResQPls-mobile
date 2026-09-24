@@ -9,6 +9,7 @@ import MobileNotifications from './pages/mobile/MobileNotifications';
 import MobileOnboarding, { shouldShowOnboarding } from './pages/mobile/MobileOnboarding';
 import MobileForgotPassword from './pages/mobile/MobileForgotPassword';
 import MobileResetPassword from './pages/mobile/MobileResetPassword';
+import GetTheApp from './pages/GetTheApp';
 import BottomNav from './components/BottomNav';
 import { MobileToastProvider } from './components/MobileToastProvider';
 import { ConfirmProvider } from './contexts/ConfirmContext';
@@ -131,6 +132,8 @@ function AnimatedMobileRoutes() {
         <Route path="profile" element={<MobileProfile />} />
         <Route path="notifications" element={<MobileNotifications />} />
       </Route>
+      {/* Catch-all for /mobile/* — redirect to login instead of rendering empty page */}
+      <Route path="*" element={<Navigate to="login" replace />} />
     </Routes>
   );
 }
@@ -170,7 +173,7 @@ function App() {
               </MobileToastProvider>
             }
           />
-          {/* Direct top-level reset-password route */}
+          {/* Direct top-level reset-password route (completely bypasses /mobile middleware) */}
           <Route
             path="/reset-password"
             element={
@@ -181,9 +184,15 @@ function App() {
               </MobileToastProvider>
             }
           />
-          {/* Redirect root to /mobile */}
-          <Route path="/" element={<Navigate to="/mobile" replace />} />
-          <Route path="*" element={<Navigate to="/mobile" replace />} />
+          {/* Standalone GetTheApp download / info portal */}
+          <Route path="/get-the-app" element={<GetTheApp />} />
+          {/* Top-level aliases for direct web access */}
+          <Route path="/login" element={<Navigate to="/mobile/login" replace />} />
+          <Route path="/signup" element={<Navigate to="/mobile/signup" replace />} />
+          <Route path="/forgot-password" element={<Navigate to="/mobile/forgot-password" replace />} />
+          {/* Root redirect */}
+          <Route path="/" element={<Navigate to="/mobile/login" replace />} />
+          <Route path="*" element={<Navigate to="/mobile/login" replace />} />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>

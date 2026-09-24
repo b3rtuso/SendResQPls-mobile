@@ -18,16 +18,21 @@ export default function middleware(request: Request): Response | undefined {
 
   const pathname = url.pathname.toLowerCase();
 
-  // Always allow password reset routes in any browser (users click these links from email)
-  if (pathname.includes('reset-password')) {
+  // Always allow password reset, recovery, login, and signup routes in any browser
+  if (
+    pathname.includes('reset-password') ||
+    pathname.includes('forgot-password') ||
+    pathname.includes('login') ||
+    pathname.includes('signup')
+  ) {
     return undefined;
   }
 
   const ua = request.headers.get('user-agent') ?? '';
 
   if (!ua.includes('SendResQPls-App')) {
-    // Block: not the native app — redirect to official landing page
-    return Response.redirect(new URL('https://sendresqpls-landing.vercel.app', request.url), 302);
+    // Safely redirect web visitors to the internal /get-the-app page
+    return Response.redirect(new URL('/get-the-app', request.url), 302);
   }
 
   // Allow: it is the Capacitor APK — return undefined to continue normally

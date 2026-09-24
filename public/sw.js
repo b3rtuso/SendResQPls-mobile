@@ -1,5 +1,5 @@
 // SendResqPls Service Worker — enables offline support and installability
-const CACHE_NAME = 'sendresqpls-v2';
+const CACHE_NAME = 'sendresqpls-v3';
 const PRECACHE_URLS = [
   '/mobile',
   '/mobile/report',
@@ -31,11 +31,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Don't cache API calls or auth/reset-password routes — always go directly to live network
+  // Don't cache API calls, auth routes, or reset-password — always go directly to live network
   if (
     url.pathname.startsWith('/api') ||
     url.pathname.includes('reset-password') ||
-    url.pathname.includes('forgot-password')
+    url.pathname.includes('forgot-password') ||
+    url.pathname.includes('get-the-app') ||
+    url.pathname.includes('login') ||
+    url.pathname.includes('signup')
   ) {
     return;
   }
