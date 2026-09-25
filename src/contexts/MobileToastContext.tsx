@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from 'react';
 
 export type MobileToastPriority = 'normal' | 'important' | 'critical';
 export type MobileToastType = 'success' | 'error' | 'warning' | 'info' | 'incident' | 'system' | 'update';
@@ -30,6 +30,7 @@ interface MobileToastContextValue {
   toasts: MobileToastItem[];
   push: (item: MobileToastInput) => string;
   dismiss: (id: string) => void;
+  clearAll: () => void;
 }
 
 const MobileToastContext = createContext<MobileToastContextValue | null>(null);
@@ -49,6 +50,21 @@ export function MobileToastProvider({ children }: { children: React.ReactNode })
 
   const dismiss = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const clearAll = useCallback(() => {
+    setToasts([]);
+    recentToastsRef.current.clear();
+  }, []);
+
+  // Automatically clear all active toasts when user logs out
+  useEffect(() => {
+    const handleLogout = () => {
+      setToasts([]);
+      recentToastsRef.current.clear();
+    };
+    window.addEventListener('srq-logout', handleLogout);
+    return () => window.removeEventListener('srq-logout', handleLogout);
   }, []);
 
   const push = useCallback((item: MobileToastInput): string => {
@@ -83,7 +99,7 @@ export function MobileToastProvider({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <MobileToastContext.Provider value={{ toasts, push, dismiss }}>
+    <MobileToastContext.Provider value={{ toasts, push, dismiss, clearAll }}>
       {children}
     </MobileToastContext.Provider>
   );

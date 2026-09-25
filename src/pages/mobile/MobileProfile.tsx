@@ -127,7 +127,7 @@ export default function MobileProfile() {
     setSection('main');
   };
 
-  const { push: showToast } = useMobileToast();
+  const { push: showToast, clearAll: clearToasts } = useMobileToast();
   const { confirm } = useConfirm();
   const [saving, setSaving] = useState(false);
 
@@ -196,6 +196,14 @@ export default function MobileProfile() {
   };
 
   const executeLogout = () => {
+    // Purge all floating toast cards immediately upon logout
+    try {
+      clearToasts?.();
+      window.dispatchEvent(new CustomEvent('srq-logout'));
+    } catch {
+      // Ignore cleanup error
+    }
+
     const onboardingDone = localStorage.getItem('srq_onboarding_done');
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');

@@ -48,7 +48,9 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
   const pausedAt   = useRef<number | null>(null);  // remaining ms when paused
   const isPaused   = useRef(false);
 
-  const accent = toast.status
+  const accent = deptTheme
+    ? deptTheme.color
+    : toast.status
     ? (STATUS_COLOR[toast.status] ?? TYPE_COLOR[toast.type] ?? '#2563EB')
     : (TYPE_COLOR[toast.type] ?? '#2563EB');
 
@@ -220,7 +222,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             color: deptTheme.color, background: deptTheme.bgLight, borderRadius: 8,
             border: `1px solid ${deptTheme.borderLight}`,
           }}>
-            <deptTheme.icon size={16} />
+            <deptTheme.icon size={16} style={{ width: 16, height: 16 }} />
           </div>
         ) : isReportSent ? (
           <div style={{

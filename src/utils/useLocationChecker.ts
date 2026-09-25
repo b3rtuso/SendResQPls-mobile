@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { registerPlugin, Capacitor } from '@capacitor/core';
 
 export interface LocationAccuracyPluginInterface {
@@ -69,6 +69,7 @@ export function useLocationChecker(): LocationCheckerResult {
   const [isPermissionGranted, setIsPermissionGranted] = useState<boolean | null>(null);
   const [checking, setChecking] = useState<boolean>(false);
   const [requesting, setRequesting] = useState<boolean>(false);
+  const wasGpsOff = useRef<boolean>(false);
 
   const checkStatus = useCallback(async (): Promise<boolean> => {
     if (!navigator.geolocation) {
@@ -107,6 +108,10 @@ export function useLocationChecker(): LocationCheckerResult {
       navigator.geolocation.getCurrentPosition(
         () => {
           // Success: Phone Location is ON and SendResQPls is ALLOWED -> Continue
+          if (wasGpsOff.current) {
+            wasGpsOff.current = false;
+            window.dispatchEvent(new CustomEvent('srq-location-enabled'));
+          }
           setStatus('READY');
           setIsLocationOn(true);
           setIsGpsOn(true);
@@ -115,6 +120,7 @@ export function useLocationChecker(): LocationCheckerResult {
           resolve(true);
         },
         (err) => {
+          wasGpsOff.current = true;
           if (err.code === err.PERMISSION_DENIED) {
             // Permission not granted -> Open App Settings
             setStatus('PERMISSION_DENIED');
@@ -216,6 +222,7 @@ export function useLocationChecker(): LocationCheckerResult {
    */
   const requestLocation = useCallback(async (): Promise<boolean> => {
     setRequesting(true);
+    const wasReadyBefore = status === 'READY';
 
     // ── Native Android: Trigger Google Play Services Location Accuracy Dialog ──
     if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
@@ -228,6 +235,8 @@ export function useLocationChecker(): LocationCheckerResult {
 
         if (result?.enabled) {
           // User tapped "Turn on" on the Google Play Services Location Accuracy system dialog!
+          wasGpsOff.current = false;
+          window.dispatchEvent(new CustomEvent('srq-location-enabled'));
           // Probe coordinates with high accuracy
           return new Promise<boolean>((resolve) => {
             navigator.geolocation.getCurrentPosition(
@@ -302,6 +311,10 @@ export function useLocationChecker(): LocationCheckerResult {
       // ── Phase 1: network-assisted (lower accuracy, allows cached & cell/wifi) ──
       try {
         await probe({ timeout: 10000, maximumAge: 30000, enableHighAccuracy: false });
+        if (!wasReadyBefore || wasGpsOff.current) {
+          wasGpsOff.current = false;
+          window.dispatchEvent(new CustomEvent('srq-location-enabled'));
+        }
         setStatus('READY');
         setIsLocationOn(true);
         setIsGpsOn(true);
@@ -323,6 +336,10 @@ export function useLocationChecker(): LocationCheckerResult {
       // ── Phase 2: GPS (high accuracy) ──
       try {
         await probe({ timeout: 12000, maximumAge: 0, enableHighAccuracy: true });
+        if (!wasReadyBefore || wasGpsOff.current) {
+          wasGpsOff.current = false;
+          window.dispatchEvent(new CustomEvent('srq-location-enabled'));
+        }
         setStatus('READY');
         setIsLocationOn(true);
         setIsGpsOn(true);
@@ -349,7 +366,7 @@ export function useLocationChecker(): LocationCheckerResult {
       setRequesting(false);
       return false;
     }
-  }, []);
+  }, [status]);
 
   return {
     isLocationOn,

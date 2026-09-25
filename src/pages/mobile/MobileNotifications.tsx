@@ -24,6 +24,9 @@ export function clearNotifications() {
   window.dispatchEvent(new CustomEvent('srq-notifications-updated'));
 }
 
+// In-memory dedup tracking to prevent duplicate notifications from firing within 15 seconds
+const recentNotifs = new Map<string, number>();
+
 export function addNotification(notif: {
   id: string;
   type: string;
@@ -32,9 +35,24 @@ export function addNotification(notif: {
   time?: string;
   read?: boolean;
 }) {
+  const now = Date.now();
+  const dedupKey = `${notif.id}-${notif.status}-${(notif.department || '').trim().toUpperCase()}`;
+
+  // Purge entries older than 30s
+  recentNotifs.forEach((timestamp, key) => {
+    if (now - timestamp > 30000) recentNotifs.delete(key);
+  });
+
+  const lastAdded = recentNotifs.get(dedupKey);
+  if (lastAdded && now - lastAdded < 15000) {
+    // Duplicate notification within 15 seconds — ignore completely!
+    return;
+  }
+  recentNotifs.set(dedupKey, now);
+
   const existing = getStoredNotifications();
   const duplicate = existing.some(
-    n => n.id === notif.id && n.status === notif.status && (n.department || '') === (notif.department || '')
+    n => n.id === notif.id && n.status === notif.status && (n.department || '').toUpperCase() === (notif.department || '').toUpperCase()
   );
   if (duplicate) return;
 
@@ -279,7 +297,7 @@ export default function MobileNotifications() {
                     border: `1.5px solid ${iconBorder}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <Icon size={20} color={iconColor} strokeWidth={2.2} />
+                    <Icon size={20} color={iconColor} style={{ width: 20, height: 20 }} />
                   </div>
 
                   {/* Text block */}
