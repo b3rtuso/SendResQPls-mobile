@@ -113,20 +113,19 @@ button:active:not(:disabled) {
 html,
 body,
 #root {
-  overscroll-behavior: none !important;
-  overscroll-behavior-y: none !important;
-  overscroll-behavior-x: none !important;
   background-color: #FFFFFF !important;
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 html:has(.mobile-shell),
 body:has(.mobile-shell) {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
-  overflow-x: hidden;
-  overscroll-behavior: none !important;
-  overscroll-behavior-y: none !important;
-  overscroll-behavior-x: none !important;
+  overflow-x: clip;
   background-color: #FFFFFF !important;
 }
 
@@ -148,10 +147,7 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   font-family: var(--font);
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overscroll-behavior: none !important;
-  overscroll-behavior-y: none !important;
-  overscroll-behavior-x: none !important;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
