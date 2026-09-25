@@ -12,6 +12,7 @@ import type { FcmNotificationPayload } from '../../utils/pushNotificationHelper'
 import { Button } from '@/components/ui/button';
 import { getNearestBarangay } from '../../data/balayan-data';
 import { MobileHistorySkeleton, MobileTrackerModalSkeleton } from '../../components/PageLoader';
+import { cleanIncidentType } from '../../utils/departmentUtils';
 
 
 const STATUS_ICONS: Record<Status, any> = {
@@ -670,7 +671,7 @@ export default function MobileHistory() {
                   onClick={() => setSelectedIncident(inc)}
                   role="button"
                   tabIndex={0}
-                  aria-label={`View details for ${inc.aiDetectedType || 'Emergency'}`}
+                  aria-label={`View details for ${cleanIncidentType(inc.aiDetectedType) || 'Emergency'}`}
                 >
                   {/* Top Row: Thumbnail + Info */}
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
@@ -720,7 +721,7 @@ export default function MobileHistory() {
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                       }}>
-                        {inc.aiDetectedType || 'Unidentified Emergency'}
+                        {cleanIncidentType(inc.aiDetectedType) || 'Unidentified Emergency'}
                       </div>
                       <div style={{
                         display: 'flex',
@@ -929,7 +930,7 @@ export default function MobileHistory() {
                   Live Status Tracker
                 </div>
                 <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', margin: '2px 0 0', letterSpacing: '-0.3px' }}>
-                  {selectedIncident.aiDetectedType || 'Emergency Report'}
+                  {cleanIncidentType(selectedIncident.aiDetectedType) || 'Emergency Report'}
                 </h2>
               </div>
               <button
@@ -1202,7 +1203,7 @@ export default function MobileHistory() {
                       ? selectedIncident.activities
                       : [
                           { id: '1', title: `Incident reported by ${selectedIncident.reporter?.name || 'Citizen'} via mobile app`, createdAt: selectedIncident.createdAt },
-                          ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${selectedIncident.aiDetectedType.toUpperCase()} detected`, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
+                          ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${cleanIncidentType(selectedIncident.aiDetectedType).toUpperCase()} detected`, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
                           ...(selectedIncident.aiRecommendedDept ? [{ id: '3', title: `Auto-assigned to ${selectedIncident.aiRecommendedDept} based on AI recommendation`, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 5000).toISOString() }] : []),
                           ...(selectedIncident.status !== 'PENDING' ? [{ id: '4', title: `Status changed to ${selectedIncident.status}`, createdAt: selectedIncident.updatedAt }] : []),
                           ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, createdAt: selectedIncident.updatedAt }] : []),
@@ -1236,7 +1237,7 @@ export default function MobileHistory() {
                       ? selectedIncident.activities
                       : [
                           { id: '1', title: `Incident reported by ${selectedIncident.reporter?.name || 'Citizen'} via mobile app`, description: undefined, createdAt: selectedIncident.createdAt },
-                          ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${selectedIncident.aiDetectedType.toUpperCase()} detected`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
+                          ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${cleanIncidentType(selectedIncident.aiDetectedType).toUpperCase()} detected`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
                           ...(selectedIncident.aiRecommendedDept ? [{ id: '3', title: `Auto-assigned to ${selectedIncident.aiRecommendedDept} based on AI recommendation`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 5000).toISOString() }] : []),
                           ...(selectedIncident.status !== 'PENDING' ? [{ id: '4', title: `Status changed to ${selectedIncident.status}`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
                           ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
@@ -1260,11 +1261,11 @@ export default function MobileHistory() {
                         <span>{formatTimelineDate(item.createdAt)}</span>
                       </div>
                       <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A', marginTop: 3, lineHeight: 1.45 }}>
-                        {item.title}
+                        {cleanIncidentType(item.title)}
                       </div>
                       {item.description && (
                         <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, fontStyle: 'italic' }}>
-                          {item.description}
+                          {cleanIncidentType(item.description)}
                         </div>
                       )}
                     </div>

@@ -3,6 +3,7 @@ import { getMyIncidents } from '../api/client';
 import { addNotification } from '../pages/mobile/MobileNotifications';
 import { useMobileToast } from '../contexts/MobileToastContext';
 import { INCIDENT_SYNC_EVENT } from '../utils/pushNotificationHelper';
+import { cleanIncidentType } from '../utils/departmentUtils';
 
 const STATUS_KEY = 'srq_last_statuses';
 
@@ -89,7 +90,7 @@ export default function GlobalStatusSync() {
             // 1. Add to permanent Alerts tab
             addNotification({
               id: inc.id,
-              type: inc.aiDetectedType || 'Emergency Update',
+              type: cleanIncidentType(inc.aiDetectedType) || 'Emergency Update',
               status: inc.status,
               department: inc.assignedDepartment,
             });
@@ -116,7 +117,7 @@ export default function GlobalStatusSync() {
                   status: inc.status,
                   department: inc.assignedDepartment,
                   assignedDepartment: inc.assignedDepartment,
-                  type: inc.aiDetectedType,
+                  type: cleanIncidentType(inc.aiDetectedType),
                 },
               })
             );

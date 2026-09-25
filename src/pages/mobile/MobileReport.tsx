@@ -24,6 +24,7 @@ import {
 } from '../../utils/offlineQueue';
 import { useLocationChecker } from '../../utils/useLocationChecker';
 import { useMobileToast } from '../../components/MobileToastProvider';
+import { cleanIncidentType } from '../../utils/departmentUtils';
 
 // ── Module-level cache to persist photo across mobile tab switches ──────────
 let cachedReportPhoto: File | null = null;
@@ -373,7 +374,7 @@ export default function MobileReport() {
         type: 'success',
         priority: 'important',
         title: 'Emergency Report Sent!',
-        message: `AI-classified as: ${incident?.aiDetectedType || 'Processing…'} — Routed to ${incident?.aiRecommendedDept || 'MDRRMO'}`,
+        message: `AI-classified as: ${cleanIncidentType(incident?.aiDetectedType) || 'Processing…'} — Routed to ${incident?.aiRecommendedDept || 'MDRRMO'}`,
         icon: <IoIosSend size={18} />,
       });
 

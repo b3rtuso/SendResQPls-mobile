@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Bell, AlertCircle, ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getDepartmentTheme } from '../../utils/departmentUtils';
+import { getDepartmentTheme, cleanIncidentType } from '../../utils/departmentUtils';
 
 // Pull notifications from localStorage
 const NOTIF_KEY = 'srq_notifications';
@@ -34,6 +34,7 @@ export function addNotification(notif: {
   department?: string;
   time?: string;
   read?: boolean;
+  timestamp?: number;
 }) {
   const now = Date.now();
   const dedupKey = `${notif.id}-${notif.status}-${(notif.department || '').trim().toUpperCase()}`;
@@ -58,11 +59,12 @@ export function addNotification(notif: {
 
   const newEntry: StoredNotif = {
     id: notif.id,
-    type: notif.type || 'Emergency Update',
+    type: cleanIncidentType(notif.type) || 'Emergency Update',
     status: notif.status || 'PENDING',
     department: notif.department,
     time: notif.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     read: notif.read ?? false,
+    timestamp: notif.timestamp || now,
   };
   saveNotifications([newEntry, ...existing].slice(0, 50));
 }
@@ -74,6 +76,18 @@ export interface StoredNotif {
   department?: string;
   time: string;
   read: boolean;
+  timestamp?: number;
+}
+
+function formatRelativeTime(timestamp?: number, fallbackTime?: string): string {
+  if (!timestamp) return fallbackTime || '';
+  const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+  if (diffSec < 60) return 'Just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  return fallbackTime || '';
 }
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string; border: string; icon: React.ElementType }> = {
@@ -86,6 +100,8 @@ const STATUS_META: Record<string, { label: string; color: string; bg: string; bo
 
 export default function MobileNotifications() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const targetIncidentId = searchParams.get('incidentId');
   const [notifications, setNotifications] = useState<StoredNotif[]>(() => getStoredNotifications());
 
   // Real-time synchronization when notifications arrive
@@ -270,9 +286,13 @@ export default function MobileNotifications() {
               const iconBg = deptTheme?.bgLight || meta.bg;
               const iconBorder = deptTheme?.borderLight || `${meta.color}25`;
 
+              const cleanType = cleanIncidentType(n.type) || 'Emergency Update';
               const statusText = n.department && n.status === 'DISPATCHED'
                 ? `${deptTheme?.name || n.department} Dispatched`
                 : meta.label;
+
+              const isTargeted = Boolean(targetIncidentId && n.id === targetIncidentId);
+              const isUnread = !n.read;
 
               return (
                 <div
@@ -282,12 +302,21 @@ export default function MobileNotifications() {
                     display: 'flex', alignItems: 'flex-start', gap: 12,
                     padding: '14px 16px',
                     borderRadius: 16,
-                    background: 'white',
-                    boxShadow: '0 1px 4px rgba(15,23,42,0.04)',
+                    background: isUnread ? '#F0F7FF' : 'white',
+                    boxShadow: isUnread
+                      ? '0 4px 16px rgba(37, 99, 235, 0.08), 0 1px 3px rgba(15, 23, 42, 0.03)'
+                      : '0 1px 4px rgba(15, 23, 42, 0.04)',
                     cursor: 'pointer',
                     position: 'relative',
-                    transition: 'all 0.15s ease',
-                    border: '1px solid #E2E8F0',
+                    transition: 'all 0.18s ease',
+                    border: isTargeted
+                      ? '2px solid #2563EB'
+                      : isUnread
+                      ? '1.5px solid #BFDBFE'
+                      : '1px solid #E2E8F0',
+                    borderLeft: isUnread
+                      ? `4px solid ${deptTheme?.color || meta.color || '#2563EB'}`
+                      : '4px solid transparent',
                   }}
                 >
                   {/* Icon square with tinted bg */}
@@ -304,12 +333,47 @@ export default function MobileNotifications() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
                       <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.1px' }}>
-                        {n.type}
+                        {cleanType}
                       </div>
-                      <div style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 600, flexShrink: 0, marginLeft: 8 }}>
-                        {n.time}
+
+                      {/* Right header: Static solid NEW pill + Relative time */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, marginLeft: 8 }}>
+                        {isUnread && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4.5,
+                            fontSize: 9.5,
+                            fontWeight: 800,
+                            color: '#1D4ED8',
+                            background: '#DBEAFE',
+                            border: '1px solid #BFDBFE',
+                            borderRadius: 9999,
+                            padding: '2px 8px',
+                            letterSpacing: '0.04em',
+                            lineHeight: 1.2,
+                          }}>
+                            <span style={{
+                              width: 5,
+                              height: 5,
+                              borderRadius: '50%',
+                              background: '#2563EB',
+                              flexShrink: 0,
+                            }} />
+                            NEW
+                          </span>
+                        )}
+                        <span style={{
+                          fontSize: 10.5,
+                          color: isUnread ? '#1D4ED8' : '#94A3B8',
+                          fontWeight: isUnread ? 700 : 500,
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {formatRelativeTime(n.timestamp, n.time)}
+                        </span>
                       </div>
                     </div>
+
                     <div style={{ fontSize: 12.5, color: iconColor, fontWeight: 700, lineHeight: 1.35 }}>
                       {statusText}
                     </div>
@@ -328,19 +392,20 @@ export default function MobileNotifications() {
                       </div>
                     )}
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
-                      {!n.read ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                      {isUnread ? (
                         <span style={{
-                          fontSize: 9.5, fontWeight: 800, color: iconColor,
-                          background: `${iconColor}14`,
-                          border: `1px solid ${iconColor}30`,
-                          borderRadius: 6, padding: '1px 6px',
-                          letterSpacing: '0.04em', textTransform: 'uppercase',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: '#2563EB',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
                         }}>
-                          NEW UPDATE
+                          Unread alert · Tap to view
                         </span>
                       ) : (
-                        <span style={{ fontSize: 11, color: '#94A3B8' }}>Tap to view</span>
+                        <span style={{ fontSize: 11, color: '#94A3B8' }}>Viewed</span>
                       )}
                       <button
                         onClick={(e) => handleDeleteOne(e, n.id)}

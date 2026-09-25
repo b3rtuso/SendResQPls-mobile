@@ -222,3 +222,17 @@ export function getDepartmentTheme(deptName?: string | null): DepartmentTheme {
     borderLight: 'rgba(37, 99, 235, 0.25)',
   };
 }
+
+/**
+ * Removes internal AI confidence tags from incident type string
+ * e.g., "Vehicle Accident (Low Confidence)" -> "Vehicle Accident"
+ */
+export function cleanIncidentType(type?: string | null): string {
+  if (!type) return '';
+  return type
+    .replace(/\s*\((?:low\s*confidence)\)/gi, '')
+    .replace(/\s*\(low\)/gi, '')
+    .replace(/\s*low\s*confidence/gi, '')
+    .trim();
+}
+
