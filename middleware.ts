@@ -18,25 +18,38 @@ export default function middleware(request: Request): Response | undefined {
 
   const pathname = url.pathname.toLowerCase();
 
-  // Always allow password reset, recovery, login, and signup routes in any browser
+  // Always allow password reset, recovery, login, signup, and portal routes in any browser
   if (
     pathname.includes('reset-password') ||
     pathname.includes('forgot-password') ||
     pathname.includes('login') ||
-    pathname.includes('signup')
+    pathname.includes('signup') ||
+    pathname.includes('get-the-app')
   ) {
     return undefined;
   }
 
-  const ua = request.headers.get('user-agent') ?? '';
-
-  if (!ua.includes('SendResQPls-App')) {
-    // Safely redirect web visitors to the internal /get-the-app page
-    return Response.redirect(new URL('/get-the-app', request.url), 302);
+  // 1. Check native Android package header attached by Android WebView at the OS layer
+  const requestedWith = (request.headers.get('x-requested-with') ?? '').toLowerCase();
+  if (
+    requestedWith.includes('com.mdrrmo.balayan.sendresqpls') ||
+    requestedWith.includes('sendresqpls')
+  ) {
+    return undefined;
   }
 
-  // Allow: it is the Capacitor APK — return undefined to continue normally
-  return undefined;
+  // 2. Check User-Agent (case-insensitive) for Capacitor custom tokens
+  const ua = (request.headers.get('user-agent') ?? '').toLowerCase();
+  if (
+    ua.includes('sendresqpls-app') ||
+    ua.includes('sendresqpls') ||
+    ua.includes('capacitor')
+  ) {
+    return undefined;
+  }
+
+  // Redirect standard web visitors to the internal /get-the-app page
+  return Response.redirect(new URL('/get-the-app', request.url), 302);
 }
 
 // Only guard /mobile and every path under it

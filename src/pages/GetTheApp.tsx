@@ -1,8 +1,17 @@
+import { useEffect } from 'react';
 import { Smartphone, ArrowRight, KeyRound, PhoneCall } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 
 export default function GetTheApp() {
   const navigate = useNavigate();
+
+  // If opened inside the native Capacitor APK, seamlessly bypass and proceed to login
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() || navigator.userAgent.toLowerCase().includes('sendresqpls')) {
+      navigate('/mobile/login', { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <div

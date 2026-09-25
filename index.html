@@ -21,15 +21,18 @@
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
   <script>
-    // If opening a password reset link, immediately unregister any active service worker
-    // and wipe local caches to ensure fresh network delivery without stale 302 redirects.
-    if (window.location.pathname.toLowerCase().includes('reset-password')) {
+    // In native app or password reset routes, unregister service workers and clear caches
+    // to prevent background SW threads from intercepting requests and caching stale 302 redirects.
+    const isNativeApp = navigator.userAgent.includes('SendResQPls-App') ||
+                        window.location.protocol === 'capacitor:' ||
+                        window.location.protocol === 'ionic:';
+    if (isNativeApp || window.location.pathname.toLowerCase().includes('reset-password')) {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
           for (const reg of registrations) reg.unregister();
         }).catch(() => {});
       }
-      if ('caches' in window) {
+      if ('caches' in window && isNativeApp) {
         caches.keys().then((names) => {
           for (const name of names) caches.delete(name);
         }).catch(() => {});

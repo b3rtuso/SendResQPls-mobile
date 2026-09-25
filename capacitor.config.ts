@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.mdrrmo.balayan.sendresqpls',
   appName: 'SendResqPls',
   webDir: 'dist',
+  appendUserAgent: 'SendResQPls-App',
   // Live-update mode: loads your deployed Vercel URL
   // This means the APK always gets the latest version automatically
   server: {

@@ -20,6 +20,13 @@ public class MainActivity extends BridgeActivity {
             if (webView != null) {
                 webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
                 webView.setBackgroundColor(android.graphics.Color.WHITE);
+
+                // Explicitly enforce SendResQPls-App token in WebView User-Agent
+                android.webkit.WebSettings settings = webView.getSettings();
+                String currentUa = settings.getUserAgentString();
+                if (currentUa != null && !currentUa.contains("SendResQPls-App")) {
+                    settings.setUserAgentString(currentUa + " SendResQPls-App");
+                }
             }
         } catch (Exception ignored) {
         }
