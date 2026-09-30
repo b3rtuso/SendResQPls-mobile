@@ -1,0 +1,801 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { EyeOff, Eye, CheckCircle, ExternalLink, X } from 'lucide-react';
+import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FiPhone } from 'react-icons/fi';
+import { SiGmail } from 'react-icons/si';
+import { App } from '@capacitor/app';
+import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
+import { useMobileToast } from '../../components/MobileToastProvider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { validatePhilippineMobile } from '../../utils/phoneValidator';
+import { openGmailApp, extractVerificationCode, getNativeClipboard } from '../../utils/mailHelper';
+import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
+import LegalModal from '../../components/LegalModal';
+
+export default function MobileSignup() {
+  const navigate = useNavigate();
+  const { push: toast } = useMobileToast();
+  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
+  const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const passCriteria = checkPasswordCriteria(form.password);
+
+  // Terms and conditions agreement (persisted like onboarding)
+  const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('srq_terms_accepted') === '1');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
+  const [codeSent, setCodeSent] = useState(false);
+  const [codeInput, setCodeInput] = useState('');
+  const [verified, setVerified] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [clipboardCode, setClipboardCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const update = (key: string, val: string) => setForm({ ...form, [key]: val });
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    minHeight: 50,
+    border: 'none',
+    background: 'transparent',
+    outline: 'none',
+    fontSize: 14,
+    fontFamily: 'inherit',
+    lineHeight: 'normal',
+    verticalAlign: 'middle',
+    color: '#0F172A',
+    padding: '0 16px 0 46px',
+    boxSizing: 'border-box',
+  };
+
+  const passInputStyle = (visible: boolean): React.CSSProperties => ({
+    ...inputStyle,
+    fontFamily: visible ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    letterSpacing: visible ? 'normal' : '0.12em',
+  });
+
+  // ── Friendly error message mapper ──────────────────────────────────────────
+  const friendlySendCodeError = (err: any): string => {
+    const raw = err.response?.data?.error || err.response?.data?.details || err.message || '';
+    const status = err.response?.status;
+    const code = err.code;
+
+    // Network / timeout
+    if (code === 'ECONNABORTED' || raw.toLowerCase().includes('timeout')) {
+      return 'Taking longer than expected — the server may be warming up. Please wait 30 seconds and try again.';
+    }
+    if (!err.response && (code === 'ERR_NETWORK' || raw.toLowerCase().includes('network'))) {
+      return 'No internet connection. Please check your Wi-Fi or mobile data and try again.';
+    }
+
+    // Known backend errors
+    if (raw.toLowerCase().includes('already registered')) {
+      return 'This email is already registered. Try logging in instead.';
+    }
+    if (raw.toLowerCase().includes('brevo') || raw.toLowerCase().includes('api_key') || status === 503) {
+      return 'Email service is temporarily unavailable. Please try again in a few minutes.';
+    }
+    if (status === 429) {
+      return 'Too many requests. Please wait a minute before trying again.';
+    }
+    if (status && status >= 500) {
+      return 'Our server encountered an issue. Please try again shortly.';
+    }
+
+    // Fallback
+    return raw || 'Could not send the verification code. Please try again.';
+  };
+
+  const handleSendCode = async () => {
+    if (!form.email || !form.email.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    setSendingCode(true);
+    setError('');
+    try {
+      await sendVerificationCode(form.email);
+      setCodeSent(true);
+      setCooldown(60);
+      toast({ type: 'success', priority: 'normal', title: 'Code sent!', message: `Check your inbox or spam folder for ${form.email}` });
+    } catch (err: any) {
+      console.error('[SendCode] Error:', err.response?.data || err.message);
+      setError(friendlySendCodeError(err));
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (codeInput.length !== 6) {
+      setError('Please enter the 6-digit verification code.');
+      return;
+    }
+    setVerifying(true);
+    setError('');
+    try {
+      await verifyCode(form.email, codeInput);
+      setVerified(true);
+      toast({ type: 'success', priority: 'normal', title: 'Verified!', message: 'You can now complete your registration.' });
+    } catch (err: any) {
+      const msg = err.response?.data?.error || 'Incorrect code. Please try again.';
+      setError(msg);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    try {
+      const pastedText = e.clipboardData?.getData('text');
+      if (pastedText) {
+        const code = extractVerificationCode(pastedText);
+        if (code) {
+          e.preventDefault();
+          setCodeInput(code);
+          if (error) setError('');
+          toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Code ${code} entered` });
+          return;
+        }
+      }
+    } catch {
+      // Fallback: let native paste event proceed into the input
+    }
+  };
+
+  const checkClipboardForCode = async (autoFill = false) => {
+    if (!codeSent || verified) return;
+    try {
+      const text = await getNativeClipboard();
+      const code = extractVerificationCode(text);
+      if (code && code.length === 6) {
+        if (autoFill && !codeInput) {
+          setCodeInput(code);
+          if (error) setError('');
+          toast({
+            type: 'info',
+            priority: 'normal',
+            title: 'Code detected!',
+            message: `Code ${code} pasted from clipboard`,
+          });
+        } else if (!codeInput || codeInput !== code) {
+          setClipboardCode(code);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    if (!codeSent || verified) return;
+
+    // Check clipboard when verification mode becomes active
+    checkClipboardForCode(true);
+
+    let removeAppListener: (() => void) | null = null;
+    App.addListener('resume', () => {
+      checkClipboardForCode(true);
+    }).then((handle) => {
+      removeAppListener = () => handle.remove();
+    }).catch(() => {});
+
+    const onFocus = () => {
+      checkClipboardForCode(true);
+    };
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      if (removeAppListener) removeAppListener();
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [codeSent, verified, codeInput]);
+
+
+  const handleToggleTerms = (checked: boolean) => {
+    setTermsAccepted(checked);
+    if (checked) {
+      localStorage.setItem('srq_terms_accepted', '1');
+    } else {
+      localStorage.removeItem('srq_terms_accepted');
+    }
+  };
+
+  const handleSignup = async () => {
+    if (!termsAccepted) {
+      setError('You need to read and check the Terms and Conditions to create an account.');
+      return;
+    }
+    if (!form.name.trim()) {
+      setError('Full name is required.');
+      return;
+    }
+    const phoneCheck = validatePhilippineMobile(form.phone);
+    if (!phoneCheck.valid) {
+      setError(phoneCheck.error || 'Invalid mobile number.');
+      return;
+    }
+    if (!verified) {
+      setError('Please verify your email address first.');
+      return;
+    }
+    const passCheck = validatePassword(form.password);
+    if (!passCheck.valid) {
+      setError(passCheck.error || 'Password does not meet security requirements.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const res = await apiRegister({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        phoneNumber: phoneCheck.cleaned!,
+      });
+      localStorage.setItem('srq_terms_accepted', '1');
+      localStorage.setItem('userId', res.data?.id || '');
+      localStorage.setItem('userName', form.name.trim());
+      localStorage.setItem('userEmail', form.email.trim());
+      localStorage.setItem('userPhone', phoneCheck.cleaned!);
+      toast({ type: 'success', priority: 'important', title: 'Account created!', message: 'Redirecting to login…' });
+      setTimeout(() => navigate('/mobile/login'), 1500);
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mobile-shell mobile-auth mobile-auth-transition" style={{ background: '#F1F5F9' }}>
+      <style>{`
+        .ms-signup-header {
+          background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
+          padding: 56px 28px 44px;
+          position: relative;
+          overflow: hidden;
+          border-radius: 0 0 32px 32px;
+        }
+        .ms-signup-header::after {
+          content: '';
+          position: absolute;
+          top: -40px; right: -40px;
+          width: 160px; height: 160px;
+          background: rgba(255,255,255,0.05);
+          border-radius: 50%;
+        }
+        .ms-signup-header::before {
+          content: '';
+          position: absolute;
+          bottom: 20px; left: -30px;
+          width: 100px; height: 100px;
+          background: rgba(255,255,255,0.04);
+          border-radius: 50%;
+        }
+        .ms-form-card {
+          margin: 16px 20px 30px;
+          background: #fff;
+          border-radius: 22px;
+          padding: 28px 24px;
+          box-shadow: 0 8px 40px rgba(30,58,95,0.12), 0 2px 8px rgba(0,0,0,0.06);
+          position: relative; z-index: 2;
+          animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+      `}</style>
+
+      {/* Branded header */}
+      <div className="ms-signup-header">
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <img
+            src="/logo.jpg" alt="SRQ"
+            style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+          />
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
+            MDRRMO Balayan, Batangas
+          </div>
+          <h1 style={{ color: 'white', fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
+            Create an<br />
+            <span style={{ color: '#93C5FD' }}>Account</span>
+          </h1>
+        </div>
+      </div>
+
+      {/* Floating form card */}
+      <div className="ms-form-card">
+        <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px', lineHeight: 1.55 }}>
+          Register now to report emergencies immediately.
+        </p>
+
+
+        {error && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 12px', marginBottom: 16 }}>
+            <span style={{ fontSize: 13, color: '#B91C1C', fontWeight: 600 }}>{error}</span>
+          </div>
+        )}
+
+        <form autoComplete="on" onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="input-group">
+            <Label htmlFor="signup-name">Full Name</Label>
+            <div className="input-wrapper" style={{ height: 50 }}>
+              <FaUser size={16} className="input-icon" />
+              <Input
+                id="signup-name"
+                name="name"
+                autoComplete="name"
+                placeholder="Juan Dela Cruz"
+                value={form.name}
+                onChange={(e) => update('name', e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div className="input-group">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <Label htmlFor="signup-phone" style={{ margin: 0 }}>Phone Number *</Label>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: form.phone.length === 11 && form.phone.startsWith('09') ? '#16A34A' : '#64748B',
+                transition: 'color 0.2s',
+              }}>
+                {form.phone.length}/11 digits
+              </span>
+            </div>
+            <div className="input-wrapper" style={{ height: 50 }}>
+              <FiPhone size={16} className="input-icon" />
+              <Input
+                id="signup-phone"
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                pattern="09[0-9]{9}"
+                maxLength={11}
+                autoComplete="tel"
+                placeholder="09123456789 (11 digits)"
+                value={form.phone}
+                onChange={(e) => update('phone', e.target.value.replace(/\D/g, '').slice(0, 11))}
+                style={inputStyle}
+              />
+            </div>
+            <span style={{ fontSize: 11, color: '#64748B', marginTop: 4, display: 'block' }}>
+              Must be 11 digits starting with 09 (e.g. 09123456789, no +63)
+            </span>
+          </div>
+
+          {/* Email + Send Code */}
+          <div className="input-group">
+            <Label htmlFor="signup-email">Email Address</Label> 
+            <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
+              <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50 }}>
+                <FaEnvelope size={16} className="input-icon" style={{ flexShrink: 0 }} />
+                <Input
+                  id="signup-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="juan@example.com"
+                  value={form.email}
+                  onChange={(e) => {
+                    update('email', e.target.value);
+                    if (verified) { setVerified(false); setCodeSent(false); setCodeInput(''); }
+                  }}
+                  disabled={verified}
+                  style={{
+                    ...inputStyle,
+                    ...(verified ? { color: '#22C55E', fontWeight: 600 } : {})
+                  }}
+                />
+              </div>
+              <Button
+                type="button"
+                onClick={handleSendCode}
+                disabled={sendingCode || cooldown > 0 || verified || !form.email}
+                style={{
+                  flexShrink: 0,
+                  width: 95,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                  padding: '0 8px', borderRadius: 12,
+                  fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  background: verified ? '#22C55E' : '#DC2626',
+                  color: 'white', border: 'none', cursor: verified ? 'default' : 'pointer',
+                  opacity: (sendingCode || (cooldown > 0 && !verified)) ? 0.6 : 1,
+                  fontFamily: 'var(--font)', transition: 'all 0.2s ease',
+                  minHeight: 50,
+                  height: 50,
+                }}
+              >
+                {verified ? (
+                  <><CheckCircle size={15} /> Verified</>
+                ) : sendingCode ? (
+                  'Sending…'
+                ) : cooldown > 0 ? (
+                  `${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, '0')}`
+                ) : codeSent ? (
+                  'Resend'
+                ) : (
+                  'Send Code'
+                )}
+              </Button>
+            </div>
+            {sendingCode && (
+              <p style={{ fontSize: 11, color: '#64748B', marginTop: 6, lineHeight: 1.4 }}>
+                Sending… this may take up to 30 seconds if the server is warming up.
+              </p>
+            )}
+            {codeSent && !verified && !sendingCode && (
+              <p style={{ fontSize: 11, color: '#64748B', marginTop: 6, lineHeight: 1.4 }}>
+                Didn't get it? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
+              </p>
+            )}
+            {codeSent && !verified && (
+              <div
+                style={{
+                  marginTop: 10,
+                  padding: '10px 12px',
+                  background: 'linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 100%)',
+                  border: '1px solid #FECACA',
+                  borderRadius: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 10,
+                  boxShadow: '0 2px 6px rgba(234,67,53,0.06)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 8,
+                      background: '#FEE2E2',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      color: '#EA4335',
+                    }}
+                  >
+                    <SiGmail size={16} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
+                      Check your Email
+                    </div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      Code sent to {form.email}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => openGmailApp(form.email)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    background: '#EA4335',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '7px 11px',
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 6px rgba(234,67,53,0.25)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <SiGmail size={13} />
+                  Open Gmail
+                  <ExternalLink size={11} style={{ opacity: 0.8 }} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Verification Code Input */}
+          {codeSent && !verified && (
+            <div className="input-group" style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <Label htmlFor="signup-code" style={{ marginBottom: 0 }}>Verification Code</Label>
+                {clipboardCode && !codeInput ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCodeInput(clipboardCode);
+                      setClipboardCode(null);
+                      if (error) setError('');
+                      toast({ type: 'info', priority: 'normal', title: 'Code pasted!', message: `Code ${clipboardCode} entered` });
+                    }}
+                    style={{
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      borderRadius: 6,
+                      color: '#1D4ED8',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <span>Paste {clipboardCode}</span>
+                  </button>
+                ) : (
+                  <span style={{ fontSize: 11, color: '#64748B' }}>Enter 6-digit code</span>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
+                <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50, position: 'relative' }}>
+                  <FaLock size={16} className="input-icon" />
+                  <Input
+                    id="signup-code"
+                    name="verificationCode"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="6-digit code"
+                    value={codeInput}
+                    onFocus={() => checkClipboardForCode(false)}
+                    onClick={() => checkClipboardForCode(false)}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      const clean = extractVerificationCode(raw) || raw.replace(/\D/g, '').slice(0, 6);
+                      setCodeInput(clean);
+                      if (error) setError('');
+                    }}
+                    onPaste={handleCodePaste}
+                    style={{
+                      ...inputStyle,
+                      letterSpacing: codeInput ? '4px' : 'normal',
+                      fontWeight: codeInput ? 700 : 400,
+                      fontSize: codeInput ? 16 : 14,
+                      paddingRight: codeInput ? 38 : 16,
+                      userSelect: 'text',
+                      WebkitUserSelect: 'text',
+                    }}
+                  />
+                  {codeInput && (
+                    <button
+                      type="button"
+                      onClick={() => setCodeInput('')}
+                      title="Clear code"
+                      style={{
+                        position: 'absolute',
+                        right: 12,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#E2E8F0',
+                        border: 'none',
+                        color: '#64748B',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  disabled={verifying || codeInput.length !== 6}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    padding: '0 16px', borderRadius: 12,
+                    fontSize: 13, fontWeight: 700,
+                    background: '#3B82F6', color: 'white',
+                    border: 'none',
+                    opacity: (verifying || codeInput.length !== 6) ? 0.5 : 1,
+                    minHeight: 50,
+                    height: 50,
+                  }}
+                >
+                  {verifying ? '...' : 'Verify'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="input-group">
+            <Label htmlFor="signup-password">Password</Label>
+            <div className="input-wrapper" style={{ height: 50 }}>
+              <FaLock size={16} className="input-icon" />
+              <Input
+                id="signup-password"
+                name="password"
+                type={showPass ? 'text' : 'password'}
+                autoComplete="new-password"
+                placeholder="Min. 8 chars, number & letters"
+                value={form.password}
+                onChange={(e) => update('password', e.target.value)}
+                style={{ ...passInputStyle(showPass), paddingRight: 52 }}
+              />
+              <Button type="button" variant="ghost" size="icon" className="toggle-pass" onClick={() => setShowPass(!showPass)} style={{ width: 44, height: 44 }}>
+                {showPass ? <Eye size={18} /> : <EyeOff size={18} />}
+              </Button>
+            </div>
+
+            {/* Live Password Requirements Checklist */}
+            {form.password.length > 0 && (
+              <div style={{
+                marginTop: 8,
+                padding: '10px 12px',
+                background: '#F8FAFC',
+                borderRadius: 12,
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Password Requirements:
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '4px 10px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.length ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.length ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.length ? 1 : 0.4 }} />
+                    <span>8+ characters</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.hasNumber ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasNumber ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasNumber ? 1 : 0.4 }} />
+                    <span>At least 1 number</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.hasUpper ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasUpper ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasUpper ? 1 : 0.4 }} />
+                    <span>Uppercase (A-Z)</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: passCriteria.hasLower ? '#16A34A' : '#94A3B8',
+                    fontWeight: passCriteria.hasLower ? 700 : 500,
+                  }}>
+                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasLower ? 1 : 0.4 }} />
+                    <span>Lowercase (a-z)</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Terms & Conditions Checkbox Row (Unboxed, Minimized) */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginTop: 2,
+              marginBottom: 4,
+              padding: '2px 0',
+            }}
+          >
+            <input
+              type="checkbox"
+              id="signup-terms-checkbox"
+              checked={termsAccepted}
+              onChange={(e) => {
+                handleToggleTerms(e.target.checked);
+                if (error) setError('');
+              }}
+              style={{
+                width: 14,
+                height: 14,
+                accentColor: '#2563EB',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            />
+            <label
+              htmlFor="signup-terms-checkbox"
+              style={{
+                fontSize: 12.5,
+                color: '#64748B',
+                lineHeight: 1.4,
+                cursor: 'pointer',
+                userSelect: 'none',
+                flex: 1,
+              }}
+            >
+              I have read and agree to the{' '}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowTermsModal(true);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#2563EB',
+                  fontWeight: 600,
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontSize: 'inherit',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Terms and Conditions
+              </button>
+            </label>
+          </div>
+
+          <Button
+            type="button"
+            className="auth-btn signup"
+            onClick={handleSignup}
+            disabled={loading}
+            style={{
+              marginTop: 8,
+              minHeight: 48,
+            }}
+          >
+            {loading ? 'Creating...' : 'Create Account'}
+          </Button>
+        </form>
+
+        <p className="auth-footer" style={{ marginTop: 24 }}>
+          Already have an account?{' '}
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/mobile/login'); }}>Log In</a>
+        </p>
+      </div>
+
+      {/* In-app Terms & Conditions Modal */}
+      <LegalModal
+        isOpen={showTermsModal}
+        initialDoc="terms"
+        onClose={() => setShowTermsModal(false)}
+        onAccept={() => handleToggleTerms(true)}
+        acceptLabel="Agree to Terms & Conditions"
+      />
+    </div>
+  );
+}
