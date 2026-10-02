@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import LegalModal from '../../components/LegalModal';
+import { Capacitor } from '@capacitor/core';
+import WebBrowserBlocked from '../../components/WebBrowserBlocked';
 
 export default function MobileLogin() {
   const navigate = useNavigate();
@@ -28,6 +30,11 @@ export default function MobileLogin() {
   const [globalError, setGlobalError] = useState('');
   const [sessionExpired, setSessionExpired] = useState(false);
   const [focusField, setFocusField] = useState<'email'|'pass'|null>(null);
+
+  // Block access from a regular web browser — login requires the native Android app
+  if (!Capacitor.isNativePlatform()) {
+    return <WebBrowserBlocked />;
+  }
 
   // Informational notice if user logged out while offline
   useEffect(() => {

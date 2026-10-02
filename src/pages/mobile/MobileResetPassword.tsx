@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, EyeOff, Eye, CheckCircle2, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Lock, EyeOff, Eye, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { resetPassword } from '../../api/client';
 import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function MobileResetPassword() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
@@ -169,31 +168,6 @@ export default function MobileResetPassword() {
       {/* Branded Header */}
       <div className="mr-header">
         <div style={{ position: 'relative', zIndex: 1 }}>
-          {!done && (
-            <button
-              type="button"
-              onClick={() => navigate('/mobile/login')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                borderRadius: 20,
-                padding: '6px 14px',
-                color: 'white',
-                fontSize: 12.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-                marginBottom: 16,
-                fontFamily: 'inherit',
-                backdropFilter: 'blur(8px)',
-              }}
-            >
-              <ArrowLeft size={14} /> Back to Login
-            </button>
-          )}
-
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <img
               src="/logo.jpg"
@@ -246,7 +220,7 @@ export default function MobileResetPassword() {
               Password Successfully Saved!
             </h2>
             <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 22px' }}>
-              Your new password is now active. Please return to the <strong>SendResQPls</strong> app on your device to log in.
+              Your new password is now active. You may now safely close this browser window and open the <strong>SendResQPls</strong> mobile app to log in.
             </p>
 
             {/* Step-by-step instructions card */}
@@ -256,7 +230,7 @@ export default function MobileResetPassword() {
               borderRadius: 16,
               padding: '18px 16px',
               textAlign: 'left',
-              marginBottom: 22,
+              marginBottom: 10,
             }}>
               <div style={{ fontSize: 11.5, fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
                 Next Steps
@@ -284,10 +258,6 @@ export default function MobileResetPassword() {
                 </div>
               </div>
             </div>
-
-            <p style={{ fontSize: 13, color: '#64748B', margin: '20px 0 6px', lineHeight: 1.5, fontWeight: 500 }}>
-              You may now safely close this browser window.
-            </p>
           </div>
         ) : (
           <form onSubmit={handleReset} noValidate>
