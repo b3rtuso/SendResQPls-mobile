@@ -433,60 +433,98 @@ export default function LegalModal({
             </div>
           ) : (
             <div>
-              {/* Privacy Compliance Box */}
+              {/* Privacy Compliance Banner */}
               <div className="legal-notice-box-privacy">
                 <div className="legal-notice-title-privacy">
-                  RA 10173 Data Privacy Compliance
+                  Official Privacy Notice — Last Updated Oct 03, 2026
                 </div>
                 <div className="legal-notice-body-privacy">
-                  MDRRMO Balayan processes personal data strictly for emergency rescue, public safety coordination, and life protection under the <strong>Philippine Data Privacy Act of 2012</strong>.
+                  This Privacy Notice for <strong>MDRRMO Balayan</strong> (doing business as <strong>SendResQPls</strong>) explains how we collect, store, and protect your information under the <strong>Philippine Data Privacy Act of 2012 (RA 10173)</strong>.
                 </div>
               </div>
 
               <div className="legal-section-heading">
-                1. Information Collected
+                1. What Information Do We Collect?
               </div>
+              <p className="legal-paragraph">
+                We collect personal information that you voluntarily provide when creating an account or submitting an emergency report:
+              </p>
               <ul className="legal-list">
-                <li><strong>Account Data:</strong> Name, mobile phone number, verified email address, and hashed password.</li>
-                <li><strong>Incident Data:</strong> Hazard type, textual descriptions, and incident scene photographs.</li>
-                <li><strong>Precise Location:</strong> GPS coordinates at the moment an emergency report is filed.</li>
-                <li><strong>Device Tokens:</strong> Firebase Cloud Messaging token for emergency broadcast delivery.</li>
+                <li><strong>Account Credentials:</strong> Full name, verified mobile phone number, email address, and securely hashed passwords.</li>
+                <li><strong>Emergency Incident Data:</strong> Hazard category, incident descriptions, and uploaded photographs.</li>
+                <li><strong>Geolocation Information:</strong> Precise GPS coordinates (latitude &amp; longitude) captured at the time an incident report is filed to deploy rescue teams.</li>
+                <li><strong>Device Access &amp; Tokens:</strong> Camera and photo gallery access for image attachment, and Firebase Cloud Messaging (FCM) tokens for emergency alerts and broadcast advisories.</li>
               </ul>
 
               <div className="legal-section-heading">
-                2. How Your Data is Used
+                2. How We Process Your Information
               </div>
               <p className="legal-paragraph">
-                Data is exclusively utilized to: (a) route emergency alerts to the Balayan Command Center; (b) deploy first responder teams (BFP, PNP, Medical, Engineering); (c) send live progress notifications to citizens; and (d) maintain municipal audit records.
+                Data is processed strictly for public safety and life-saving operations:
+              </p>
+              <ul className="legal-list">
+                <li>Facilitating account authentication and credential management.</li>
+                <li>Routing emergency reports directly to the MDRRMO Balayan Command Center.</li>
+                <li>Dispatching emergency first responders (BFP, PNP, Medical, and Engineering teams).</li>
+                <li>Sending real-time push alerts and report status updates to citizens.</li>
+                <li>Preventing prank reports, false alarms, and unauthorized platform access.</li>
+              </ul>
+
+              <div className="legal-section-heading">
+                3. When and With Whom Do We Share Your Information?
+              </div>
+              <p className="legal-paragraph">
+                We only share data with authorized emergency responders and essential technical service providers:
+              </p>
+              <ul className="legal-list">
+                <li><strong>Government Entities:</strong> MDRRMO Balayan, Bureau of Fire Protection (BFP), Philippine National Police (PNP), and municipal emergency health workers.</li>
+                <li><strong>AI Services:</strong> Google Cloud AI (Gemini) for automated incident damage analysis and triage.</li>
+                <li><strong>Cloud Infrastructure:</strong> Cloudinary for image storage, Render for backend hosting, and PostgreSQL/Supabase for secure database records.</li>
+                <li><strong>Communications &amp; Geocoding:</strong> Brevo for transactional email verification, Firebase for push notifications, and Google Maps for reverse geocoding.</li>
+              </ul>
+              <p className="legal-paragraph">
+                <strong>Zero Commercial Exploitation:</strong> Your personal information is NEVER sold, rented, leased, or disclosed to commercial advertisers or data brokers under any circumstances.
               </p>
 
               <div className="legal-section-heading">
-                3. Zero Commercial Exploitation
+                4. Cookies &amp; Tracking Technologies
               </div>
               <p className="legal-paragraph">
-                <strong>Your personal information is NEVER sold, rented, leased, or shared with commercial advertisers or data brokers under any circumstances.</strong>
+                The mobile app does not use advertising cookies, web beacons, or third-party marketing trackers. Session data is stored locally on the device using HTML5 LocalStorage.
               </p>
 
               <div className="legal-section-heading">
-                4. Data Security and Encryption
+                5. Artificial Intelligence (AI) Features
               </div>
               <p className="legal-paragraph">
-                All network communication uses TLS 1.3 encryption. Passwords are salted and hashed via bcrypt. Database storage (Supabase) and media storage (Cloudinary) enforce strict encryption and role-based access control.
+                We utilize Google Cloud AI exclusively for incident image analysis to classify disaster types and determine severity levels for dispatchers. Personal data is never used to train public AI models.
               </p>
 
               <div className="legal-section-heading">
-                5. Your Statutory Rights (RA 10173)
+                6. Data Retention &amp; Security
               </div>
               <p className="legal-paragraph">
-                You have the right to be informed, access, rectify, or request deletion of personal account records (subject to government record retention mandates). For inquiries, contact the MDRRMO Balayan Data Protection Officer at <strong>mdrrmo.balayan@gmail.com</strong>.
+                We retain personal data for as long as you maintain an active account. All network transmissions are protected with TLS encryption, passwords are encrypted via bcrypt, and databases enforce strict role-based access controls.
               </p>
 
               <div className="legal-section-heading">
-                6. Data Protection Officer (DPO) Contact
+                7. Your Statutory Privacy Rights
               </div>
               <p className="legal-paragraph">
-                Municipal Disaster Risk Reduction and Management Office (MDRRMO Balayan), Balayan Government Center, Plaza Rizal, Balayan, Batangas 4213.
+                Under RA 10173, you have the right to access, inspect, rectify, or request deletion of your personal account information. You can update your profile directly inside the app settings.
               </p>
+
+              <div className="legal-section-heading">
+                8. Contact Us &amp; Data Subject Access Requests (DSAR)
+              </div>
+              <p className="legal-paragraph">
+                For questions, concerns, or to submit an official data access or deletion request:
+              </p>
+              <ul className="legal-list">
+                <li><strong>Official Email:</strong> <a href="mailto:sendresqpls@gmail.com" style={{ color: '#2563EB', fontWeight: 600 }}>sendresqpls@gmail.com</a></li>
+                <li><strong>Online DSAR Form:</strong> <a href="https://app.termly.io/dsar/32ff856d-e553-49a0-9ebe-6741d9f6f7f4" target="_blank" rel="noopener noreferrer" style={{ color: '#2563EB', fontWeight: 600 }}>Submit Data Access Request</a></li>
+                <li><strong>Office Address:</strong> MDRRMO Balayan, Balayan Government Center, Plaza Rizal, Balayan, Batangas 4213, Philippines.</li>
+              </ul>
             </div>
           )}
         </div>
