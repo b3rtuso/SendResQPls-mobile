@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut, ChevronRight,
-  ChevronLeft, Save, Info, MessageCircle, Eye, EyeOff, CheckCircle2,
+  ChevronLeft, Save, Info, MessageCircle, Eye, EyeOff, CheckCircle2, FileText, ShieldCheck,
 } from 'lucide-react';
 import { FaUser, FaEnvelope, FaLock, FaBell, FaCog } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
 import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
+import LegalModal, { type LegalDocType } from '../../components/LegalModal';
 import {
   getNotifSettings,
   saveNotifSettings,
@@ -147,6 +148,7 @@ export default function MobileProfile() {
   const newPassCriteria = checkPasswordCriteria(newPass);
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [legalModalDoc, setLegalModalDoc] = useState<LegalDocType | null>(null);
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(() => getNotifSettings());
 
   const getProfileChanges = () => detectFieldChanges(
@@ -876,6 +878,58 @@ export default function MobileProfile() {
               </div>
             ))}
 
+            {/* Legal & Policies (Read-only access) */}
+            <h3 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 800, color: '#0F172A', margin: '20px 0 12px' }}>Legal &amp; Policies</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => setLegalModalDoc('terms')}
+                style={{
+                  width: '100%', padding: '14px 16px', background: 'white',
+                  borderRadius: 14, border: '1px solid #E2E8F0',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  cursor: 'pointer', fontFamily: 'var(--font)', textAlign: 'left',
+                }}
+              >
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, background: '#EFF6FF',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#2563EB', flexShrink: 0,
+                }}>
+                  <FileText size={18} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(12.5px, 3.5vw, 14px)', fontWeight: 700, color: '#0F172A' }}>Terms &amp; Conditions</div>
+                  <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 2 }}>Usage rules and citizen responsibilities</div>
+                </div>
+                <ChevronRight size={16} color="#CBD5E1" style={{ flexShrink: 0 }} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLegalModalDoc('privacy')}
+                style={{
+                  width: '100%', padding: '14px 16px', background: 'white',
+                  borderRadius: 14, border: '1px solid #E2E8F0',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  cursor: 'pointer', fontFamily: 'var(--font)', textAlign: 'left',
+                }}
+              >
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, background: '#EFF6FF',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#2563EB', flexShrink: 0,
+                }}>
+                  <ShieldCheck size={18} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(12.5px, 3.5vw, 14px)', fontWeight: 700, color: '#0F172A' }}>Privacy Policy</div>
+                  <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 2 }}>How we collect, use, and protect your data</div>
+                </div>
+                <ChevronRight size={16} color="#CBD5E1" style={{ flexShrink: 0 }} />
+              </button>
+            </div>
+
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -892,6 +946,12 @@ export default function MobileProfile() {
             </div>
           </div>
         </div>
+
+        <LegalModal
+          isOpen={legalModalDoc !== null}
+          initialDoc={legalModalDoc || 'terms'}
+          onClose={() => setLegalModalDoc(null)}
+        />
       </div>
     );
   }

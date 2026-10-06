@@ -20,9 +20,8 @@ export default function MobileLogin() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Privacy policy agreement (persisted like onboarding)
-  const [privacyAccepted, setPrivacyAccepted] = useState(() => localStorage.getItem('srq_privacy_accepted') === '1');
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  // Legal document viewer state (Terms & Conditions / Privacy Policy)
+  const [legalModalDoc, setLegalModalDoc] = useState<'terms' | 'privacy' | null>(null);
   // Field-level errors for inline UX
   const [emailError, setEmailError] = useState('');
   const [passError, setPassError] = useState('');
@@ -64,24 +63,11 @@ export default function MobileLogin() {
     }
   }, [location.search]);
 
-  const handleTogglePrivacy = (checked: boolean) => {
-    setPrivacyAccepted(checked);
-    if (checked) {
-      localStorage.setItem('srq_privacy_accepted', '1');
-    } else {
-      localStorage.removeItem('srq_privacy_accepted');
-    }
-  };
-
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     // Field-level validation
     let valid = true;
     setEmailError(''); setPassError(''); setGlobalError('');
-    if (!privacyAccepted) {
-      setGlobalError('You need to read and check the Privacy Policy to log in.');
-      valid = false;
-    }
     if (!email.trim()) { setEmailError('Please enter your email address.'); valid = false; }
     else if (!/^[^@]+@[^@]+\.[^@]+$/.test(email.trim())) { setEmailError('Enter a valid email address.'); valid = false; }
     if (!password) { setPassError('Please enter your password.'); valid = false; }
@@ -342,68 +328,6 @@ export default function MobileLogin() {
           </button>
         </div>
 
-        {/* Privacy Policy Checkbox Row (Unboxed, Minimized) */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 20,
-            padding: '2px 0',
-          }}
-        >
-          <input
-            type="checkbox"
-            id="login-privacy-checkbox"
-            checked={privacyAccepted}
-            onChange={(e) => {
-              handleTogglePrivacy(e.target.checked);
-              if (globalError) setGlobalError('');
-            }}
-            style={{
-              width: 14,
-              height: 14,
-              accentColor: '#2563EB',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-          />
-          <label
-            htmlFor="login-privacy-checkbox"
-            style={{
-              fontSize: 12.5,
-              color: '#64748B',
-              lineHeight: 1.4,
-              cursor: 'pointer',
-              userSelect: 'none',
-              flex: 1,
-            }}
-          >
-            I have read and agree to the{' '}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowPrivacyModal(true);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#2563EB',
-                fontWeight: 600,
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                padding: 0,
-                fontSize: 'inherit',
-                fontFamily: 'inherit',
-              }}
-            >
-              Privacy Policy
-            </button>
-          </label>
-        </div>
-
         {/* Login button */}
         <Button
           type="submit"
@@ -420,7 +344,7 @@ export default function MobileLogin() {
         </Button>
 
         {/* Footer */}
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13.5, color: '#64748B' }}>
+        <p style={{ textAlign: 'center', marginTop: 20, marginBottom: 0, fontSize: 13.5, color: '#64748B' }}>
           Don't have an account?{' '}
           <button
             type="button"
@@ -430,15 +354,34 @@ export default function MobileLogin() {
             Sign up now!
           </button>
         </p>
+
+        {/* Passive Legal Links */}
+        <p style={{ textAlign: 'center', marginTop: 14, marginBottom: 0, fontSize: 11.5, color: '#94A3B8', lineHeight: 1.5 }}>
+          By logging in, you agree to our{' '}
+          <button
+            type="button"
+            onClick={() => setLegalModalDoc('terms')}
+            style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', padding: 0 }}
+          >
+            Terms &amp; Conditions
+          </button>{' '}
+          and{' '}
+          <button
+            type="button"
+            onClick={() => setLegalModalDoc('privacy')}
+            style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', padding: 0 }}
+          >
+            Privacy Policy
+          </button>
+          .
+        </p>
       </form>
 
-      {/* In-app Privacy Policy Modal */}
+      {/* In-app Legal Modal (Read-only on Login) */}
       <LegalModal
-        isOpen={showPrivacyModal}
-        initialDoc="privacy"
-        onClose={() => setShowPrivacyModal(false)}
-        onAccept={() => handleTogglePrivacy(true)}
-        acceptLabel="Agree to Privacy Policy"
+        isOpen={legalModalDoc !== null}
+        initialDoc={legalModalDoc || 'privacy'}
+        onClose={() => setLegalModalDoc(null)}
       />
 
       {/* Bottom spacer */}

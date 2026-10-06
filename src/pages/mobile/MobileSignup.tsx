@@ -27,9 +27,9 @@ export default function MobileSignup() {
 
   const passCriteria = checkPasswordCriteria(form.password);
 
-  // Terms and conditions agreement (persisted like onboarding)
-  const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('srq_terms_accepted') === '1');
-  const [showTermsModal, setShowTermsModal] = useState(false);
+  // Combined Terms & Conditions and Privacy Policy agreement
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [legalModalDoc, setLegalModalDoc] = useState<'terms' | 'privacy' | null>(null);
 
   const [codeSent, setCodeSent] = useState(false);
   const [codeInput, setCodeInput] = useState('');
@@ -216,16 +216,11 @@ export default function MobileSignup() {
 
   const handleToggleTerms = (checked: boolean) => {
     setTermsAccepted(checked);
-    if (checked) {
-      localStorage.setItem('srq_terms_accepted', '1');
-    } else {
-      localStorage.removeItem('srq_terms_accepted');
-    }
   };
 
   const handleSignup = async () => {
     if (!termsAccepted) {
-      setError('You need to read and check the Terms and Conditions to create an account.');
+      setError('You need to read and agree to the Terms and Conditions and Privacy Policy to create an account.');
       return;
     }
     if (!form.name.trim()) {
@@ -756,7 +751,7 @@ export default function MobileSignup() {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setShowTermsModal(true);
+                  setLegalModalDoc('terms');
                 }}
                 style={{
                   background: 'none',
@@ -771,6 +766,28 @@ export default function MobileSignup() {
                 }}
               >
                 Terms and Conditions
+              </button>{' '}
+              and{' '}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setLegalModalDoc('privacy');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#2563EB',
+                  fontWeight: 600,
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontSize: 'inherit',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Privacy Policy
               </button>
             </label>
           </div>
@@ -795,13 +812,13 @@ export default function MobileSignup() {
         </p>
       </div>
 
-      {/* In-app Terms & Conditions Modal */}
+      {/* In-app Legal Modal (Terms & Conditions / Privacy Policy) */}
       <LegalModal
-        isOpen={showTermsModal}
-        initialDoc="terms"
-        onClose={() => setShowTermsModal(false)}
+        isOpen={legalModalDoc !== null}
+        initialDoc={legalModalDoc || 'terms'}
+        onClose={() => setLegalModalDoc(null)}
         onAccept={() => handleToggleTerms(true)}
-        acceptLabel="Agree to Terms & Conditions"
+        acceptLabel="I Agree & Accept"
       />
     </div>
   );
