@@ -172,31 +172,16 @@ export default function MobileLogin() {
       {/* Branded header */}
       <div className="ml-login-header">
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <img
-              src="/logo.jpg"
-              alt="SRQ Logo"
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
-                objectFit: 'cover',
-                border: '2px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-                flexShrink: 0,
-              }}
-            />
-            <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
-                MDRRMO Balayan, Batangas
-              </div>
-              <div style={{ fontSize: 13, color: '#93C5FD', fontWeight: 700 }}>
-                Emergency Response Portal
-              </div>
-            </div>
+          <img
+            src="/logo.jpg" alt="SRQ"
+            style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+          />
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
+            MDRRMO Balayan, Batangas
           </div>
-          <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, letterSpacing: '-0.4px', lineHeight: 1.15, margin: 0 }}>
-            Log in to <span style={{ color: '#93C5FD' }}>SendResQPls</span>
+          <h1 style={{ color: 'white', fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
+            Log in to<br />
+            <span style={{ color: '#93C5FD' }}>SendResQPls</span>
           </h1>
         </div>
       </div>
