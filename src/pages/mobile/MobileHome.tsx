@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Wind, ChevronDown, WifiOff } from 'lucide-react';
 import { FaFire, FaHouseFloodWater, FaLocationDot, FaPlus } from 'react-icons/fa6';
@@ -44,16 +43,6 @@ export default function MobileHome() {
 
   // Real-time network state via native Capacitor Network plugin
   const isOnline = useNetworkStatus();
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 16);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
 
   // Request location permission first, then notifications sequentially (magkasunod)
@@ -135,43 +124,41 @@ export default function MobileHome() {
           margin: 0 0 14px;
         }
       `}</style>
-      {/* ── Fixed Top Brand Bar (Portaled to body like BottomNav so it stays locked at the top) ── */}
-      {typeof document !== 'undefined' && createPortal(
-        <header
-          className={`mobile-home-topbar${isScrolled ? ' scrolled' : ''}`}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/logo.jpg" alt="SRQ" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.25)' }} />
-            <div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1 }}>SendResQPls</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3, marginTop: 1 }}>MDRRMO Balayan, Batangas</div>
+      <div style={{ flex: 1, paddingBottom: 80 }}>
+
+        {/* ── Header (normal flow — stays at the top of the page, does not follow scroll) ── */}
+        <div className="mobile-home-header" style={{ marginBottom: 24 }}>
+          {/* Top row: logo + actions */}
+          <div className="header-top">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <img src="/logo.jpg" alt="SRQ" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.25)' }} />
+              <div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1 }}>SendResQPls</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3, marginTop: 1 }}>MDRRMO Balayan, Batangas</div>
+              </div>
+            </div>
+            {/* Clickable Avatar redirects to Profile */}
+            <div
+              onClick={() => navigate('/mobile/profile')}
+              style={{ cursor: 'pointer' }}
+              aria-label="Profile"
+            >
+              <Avatar style={{
+                width: 38, height: 38,
+                background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
+                fontWeight: 800, fontSize: 13, color: 'white',
+              }}>
+                <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
-          {/* Clickable Avatar redirects to Profile */}
-          <div
-            onClick={() => navigate('/mobile/profile')}
-            style={{ cursor: 'pointer' }}
-            aria-label="Profile"
-          >
-            <Avatar style={{
-              width: 38, height: 38,
-              background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
-              fontWeight: 800, fontSize: 13, color: 'white',
-            }}>
-              <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+          {/* Greeting row */}
+          <div>
+            <div className="greeting">Hello,</div>
+            <div className="user-name">{userName}</div>
           </div>
-        </header>,
-        document.body
-      )}
-
-      <div style={{ flex: 1, paddingBottom: 80 }}>
-        {/* ── Scrollable Greeting Banner (sits seamless under the fixed top bar at scrollY=0, tucks under on scroll) ── */}
-        <div className="mobile-home-greeting" style={{ marginBottom: 24 }}>
-          <div className="greeting">Hello,</div>
-          <div className="user-name">{userName}</div>
         </div>
 
         {/* ── SOS Card ─────────────────────────────────── */}
