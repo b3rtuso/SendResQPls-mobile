@@ -237,7 +237,7 @@ export default function MobileHome() {
         </div>
 
         {/* ── Location Status Strip (taste-skill redesign: flat navy, left-edge accent) ── */}
-        {isLocationOn !== true && (
+        {isLocationOn === false && (
           <div style={{ padding: '12px 20px 0' }}>
             <div
               onClick={() => setShowLocModal(true)}

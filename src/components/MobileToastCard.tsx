@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Check, Zap, Truck, Search, HelpCircle } from 'lucide-react';
+import { X, Check, Zap, Truck, Search, HelpCircle, ClipboardCheck, Info } from 'lucide-react';
 import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
 import { getDepartmentTheme } from '../utils/departmentUtils';
@@ -257,8 +257,21 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
           }}>
             <Search size={16} />
           </div>
+        ) : (
+          toast.title?.toLowerCase().includes('code pasted') ||
+          toast.title?.toLowerCase().includes('code detected') ||
+          Boolean(toast.message && toast.message.toLowerCase().includes('clipboard'))
+        ) ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: '#2563EB', background: '#EFF6FF', borderRadius: 8,
+            border: '1px solid #BFDBFE',
+          }}>
+            <ClipboardCheck size={16} />
+          </div>
         ) : toast.type === 'success' || toast.type === 'update' || (
-          toast.type !== 'warning' && (
+          toast.type !== 'warning' && toast.type !== 'info' && (
             toast.title?.toLowerCase().includes('update') ||
             toast.title?.toLowerCase().includes('updated') ||
             toast.title?.toLowerCase().includes('changed') ||
@@ -299,6 +312,15 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             <svg style={{ width: 16, height: 16 }} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
             </svg>
+          </div>
+        ) : toast.type === 'info' ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: '#2563EB', background: '#EFF6FF', borderRadius: 8,
+            border: '1px solid #BFDBFE',
+          }}>
+            <Info size={16} />
           </div>
         ) : (
           <div style={{

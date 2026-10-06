@@ -74,14 +74,36 @@ function notifyLocationEnabled() {
   window.dispatchEvent(new CustomEvent('srq-location-enabled'));
 }
 
+let cachedStatus: LocationStepStatus = 'CHECKING';
+let cachedIsLocationOn: boolean | null = null;
+let cachedIsGpsOn: boolean | null = null;
+let cachedIsPermissionGranted: boolean | null = null;
+
 export function useLocationChecker(): LocationCheckerResult {
-  const [status, setStatus] = useState<LocationStepStatus>('CHECKING');
-  const [isLocationOn, setIsLocationOn] = useState<boolean | null>(null);
-  const [isGpsOn, setIsGpsOn] = useState<boolean | null>(null);
-  const [isPermissionGranted, setIsPermissionGranted] = useState<boolean | null>(null);
+  const [status, _setStatus] = useState<LocationStepStatus>(() => cachedStatus);
+  const [isLocationOn, _setIsLocationOn] = useState<boolean | null>(() => cachedIsLocationOn);
+  const [isGpsOn, _setIsGpsOn] = useState<boolean | null>(() => cachedIsGpsOn);
+  const [isPermissionGranted, _setIsPermissionGranted] = useState<boolean | null>(() => cachedIsPermissionGranted);
   const [checking, setChecking] = useState<boolean>(false);
   const [requesting, setRequesting] = useState<boolean>(false);
   const wasGpsOff = useRef<boolean>(false);
+
+  const setStatus = useCallback((v: LocationStepStatus) => {
+    cachedStatus = v;
+    _setStatus(v);
+  }, []);
+  const setIsLocationOn = useCallback((v: boolean | null) => {
+    cachedIsLocationOn = v;
+    _setIsLocationOn(v);
+  }, []);
+  const setIsGpsOn = useCallback((v: boolean | null) => {
+    cachedIsGpsOn = v;
+    _setIsGpsOn(v);
+  }, []);
+  const setIsPermissionGranted = useCallback((v: boolean | null) => {
+    cachedIsPermissionGranted = v;
+    _setIsPermissionGranted(v);
+  }, []);
 
   const checkStatus = useCallback(async (): Promise<boolean> => {
     if (!navigator.geolocation) {

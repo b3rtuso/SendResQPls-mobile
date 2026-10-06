@@ -6,15 +6,30 @@ import { Badge } from '@/components/ui/badge';
 import { getDepartmentTheme, cleanIncidentType } from '../../utils/departmentUtils';
 import { getMyIncidents } from '../../api/client';
 
-// Pull notifications from localStorage
+// Pull notifications from localStorage (scoped per userId to prevent cross-account leakage)
 const NOTIF_KEY = 'srq_notifications';
 const DELETED_ACTIVITIES_KEY = 'srq_deleted_activity_ids';
 const CLEARED_AT_KEY = 'srq_notifications_cleared_at';
 const READ_ACTIVITIES_KEY = 'srq_read_activity_ids';
 
+function getUserScopedKey(baseKey: string): string {
+  const userId = localStorage.getItem('userId');
+  return userId ? `${baseKey}_${userId}` : baseKey;
+}
+
+export function purgeLegacyUnscopedNotifications() {
+  try {
+    localStorage.removeItem(NOTIF_KEY);
+    localStorage.removeItem(DELETED_ACTIVITIES_KEY);
+    localStorage.removeItem(CLEARED_AT_KEY);
+    localStorage.removeItem(READ_ACTIVITIES_KEY);
+    localStorage.removeItem('srq_last_statuses');
+  } catch {}
+}
+
 export function getDeletedActivityIds(): Set<string> {
   try {
-    const stored = localStorage.getItem(DELETED_ACTIVITIES_KEY);
+    const stored = localStorage.getItem(getUserScopedKey(DELETED_ACTIVITIES_KEY));
     return new Set(stored ? JSON.parse(stored) : []);
   } catch { return new Set(); }
 }
@@ -23,13 +38,13 @@ export function addDeletedActivityIds(ids: string[]) {
   try {
     const set = getDeletedActivityIds();
     ids.forEach(id => { if (id) set.add(id); });
-    localStorage.setItem(DELETED_ACTIVITIES_KEY, JSON.stringify(Array.from(set).slice(-300)));
+    localStorage.setItem(getUserScopedKey(DELETED_ACTIVITIES_KEY), JSON.stringify(Array.from(set).slice(-300)));
   } catch {}
 }
 
 export function getReadActivityIds(): Set<string> {
   try {
-    const stored = localStorage.getItem(READ_ACTIVITIES_KEY);
+    const stored = localStorage.getItem(getUserScopedKey(READ_ACTIVITIES_KEY));
     return new Set(stored ? JSON.parse(stored) : []);
   } catch { return new Set(); }
 }
@@ -38,18 +53,26 @@ export function markActivitiesAsRead(ids: string[]) {
   try {
     const set = getReadActivityIds();
     ids.forEach(id => { if (id) set.add(id); });
-    localStorage.setItem(READ_ACTIVITIES_KEY, JSON.stringify(Array.from(set).slice(-300)));
+    localStorage.setItem(getUserScopedKey(READ_ACTIVITIES_KEY), JSON.stringify(Array.from(set).slice(-300)));
   } catch {}
 }
 
 export function getStoredNotifications(): StoredNotif[] {
   try {
-    return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
+    const userId = localStorage.getItem('userId');
+    if (!userId) return [];
+    // Ensure legacy unscoped key is removed so previous accounts' alerts never leak
+    if (localStorage.getItem(NOTIF_KEY)) {
+      purgeLegacyUnscopedNotifications();
+    }
+    return JSON.parse(localStorage.getItem(getUserScopedKey(NOTIF_KEY)) || '[]');
   } catch { return []; }
 }
 
 export function saveNotifications(notifs: StoredNotif[]) {
-  localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs));
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
+  localStorage.setItem(getUserScopedKey(NOTIF_KEY), JSON.stringify(notifs));
   window.dispatchEvent(new CustomEvent('srq-notifications-updated'));
 }
 
@@ -62,8 +85,8 @@ export function clearNotifications() {
     if (n.incidentId) ids.push(n.incidentId);
   });
   addDeletedActivityIds(ids);
-  localStorage.setItem(CLEARED_AT_KEY, String(Date.now()));
-  localStorage.removeItem(NOTIF_KEY);
+  localStorage.setItem(getUserScopedKey(CLEARED_AT_KEY), String(Date.now()));
+  localStorage.removeItem(getUserScopedKey(NOTIF_KEY));
   window.dispatchEvent(new CustomEvent('srq-notifications-updated'));
 }
 
@@ -113,7 +136,7 @@ export function addNotification(notif: {
     return;
   }
   const deleted = getDeletedActivityIds();
-  const clearedAt = Number(localStorage.getItem(CLEARED_AT_KEY) || 0);
+  const clearedAt = Number(localStorage.getItem(getUserScopedKey(CLEARED_AT_KEY)) || 0);
   if (deleted.has(targetIncidentId) || (notif.activityId && deleted.has(notif.activityId))) {
     return;
   }
@@ -168,7 +191,7 @@ export function addNotification(notif: {
 export async function syncNotificationsWithBackend(): Promise<StoredNotif[]> {
   try {
     const userId = localStorage.getItem('userId');
-    if (!userId) return getStoredNotifications();
+    if (!userId) return [];
     if (typeof navigator !== 'undefined' && !navigator.onLine) return getStoredNotifications();
 
     const res = await getMyIncidents(userId, true);
@@ -177,7 +200,7 @@ export async function syncNotificationsWithBackend(): Promise<StoredNotif[]> {
 
     const existing = getStoredNotifications();
     const deletedActivityIds = getDeletedActivityIds();
-    const clearedAt = Number(localStorage.getItem(CLEARED_AT_KEY) || 0);
+    const clearedAt = Number(localStorage.getItem(getUserScopedKey(CLEARED_AT_KEY)) || 0);
     const readActivityIds = getReadActivityIds();
     const newNotifs: StoredNotif[] = [];
 
@@ -261,10 +284,14 @@ export async function syncNotificationsWithBackend(): Promise<StoredNotif[]> {
 
     // Deduplicate: Guarantee exactly ONE card per incident (the latest one)
     const incidentMap = new Map<string, StoredNotif>();
+    const validIncidentIds = new Set(incidents.map((inc: any) => inc.id));
 
-    // Add existing (which may include non-incident system notices)
+    // Add existing (only keeping items belonging to this user's incidents or non-incident system notices)
     for (const item of existing) {
       const key = item.incidentId || item.id;
+      if (item.incidentId && !validIncidentIds.has(item.incidentId)) {
+        continue;
+      }
       if (!deletedActivityIds.has(key)) {
         incidentMap.set(key, item);
       }

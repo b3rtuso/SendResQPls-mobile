@@ -491,7 +491,7 @@ export default function MobileReport() {
         )}
 
         {/* Location Status Strip (matching Home tab dark card design, no side highlight) */}
-        {isLocationOn !== true && (
+        {isLocationOn === false && (
           <div
             onClick={handleEnableGps}
             role="button"

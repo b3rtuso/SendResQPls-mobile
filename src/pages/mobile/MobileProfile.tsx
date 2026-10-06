@@ -197,6 +197,11 @@ export default function MobileProfile() {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userPhone');
     localStorage.removeItem('userAvatar');
+    localStorage.removeItem('srq_notifications');
+    localStorage.removeItem('srq_deleted_activity_ids');
+    localStorage.removeItem('srq_notifications_cleared_at');
+    localStorage.removeItem('srq_read_activity_ids');
+    localStorage.removeItem('srq_last_statuses');
     if (onboardingDone) localStorage.setItem('srq_onboarding_done', onboardingDone);
     setShowLogoutModal(false);
 
@@ -368,7 +373,7 @@ export default function MobileProfile() {
 
   /* ── MAIN VIEW ─────────────────────────────────────────── */
   if (section === 'main') return (
-    <div className={`mobile-shell ${direction === 'backward' ? 'mobile-subpage-backward' : ''}`} key="profile-main">
+    <div className={`mobile-shell ${direction === 'backward' ? 'mobile-subpage-backward' : ''}`} key="profile-main" style={{ background: '#FFFFFF' }}>
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         {/* Hero Header — uses percentage width, no 100vw hack */}
@@ -424,7 +429,7 @@ export default function MobileProfile() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: 'clamp(12px, 3.5vw, 16px) 4px',
-                borderBottom: '1px solid #F1F5F9', cursor: 'pointer',
+                borderBottom: '1px solid #E2E8F0', cursor: 'pointer',
               }}
             >
               <div style={{
@@ -607,7 +612,7 @@ export default function MobileProfile() {
 
   /* ── ACCOUNT DETAILS ───────────────────────────────────── */
   if (section === 'account') return (
-    <div className="mobile-shell mobile-subpage-forward" key="profile-account">
+    <div className="mobile-shell mobile-subpage-forward" key="profile-account" style={{ background: '#FFFFFF' }}>
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         <SectionHeader title="Account Details" onBack={handleBackFromAccount} />
@@ -782,7 +787,7 @@ export default function MobileProfile() {
 
   /* ── NOTIFICATION SETTINGS ─────────────────────────────── */
   if (section === 'notifications') return (
-    <div className="mobile-shell mobile-subpage-forward" key="profile-notifications">
+    <div className="mobile-shell mobile-subpage-forward" key="profile-notifications" style={{ background: '#FFFFFF' }}>
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         <SectionHeader title="Notification Settings" onBack={backToMain} />
@@ -795,7 +800,7 @@ export default function MobileProfile() {
           ] as const).map(item => (
             <div key={item.key} style={{
               display: 'flex', alignItems: 'center', gap: 12,
-              padding: 'clamp(12px, 3.5vw, 16px) 0', borderBottom: '1px solid #F1F5F9',
+              padding: 'clamp(12px, 3.5vw, 16px) 0', borderBottom: '1px solid #E2E8F0',
             }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 700, color: '#0F172A' }}>{item.label}</div>
@@ -831,7 +836,7 @@ export default function MobileProfile() {
     ];
 
     return (
-      <div className="mobile-shell mobile-subpage-forward" key="profile-help">
+      <div className="mobile-shell mobile-subpage-forward" key="profile-help" style={{ background: '#FFFFFF' }}>
         <div style={{ flex: 1, paddingBottom: 80 }}>
           <SectionHeader title="Help & Support" onBack={backToMain} />
           <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>

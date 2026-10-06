@@ -1664,15 +1664,17 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-tab-view {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileTabSwitch 0.18s ease-out;
+  animation: mobileTabSwitch 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes mobileTabSwitch {
   0% {
     opacity: 0;
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
+    transform: none;
   }
 }
 
@@ -1681,31 +1683,35 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-subpage-forward {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInRight 0.2s ease-out;
+  animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Backward: returning to parent page from the left */
 .mobile-subpage-backward {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInLeft 0.2s ease-out;
+  animation: mobileSubpageInLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes mobileSubpageInRight {
   0% {
     opacity: 0;
+    transform: translateX(20px);
   }
   100% {
     opacity: 1;
+    transform: none;
   }
 }
 
 @keyframes mobileSubpageInLeft {
   0% {
     opacity: 0;
+    transform: translateX(-20px);
   }
   100% {
     opacity: 1;
+    transform: none;
   }
 }
 
@@ -1713,7 +1719,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-section-transition {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInRight 0.2s ease-out;
+  animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Unified Auth Screen Transition (Login, Signup, Forgot Password, Reset Password) ── */
@@ -1721,24 +1727,28 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-auth {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileAuthFadeSlide 0.18s ease-out;
+  animation: mobileAuthFadeSlide 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes mobileAuthFadeSlide {
   0% {
     opacity: 0;
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
+    transform: none;
   }
 }
 
 @keyframes authCardEntrance {
   0% {
     opacity: 0;
+    transform: translateY(6px);
   }
   100% {
     opacity: 1;
+    transform: none;
   }
 }
 

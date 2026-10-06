@@ -57,7 +57,9 @@ export default function GlobalStatusSync() {
       try {
         const res = await getMyIncidents(userId, true); // bypass cache for real-time check
         const incidents: any[] = res?.data || [];
-        const rawStored = JSON.parse(localStorage.getItem(STATUS_KEY) || '{}');
+        const userStatusKey = `${STATUS_KEY}_${userId}`;
+        localStorage.removeItem(STATUS_KEY); // clean up legacy unscoped key
+        const rawStored = JSON.parse(localStorage.getItem(userStatusKey) || '{}');
         const stored: Record<string, StoredIncidentState> = {};
         for (const [k, v] of Object.entries(rawStored)) {
           if (typeof v === 'string') {
@@ -139,7 +141,7 @@ export default function GlobalStatusSync() {
           stored[inc.id] = { status: inc.status, department: inc.assignedDepartment };
         }
 
-        localStorage.setItem(STATUS_KEY, JSON.stringify(stored));
+        localStorage.setItem(userStatusKey, JSON.stringify(stored));
       } catch {
         // silent fallback
       } finally {
