@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Wind, ChevronDown, WifiOff } from 'lucide-react';
 import { FaFire, FaHouseFloodWater, FaLocationDot, FaPlus } from 'react-icons/fa6';
@@ -134,10 +135,9 @@ export default function MobileHome() {
           margin: 0 0 14px;
         }
       `}</style>
-      <div style={{ flex: 1, paddingBottom: 80 }}>
-
-        {/* ── Sticky Top Brand Bar ─────────────────────────────────── */}
-        <div
+      {/* ── Fixed Top Brand Bar (Portaled to body like BottomNav so it stays locked at the top) ── */}
+      {typeof document !== 'undefined' && createPortal(
+        <header
           className={`mobile-home-topbar${isScrolled ? ' scrolled' : ''}`}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -163,9 +163,12 @@ export default function MobileHome() {
               </AvatarFallback>
             </Avatar>
           </div>
-        </div>
+        </header>,
+        document.body
+      )}
 
-        {/* ── Scrollable Greeting Banner ────────────────────────────── */}
+      <div style={{ flex: 1, paddingBottom: 80 }}>
+        {/* ── Scrollable Greeting Banner (sits seamless under the fixed top bar at scrollY=0, tucks under on scroll) ── */}
         <div className="mobile-home-greeting" style={{ marginBottom: 24 }}>
           <div className="greeting">Hello,</div>
           <div className="user-name">{userName}</div>
