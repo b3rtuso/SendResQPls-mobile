@@ -43,6 +43,16 @@ export default function MobileHome() {
 
   // Real-time network state via native Capacitor Network plugin
   const isOnline = useNetworkStatus();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 16);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
 
   // Request location permission first, then notifications sequentially (magkasunod)
@@ -126,39 +136,39 @@ export default function MobileHome() {
       `}</style>
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        {/* ── Header ─────────────────────────────────── */}
-        <div className="mobile-home-header" style={{ marginBottom: 24 }}>
-          {/* Top row: logo + actions */}
-          <div className="header-top">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <img src="/logo.jpg" alt="SRQ" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.25)' }} />
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1 }}>SendResQPls</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3, marginTop: 1 }}>MDRRMO Balayan, Batangas</div>
-              </div>
-            </div>
-            {/* Clickable Avatar redirects to Profile */}
-            <div
-              onClick={() => navigate('/mobile/profile')}
-              style={{ cursor: 'pointer' }}
-              aria-label="Profile"
-            >
-              <Avatar style={{
-                width: 38, height: 38,
-                background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
-                fontWeight: 800, fontSize: 13, color: 'white',
-              }}>
-                <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+        {/* ── Sticky Top Brand Bar ─────────────────────────────────── */}
+        <div
+          className={`mobile-home-topbar${isScrolled ? ' scrolled' : ''}`}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src="/logo.jpg" alt="SRQ" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.25)' }} />
+            <div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1 }}>SendResQPls</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3, marginTop: 1 }}>MDRRMO Balayan, Batangas</div>
             </div>
           </div>
-          {/* Greeting row */}
-          <div>
-            <div className="greeting">Hello,</div>
-            <div className="user-name">{userName}</div>
+          {/* Clickable Avatar redirects to Profile */}
+          <div
+            onClick={() => navigate('/mobile/profile')}
+            style={{ cursor: 'pointer' }}
+            aria-label="Profile"
+          >
+            <Avatar style={{
+              width: 38, height: 38,
+              background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
+              fontWeight: 800, fontSize: 13, color: 'white',
+            }}>
+              <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
+                {initials}
+              </AvatarFallback>
+            </Avatar>
           </div>
+        </div>
+
+        {/* ── Scrollable Greeting Banner ────────────────────────────── */}
+        <div className="mobile-home-greeting" style={{ marginBottom: 24 }}>
+          <div className="greeting">Hello,</div>
+          <div className="user-name">{userName}</div>
         </div>
 
         {/* ── SOS Card ─────────────────────────────────── */}

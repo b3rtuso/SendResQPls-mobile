@@ -1664,8 +1664,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-tab-view {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileTabSwitch 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
+  animation: mobileTabSwitch 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes mobileTabSwitch {
@@ -1675,7 +1674,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
