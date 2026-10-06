@@ -70,8 +70,8 @@ export default function MobileSignup() {
 
   const passInputStyle = (visible: boolean): React.CSSProperties => ({
     ...inputStyle,
-    fontFamily: visible || !form.password ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    letterSpacing: visible || !form.password ? 'normal' : '0.12em',
+    fontFamily: visible ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    letterSpacing: visible ? 'normal' : '0.12em',
     paddingRight: 52,
     textOverflow: 'ellipsis',
   });
@@ -639,7 +639,7 @@ export default function MobileSignup() {
                 name="password"
                 type={showPass ? 'text' : 'password'}
                 autoComplete="new-password"
-                placeholder="Min. 8 chars, number & letters"
+                placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => update('password', e.target.value)}
                 style={{ ...passInputStyle(showPass), paddingRight: 52 }}
@@ -650,68 +650,66 @@ export default function MobileSignup() {
             </div>
 
             {/* Live Password Requirements Checklist */}
-            {form.password.length > 0 && (
-              <div style={{
-                marginTop: 8,
-                padding: '10px 12px',
-                background: '#F8FAFC',
-                borderRadius: 12,
-                border: '1px solid #E2E8F0',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 6,
-              }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Password Requirements:
+            <div style={{
+              marginTop: 8,
+              padding: '10px 12px',
+              background: '#F8FAFC',
+              borderRadius: 12,
+              border: '1px solid #E2E8F0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Password Requirements:
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '4px 10px' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 11.5,
+                  color: passCriteria.length ? '#16A34A' : '#94A3B8',
+                  fontWeight: passCriteria.length ? 700 : 500,
+                }}>
+                  <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.length ? 1 : 0.4 }} />
+                  <span>8+ characters</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '4px 10px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: 11.5,
-                    color: passCriteria.length ? '#16A34A' : '#94A3B8',
-                    fontWeight: passCriteria.length ? 700 : 500,
-                  }}>
-                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.length ? 1 : 0.4 }} />
-                    <span>8+ characters</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: 11.5,
-                    color: passCriteria.hasNumber ? '#16A34A' : '#94A3B8',
-                    fontWeight: passCriteria.hasNumber ? 700 : 500,
-                  }}>
-                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasNumber ? 1 : 0.4 }} />
-                    <span>At least 1 number</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: 11.5,
-                    color: passCriteria.hasUpper ? '#16A34A' : '#94A3B8',
-                    fontWeight: passCriteria.hasUpper ? 700 : 500,
-                  }}>
-                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasUpper ? 1 : 0.4 }} />
-                    <span>Uppercase (A-Z)</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: 11.5,
-                    color: passCriteria.hasLower ? '#16A34A' : '#94A3B8',
-                    fontWeight: passCriteria.hasLower ? 700 : 500,
-                  }}>
-                    <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasLower ? 1 : 0.4 }} />
-                    <span>Lowercase (a-z)</span>
-                  </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 11.5,
+                  color: passCriteria.hasNumber ? '#16A34A' : '#94A3B8',
+                  fontWeight: passCriteria.hasNumber ? 700 : 500,
+                }}>
+                  <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasNumber ? 1 : 0.4 }} />
+                  <span>At least 1 number</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 11.5,
+                  color: passCriteria.hasUpper ? '#16A34A' : '#94A3B8',
+                  fontWeight: passCriteria.hasUpper ? 700 : 500,
+                }}>
+                  <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasUpper ? 1 : 0.4 }} />
+                  <span>Uppercase (A-Z)</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 11.5,
+                  color: passCriteria.hasLower ? '#16A34A' : '#94A3B8',
+                  fontWeight: passCriteria.hasLower ? 700 : 500,
+                }}>
+                  <CheckCircle size={12} style={{ flexShrink: 0, opacity: passCriteria.hasLower ? 1 : 0.4 }} />
+                  <span>Lowercase (a-z)</span>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Terms & Conditions Checkbox Row (Unboxed, Minimized) */}

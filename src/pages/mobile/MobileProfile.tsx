@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut, ChevronRight,
-  ChevronLeft, Save, Info, MessageCircle, Eye, EyeOff,
+  ChevronLeft, Save, Info, MessageCircle, Eye, EyeOff, CheckCircle2,
 } from 'lucide-react';
 import { FaUser, FaEnvelope, FaLock, FaBell, FaCog } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { validatePhilippineMobile } from '../../utils/phoneValidator';
-import { validatePassword } from '../../utils/passwordValidator';
+import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import {
   getNotifSettings,
   saveNotifSettings,
@@ -119,6 +119,7 @@ export default function MobileProfile() {
   };
 
   const backToMain = () => {
+    setNewPassClicked(false);
     setDirection('backward');
     setSection('main');
   };
@@ -142,6 +143,8 @@ export default function MobileProfile() {
   const [newPass, setNewPass] = useState('');
   const [showCurrentPass, setShowCurrentPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
+  const [newPassClicked, setNewPassClicked] = useState(false);
+  const newPassCriteria = checkPasswordCriteria(newPass);
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(() => getNotifSettings());
@@ -355,7 +358,7 @@ export default function MobileProfile() {
         title: 'Password Changed',
         message: 'Your account password has been updated successfully.',
       });
-      setCurrentPass(''); setNewPass('');
+      setCurrentPass(''); setNewPass(''); setNewPassClicked(false);
     } catch (err: any) {
       showToast({ type: 'error', priority: 'normal', title: err.response?.data?.error || 'Failed to change password' });
     } finally { setSaving(false); }
@@ -647,15 +650,19 @@ export default function MobileProfile() {
             <h3 style={{ fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 800, color: '#0F172A', margin: '0 0 14px' }}>Change Password</h3>
 
             {/* Current password */}
+            <label style={{
+              display: 'block', fontSize: 11.5, fontWeight: 700,
+              color: '#64748B', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px',
+            }}>Current Password</label>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
               background: 'white', border: '1.5px solid #E2E8F0',
-              borderRadius: 12, padding: '12px 14px', marginBottom: 10,
+              borderRadius: 12, padding: '12px 14px', marginBottom: 12,
             }}>
               <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
                 type={showCurrentPass ? 'text' : 'password'}
-                placeholder="Current password"
+                placeholder="••••••••"
                 value={currentPass}
                 onChange={e => setCurrentPass(e.target.value)}
                 style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 14, minWidth: 0, lineHeight: 'normal', verticalAlign: 'middle', fontFamily: showCurrentPass ? 'var(--font)' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', letterSpacing: showCurrentPass ? 'normal' : '0.12em' }}
@@ -666,16 +673,22 @@ export default function MobileProfile() {
             </div>
 
             {/* New password */}
+            <label style={{
+              display: 'block', fontSize: 11.5, fontWeight: 700,
+              color: '#64748B', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px',
+            }}>New Password</label>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
               background: 'white', border: '1.5px solid #E2E8F0',
-              borderRadius: 12, padding: '12px 14px', marginBottom: 14,
+              borderRadius: 12, padding: '12px 14px', marginBottom: (newPassClicked || newPass.length > 0) ? 10 : 14,
             }}>
               <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
                 type={showNewPass ? 'text' : 'password'}
-                placeholder="New password (min. 8 chars, number & letters)"
+                placeholder="••••••••"
                 value={newPass}
+                onFocus={() => setNewPassClicked(true)}
+                onClick={() => setNewPassClicked(true)}
                 onChange={e => setNewPass(e.target.value)}
                 style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 14, minWidth: 0, lineHeight: 'normal', verticalAlign: 'middle', fontFamily: showNewPass ? 'var(--font)' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', letterSpacing: showNewPass ? 'normal' : '0.12em' }}
               />
@@ -683,6 +696,74 @@ export default function MobileProfile() {
                 {showNewPass ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
+
+            {/* Live Password Requirements Checklist (triggered when New Password input is clicked) */}
+            {(newPassClicked || newPass.length > 0) && (
+              <div style={{
+                marginBottom: 14,
+                padding: '10px 12px',
+                background: '#FFFFFF',
+                borderRadius: 12,
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Password Requirements:
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '4px 10px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: newPassCriteria.length ? '#16A34A' : '#94A3B8',
+                    fontWeight: newPassCriteria.length ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={12} style={{ flexShrink: 0, opacity: newPassCriteria.length ? 1 : 0.4 }} />
+                    <span>8+ characters</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: newPassCriteria.hasNumber ? '#16A34A' : '#94A3B8',
+                    fontWeight: newPassCriteria.hasNumber ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={12} style={{ flexShrink: 0, opacity: newPassCriteria.hasNumber ? 1 : 0.4 }} />
+                    <span>At least 1 number</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: newPassCriteria.hasUpper ? '#16A34A' : '#94A3B8',
+                    fontWeight: newPassCriteria.hasUpper ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={12} style={{ flexShrink: 0, opacity: newPassCriteria.hasUpper ? 1 : 0.4 }} />
+                    <span>Uppercase (A-Z)</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: newPassCriteria.hasLower ? '#16A34A' : '#94A3B8',
+                    fontWeight: newPassCriteria.hasLower ? 700 : 500,
+                    transition: 'color 0.15s ease',
+                  }}>
+                    <CheckCircle2 size={12} style={{ flexShrink: 0, opacity: newPassCriteria.hasLower ? 1 : 0.4 }} />
+                    <span>Lowercase (a-z)</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button onClick={handleChangePassword} disabled={saving} style={{
               width: '100%', padding: 12, borderRadius: 12, background: '#0F172A', color: 'white',
