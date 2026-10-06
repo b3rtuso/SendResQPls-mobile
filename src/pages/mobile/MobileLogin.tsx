@@ -20,7 +20,6 @@ export default function MobileLogin() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   // Privacy policy agreement (persisted like onboarding)
   const [privacyAccepted, setPrivacyAccepted] = useState(() => localStorage.getItem('srq_privacy_accepted') === '1');
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -98,8 +97,6 @@ export default function MobileLogin() {
         return;
       }
 
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('token', res.data.token);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('userId', res.data.user?.id || '');
       localStorage.setItem('userName', res.data.user?.name || 'User');
@@ -317,41 +314,13 @@ export default function MobileLogin() {
           </div>
         )}
 
-        {/* Remember Me + Forgot password row */}
+        {/* Forgot password row */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 'clamp(14px, 4vw, 28px)',
-          marginBottom: 24,
-          flexWrap: 'wrap',
+          justifyContent: 'flex-end',
+          marginBottom: 20,
         }}>
-          <label style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            cursor: 'pointer',
-            userSelect: 'none',
-            flexShrink: 0,
-          }}>
-            <div
-              onClick={() => setRememberMe(!rememberMe)}
-              style={{
-                width: 38, height: 22, borderRadius: 11,
-                background: rememberMe ? '#2563EB' : '#E2E8F0',
-                position: 'relative', transition: 'background 0.2s',
-                flexShrink: 0, cursor: 'pointer',
-              }}
-            >
-              <div style={{
-                position: 'absolute', top: 3, left: rememberMe ? 19 : 3,
-                width: 16, height: 16, borderRadius: '50%',
-                background: 'white', transition: 'left 0.2s',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
-              }} />
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>Remember me</span>
-          </label>
           <button
             type="button"
             onClick={(e) => {
@@ -367,7 +336,6 @@ export default function MobileLogin() {
               cursor: 'pointer',
               fontFamily: 'inherit',
               padding: '4px 0',
-              marginLeft: 'auto',
             }}
           >
             Forgot password?
