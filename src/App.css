@@ -153,6 +153,10 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   -ms-overflow-style: none !important;
 }
 
+.mobile-shell .mobile-shell {
+  overflow-x: visible;
+}
+
 .mobile-shell::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
@@ -363,22 +367,13 @@ body:has(.mobile-shell)::-webkit-scrollbar {
 
 .mobile-home-header {
   padding: 60px 24px 40px;
-  background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
+  background:
+    radial-gradient(circle 100px at calc(100% - 40px) 20px, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.05) 99%, transparent 100%),
+    linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
   color: white;
   position: relative;
-  overflow: hidden;
   box-shadow: 0 6px 24px rgba(15,31,56,0.35);
   border-radius: 0 0 24px 24px;
-}
-
-.mobile-home-header::before {
-  content: '';
-  position: absolute;
-  top: -80px; right: -60px;
-  width: 200px; height: 200px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 50%;
-  pointer-events: none;
 }
 
 .mobile-home-header .header-top {
@@ -416,20 +411,20 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   font-weight: 700;
   font-size: 15px;
   color: white;
-  backdrop-filter: blur(4px);
 }
 
 .sos-card {
   margin: 20px 20px 0;
   padding: 38px 24px 32px;
-  background: linear-gradient(150deg, #EF4444 0%, #DC2626 45%, #B91C1C 100%);
+  background:
+    radial-gradient(circle 90px at calc(100% - 30px) 30px, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) 99%, transparent 100%),
+    radial-gradient(circle 55px at 25px calc(100% - 15px), rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.08) 99%, transparent 100%),
+    linear-gradient(150deg, #EF4444 0%, #DC2626 45%, #B91C1C 100%);
   border-radius: 20px;
   text-align: center;
   color: white;
   cursor: pointer;
-  animation: sosPulse 2.4s ease-in-out infinite;
   position: relative;
-  overflow: hidden;
   -webkit-tap-highlight-color: rgba(255,255,255,0.1);
   user-select: none;
   box-shadow:
@@ -437,26 +432,6 @@ body:has(.mobile-shell)::-webkit-scrollbar {
     0 4px 12px rgba(0,0,0,0.18),
     inset 0 1px 0 rgba(255,255,255,0.18);
   border: 1px solid rgba(255,255,255,0.12);
-}
-
-.sos-card::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 180px; height: 180px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.sos-card::after {
-  content: '';
-  position: absolute;
-  bottom: -40px; left: -30px;
-  width: 110px; height: 110px;
-  background: rgba(0,0,0,0.08);
-  border-radius: 50%;
-  pointer-events: none;
 }
 
 .sos-card:active {

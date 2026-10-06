@@ -268,27 +268,14 @@ export default function MobileSignup() {
     <div className="mobile-shell mobile-auth mobile-auth-transition" style={{ background: '#F1F5F9' }}>
       <style>{`
         .ms-signup-header {
-          background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
-          padding: 56px 28px 44px;
+          background:
+            radial-gradient(circle 100px at calc(100% - 40px) 20px, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.05) 99%, transparent 100%),
+            linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
+          padding: 48px 24px 38px;
           position: relative;
-          overflow: hidden;
-          border-radius: 0 0 32px 32px;
-        }
-        .ms-signup-header::after {
-          content: '';
-          position: absolute;
-          top: -40px; right: -40px;
-          width: 160px; height: 160px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 50%;
-        }
-        .ms-signup-header::before {
-          content: '';
-          position: absolute;
-          bottom: 20px; left: -30px;
-          width: 100px; height: 100px;
-          background: rgba(255,255,255,0.04);
-          border-radius: 50%;
+          box-shadow: 0 6px 24px rgba(15, 31, 56, 0.35);
+          border-radius: 0 0 24px 24px;
+          color: white;
         }
         .ms-form-card {
           margin: 16px 20px 30px;
@@ -304,16 +291,31 @@ export default function MobileSignup() {
       {/* Branded header */}
       <div className="ms-signup-header">
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <img
-            src="/logo.jpg" alt="SRQ"
-            style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
-          />
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
-            MDRRMO Balayan, Batangas
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <img
+              src="/logo.jpg"
+              alt="SRQ Logo"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 14,
+                objectFit: 'cover',
+                border: '2px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+                flexShrink: 0,
+              }}
+            />
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+                MDRRMO Balayan, Batangas
+              </div>
+              <div style={{ fontSize: 13, color: '#93C5FD', fontWeight: 700 }}>
+                Citizen Registration
+              </div>
+            </div>
           </div>
-          <h1 style={{ color: 'white', fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
-            Create an<br />
-            <span style={{ color: '#93C5FD' }}>Account</span>
+          <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, letterSpacing: '-0.4px', lineHeight: 1.15, margin: 0 }}>
+            Create an <span style={{ color: '#93C5FD' }}>Account</span>
           </h1>
         </div>
       </div>

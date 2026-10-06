@@ -151,7 +151,7 @@ textarea {
 html,
 body {
   font-family: var(--font);
-  background: #FFFFFF;
+  background: #F1F5F9;
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
@@ -1664,17 +1664,15 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-tab-view {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileTabSwitch 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: mobileTabSwitch 0.18s ease-out;
 }
 
 @keyframes mobileTabSwitch {
   0% {
     opacity: 0;
-    transform: translateY(6px);
   }
   100% {
     opacity: 1;
-    transform: none;
   }
 }
 
@@ -1683,37 +1681,31 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-subpage-forward {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
+  animation: mobileSubpageInRight 0.2s ease-out;
 }
 
 /* Backward: returning to parent page from the left */
 .mobile-subpage-backward {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
+  animation: mobileSubpageInLeft 0.2s ease-out;
 }
 
 @keyframes mobileSubpageInRight {
   0% {
     opacity: 0;
-    transform: translateX(20px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
 @keyframes mobileSubpageInLeft {
   0% {
     opacity: 0;
-    transform: translateX(-20px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -1721,7 +1713,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-section-transition {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: mobileSubpageInRight 0.2s ease-out;
 }
 
 /* ── Unified Auth Screen Transition (Login, Signup, Forgot Password, Reset Password) ── */
@@ -1729,18 +1721,15 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-auth {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileAuthFadeSlide 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity;
+  animation: mobileAuthFadeSlide 0.18s ease-out;
 }
 
 @keyframes mobileAuthFadeSlide {
   0% {
     opacity: 0;
-    transform: translateY(8px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 

@@ -190,9 +190,8 @@ export default function MobileHome() {
               {/* Inner Glowing SOS Icon Circle */}
               <div style={{
                 width: 62, height: 62, borderRadius: '50%',
-                background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.45)',
+                background: 'rgba(255,255,255,0.22)', border: '2px solid rgba(255,255,255,0.45)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backdropFilter: 'blur(8px)',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                 position: 'relative', zIndex: 1,
               }}>

@@ -75,28 +75,14 @@ export default function MobileResetPassword() {
     <div className="mobile-shell mobile-auth-transition" style={{ background: '#F1F5F9' }}>
       <style>{`
         .mr-header {
-          background: linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
+          background:
+            radial-gradient(circle 100px at calc(100% - 40px) 20px, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.05) 99%, transparent 100%),
+            linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
           padding: 48px 24px 38px;
           position: relative;
-          overflow: hidden;
-          border-radius: 0 0 32px 32px;
+          box-shadow: 0 6px 24px rgba(15, 31, 56, 0.35);
+          border-radius: 0 0 24px 24px;
           color: white;
-        }
-        .mr-header::after {
-          content: '';
-          position: absolute;
-          top: -40px; right: -40px;
-          width: 160px; height: 160px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 50%;
-        }
-        .mr-header::before {
-          content: '';
-          position: absolute;
-          bottom: 10px; left: -30px;
-          width: 100px; height: 100px;
-          background: rgba(255,255,255,0.04);
-          border-radius: 50%;
         }
         .mr-form-card {
           margin: 16px 20px 30px;
