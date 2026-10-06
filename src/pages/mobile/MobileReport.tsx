@@ -377,11 +377,6 @@ export default function MobileReport() {
   return (
     <div className="mobile-shell" style={{ background: '#F1F5F9' }}>
       <style>{`
-        @keyframes scanline {
-          0% { top: 0%; opacity: 0.8; }
-          50% { opacity: 1; }
-          100% { top: 100%; opacity: 0.8; }
-        }
         @keyframes scaleUp {
           from { opacity: 0; transform: scale(0.92); }
           to   { opacity: 1; transform: scale(1); }
@@ -399,30 +394,6 @@ export default function MobileReport() {
           box-shadow: 0 8px 30px rgba(15,23,42,0.18);
           cursor: pointer;
           border: 1.5px solid rgba(255,255,255,0.12);
-        }
-        .vf-corner {
-          position: absolute;
-          width: 22px;
-          height: 22px;
-          border-color: #EF4444;
-          border-style: solid;
-          pointer-events: none;
-          z-index: 2;
-        }
-        .vf-tl { top: 14px; left: 14px; border-width: 3px 0 0 3px; border-top-left-radius: 6px; }
-        .vf-tr { top: 14px; right: 14px; border-width: 3px 3px 0 0; border-top-right-radius: 6px; }
-        .vf-bl { bottom: 14px; left: 14px; border-width: 0 0 3px 3px; border-bottom-left-radius: 6px; }
-        .vf-br { bottom: 14px; right: 14px; border-width: 0 3px 3px 0; border-bottom-right-radius: 6px; }
-        .vf-scan {
-          position: absolute;
-          left: 14px;
-          right: 14px;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, #EF4444, #F87171, transparent);
-          box-shadow: 0 0 12px #EF4444;
-          animation: scanline 2.5s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 2;
         }
       `}</style>
 
@@ -609,12 +580,6 @@ export default function MobileReport() {
         {/* Camera Viewfinder Box */}
         <div style={{ marginBottom: 20 }}>
           <div className="viewfinder-box" onClick={() => fileRef.current?.click()}>
-            <div className="vf-corner vf-tl" />
-            <div className="vf-corner vf-tr" />
-            <div className="vf-corner vf-bl" />
-            <div className="vf-corner vf-br" />
-            {!preview && !compressing && <div className="vf-scan" />}
-
             {compressing ? (
               <div style={{ textAlign: 'center', padding: '36px 20px', zIndex: 1, color: 'white' }}>
                 <Loader size={32} className="spin" style={{ color: '#60A5FA', margin: '0 auto 12px' }} />

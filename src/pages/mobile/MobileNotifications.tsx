@@ -319,16 +319,10 @@ export default function MobileNotifications() {
   const [searchParams] = useSearchParams();
   const targetIncidentId = searchParams.get('incidentId');
   const [notifications, setNotifications] = useState<StoredNotif[]>(() => getStoredNotifications());
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const refreshAlerts = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const synced = await syncNotificationsWithBackend();
-      setNotifications(synced);
-    } finally {
-      setIsRefreshing(false);
-    }
+    const synced = await syncNotificationsWithBackend();
+    setNotifications(synced);
   }, []);
 
   // 1. Initial backend sync & realtime event listeners
@@ -615,15 +609,6 @@ export default function MobileNotifications() {
             justifyContent: 'center', padding: '60px 24px', textAlign: 'center',
             background: 'white', borderRadius: 20, border: '1px solid #E2E8F0', marginTop: 10,
           }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: 18,
-              background: '#EFF6FF',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 14, overflow: 'hidden',
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.15)',
-            }}>
-              <img src="/logo.jpg" alt="SendResQPls" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
             <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
               No notifications yet
             </div>
@@ -631,20 +616,6 @@ export default function MobileNotifications() {
               You will receive alerts here whenever your emergency reports are reviewed, dispatched, or reassigned.
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <Button
-                variant="outline"
-                onClick={refreshAlerts}
-                disabled={isRefreshing}
-                style={{
-                  padding: '10px 18px', borderRadius: 12,
-                  background: 'white', border: '1.5px solid #2563EB',
-                  fontSize: 13, fontWeight: 700, color: '#2563EB',
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  minHeight: 44,
-                }}
-              >
-                <RefreshCw size={14} className={isRefreshing ? 'spin' : ''} /> Check for Updates
-              </Button>
               <Button
                 variant="outline"
                 onClick={() => navigate('/mobile/history')}

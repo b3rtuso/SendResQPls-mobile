@@ -70,8 +70,10 @@ export default function MobileSignup() {
 
   const passInputStyle = (visible: boolean): React.CSSProperties => ({
     ...inputStyle,
-    fontFamily: visible ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    letterSpacing: visible ? 'normal' : '0.12em',
+    fontFamily: visible || !form.password ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    letterSpacing: visible || !form.password ? 'normal' : '0.12em',
+    paddingRight: 52,
+    textOverflow: 'ellipsis',
   });
 
   // ── Friendly error message mapper ──────────────────────────────────────────

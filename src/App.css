@@ -256,8 +256,9 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   line-height: normal !important;
   vertical-align: middle;
   color: #0F172A;
-  padding: 0 16px 0 46px !important;
+  padding: 0 16px 0 46px;
   box-sizing: border-box;
+  text-overflow: ellipsis;
 }
 
 .mobile-auth .input-wrapper input:focus,
