@@ -58,7 +58,7 @@ export default function BottomNav() {
           right: 0 !important;
           margin: 0 auto !important;
           width: 100% !important;
-          max-width: 480px !important;
+          max-width: 100% !important;
           height: 68px !important;
           display: grid !important;
           grid-template-columns: repeat(5, 1fr) !important;

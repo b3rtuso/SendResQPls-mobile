@@ -95,13 +95,6 @@ export default function MobileResetPassword() {
           box-sizing: border-box;
           animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        @media (min-width: 600px) {
-          .mr-form-card {
-            max-width: 480px;
-            margin: 20px auto 40px;
-            padding: 34px 28px;
-          }
-        }
         .mr-input-error::placeholder {
           color: #EF4444 !important;
           opacity: 0.85 !important;

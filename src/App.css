@@ -139,7 +139,7 @@ body:has(.mobile-shell)::-webkit-scrollbar {
 /* Mobile Layout Shell */
 .mobile-shell {
   width: 100%;
-  max-width: 480px;
+  max-width: 100%;
   min-height: 100dvh;
   margin: 0 auto;
   background: #F1F5F9;
@@ -161,10 +161,6 @@ body:has(.mobile-shell)::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
-}
-
-@media (max-width: 480px) {
-  .mobile-shell { max-width: 100%; }
 }
 
 /* ===== MOBILE AUTH SCREENS ===== */
