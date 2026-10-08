@@ -292,7 +292,7 @@ export default function MobileSignup() {
       <div className="ms-signup-header">
         <div style={{ position: 'relative', zIndex: 1 }}>
           <img
-            src="/logo.jpg" alt="SRQ"
+            src="/logo.svg" alt="SRQ"
             style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
           />
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>

@@ -42,7 +42,7 @@ export default function GetTheApp() {
       >
         <div style={{ display: 'inline-block', marginBottom: 16 }}>
           <img
-            src="/logo.jpg"
+            src="/logo.svg"
             alt="SendResQPls"
             width={72}
             height={72}

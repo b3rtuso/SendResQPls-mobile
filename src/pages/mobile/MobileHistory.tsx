@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, AlertTriangle, PlusCircle, X, ChevronRight, Check, HelpCircle, Truck } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, PlusCircle, X, ChevronRight, Check, HelpCircle, Truck } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
@@ -12,11 +12,11 @@ import type { FcmNotificationPayload } from '../../utils/pushNotificationHelper'
 import { Button } from '@/components/ui/button';
 import { getNearestBarangay } from '../../data/balayan-data';
 import { MobileHistorySkeleton, MobileTrackerModalSkeleton } from '../../components/PageLoader';
-import { cleanIncidentType } from '../../utils/departmentUtils';
+import { cleanIncidentType, getIncidentTypeTheme } from '../../utils/departmentUtils';
 
 
 const STATUS_ICONS: Record<Status, any> = {
-  PENDING: Clock,
+  PENDING: HelpCircle,
   REVIEWING: AlertCircle,
   DISPATCHED: Truck,
   RESOLVED: CheckCircle2,
@@ -103,17 +103,6 @@ const TAB_THEMES: Record<string, {
   },
 };
 
-const TYPE_COLORS: Record<string, string> = {
-  Fire: '#EF4444',
-  Flood: '#3B82F6',
-  Medical: '#22C55E',
-  Trauma: '#F59E0B',
-  Accident: '#3B82F6',
-  Crime: '#8B5CF6',
-  Typhoon: '#8B5CF6',
-  Landslide: '#78716C',
-};
-
 const FILTER_TABS = ['ALL', 'PENDING', 'REVIEWING', 'DISPATCHED', 'RESOLVED', 'REJECTED'] as const;
 type FilterTab = typeof FILTER_TABS[number];
 
@@ -146,6 +135,7 @@ export default function MobileHistory() {
   const [page, setPage] = useState(1);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [loadingTracker, setLoadingTracker] = useState(false);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   // Pull-to-refresh states & refs
   const [pullDistance, setPullDistance] = useState(0);
@@ -660,9 +650,9 @@ export default function MobileHistory() {
           <div className="history-list">
             {displayedIncidents.map((inc) => {
               const theme = STATUS_THEMES[inc.status] || STATUS_THEMES.PENDING;
-              const StatusIcon = STATUS_ICONS[inc.status] || Clock;
-              const typeFirstWord = (inc.aiDetectedType || 'Emergency').split(' ')[0];
-              const accentColor = TYPE_COLORS[typeFirstWord] || '#2563EB';
+              const StatusIcon = STATUS_ICONS[inc.status] || HelpCircle;
+              const typeTheme = getIncidentTypeTheme(inc.aiDetectedType, inc.status);
+              const TypeIcon = typeTheme.icon;
 
               return (
                 <div
@@ -671,15 +661,16 @@ export default function MobileHistory() {
                   onClick={() => setSelectedIncident(inc)}
                   role="button"
                   tabIndex={0}
-                  aria-label={`View details for ${cleanIncidentType(inc.aiDetectedType) || 'Emergency'}`}
+                  aria-label={`View details for ${typeTheme.label}`}
                 >
                   {/* Top Row: Thumbnail + Info */}
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-                    {/* Thumbnail Image or Icon box */}
-                    {inc.photoUrl ? (
+                    {/* Thumbnail Image or Classified Emergency Icon box */}
+                    {inc.photoUrl && !failedImages[inc.id] ? (
                       <img
                         src={inc.photoUrl}
                         alt="Incident photo"
+                        onError={() => setFailedImages(prev => ({ ...prev, [inc.id]: true }))}
                         style={{
                           width: 54,
                           height: 54,
@@ -694,24 +685,23 @@ export default function MobileHistory() {
                         width: 54,
                         height: 54,
                         borderRadius: 14,
-                        background: `${accentColor}12`,
-                        border: `1.5px solid ${accentColor}25`,
+                        background: typeTheme.bgLight,
+                        border: `1.5px solid ${typeTheme.borderLight}`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: accentColor,
+                        color: typeTheme.color,
                         flexShrink: 0,
                       }}>
-                        {(!inc.aiDetectedType || inc.aiDetectedType.toLowerCase().includes('unrecognized') || inc.aiDetectedType.toLowerCase().includes('unknown')) ? (
-                          <HelpCircle size={24} color="#D97706" />
-                        ) : (
-                          <AlertTriangle size={24} />
-                        )}
+                        <TypeIcon size={24} color={typeTheme.color} />
                       </div>
                     )}
 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
                         fontSize: 14.5,
                         fontWeight: 800,
                         color: '#0F172A',
@@ -721,7 +711,22 @@ export default function MobileHistory() {
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                       }}>
-                        {cleanIncidentType(inc.aiDetectedType) || 'Unidentified Emergency'}
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 22,
+                          height: 22,
+                          borderRadius: 6,
+                          background: typeTheme.bgLight,
+                          border: `1px solid ${typeTheme.borderLight}`,
+                          flexShrink: 0,
+                        }}>
+                          <TypeIcon size={13} color={typeTheme.color} />
+                        </span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {typeTheme.label}
+                        </span>
                       </div>
                       <div style={{
                         display: 'flex',
@@ -924,34 +929,53 @@ export default function MobileHistory() {
             <div className="srq-tracker-handle" />
 
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  Live Status Tracker
+            {(() => {
+              const modalTypeTheme = getIncidentTypeTheme(selectedIncident.aiDetectedType, selectedIncident.status);
+              const ModalTypeIcon = modalTypeTheme.icon;
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      Live Status Tracker
+                    </div>
+                    <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 18, fontWeight: 900, color: '#0F172A', margin: '4px 0 0', letterSpacing: '-0.3px' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        background: modalTypeTheme.bgLight,
+                        border: `1.5px solid ${modalTypeTheme.borderLight}`,
+                        flexShrink: 0,
+                      }}>
+                        <ModalTypeIcon size={16} color={modalTypeTheme.color} />
+                      </span>
+                      <span>{modalTypeTheme.label}</span>
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => setSelectedIncident(null)}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      border: '1px solid #E2E8F0',
+                      background: '#F8FAFC',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      color: '#64748B',
+                    }}
+                    aria-label="Close tracker"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', margin: '2px 0 0', letterSpacing: '-0.3px' }}>
-                  {cleanIncidentType(selectedIncident.aiDetectedType) || 'Emergency Report'}
-                </h2>
-              </div>
-              <button
-                onClick={() => setSelectedIncident(null)}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  border: '1px solid #E2E8F0',
-                  background: '#F8FAFC',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: '#64748B',
-                }}
-                aria-label="Close tracker"
-              >
-                <X size={16} />
-              </button>
-            </div>
+              );
+            })()}
 
             {/* Live Dispatch Badge / Status Summary */}
             {selectedIncident.status === 'DISPATCHED' && (
@@ -1027,7 +1051,9 @@ export default function MobileHistory() {
                     <div className={`srq-node-icon-wrap ${
                       selectedIncident.status === 'PENDING' || selectedIncident.status === 'REVIEWING' ? 'active' : 'completed'
                     }`}>
-                      {selectedIncident.status === 'PENDING' || selectedIncident.status === 'REVIEWING' ? (
+                      {selectedIncident.status === 'PENDING' ? (
+                        <HelpCircle size={18} />
+                      ) : selectedIncident.status === 'REVIEWING' ? (
                         <Clock size={18} />
                       ) : (
                         <Check size={18} strokeWidth={3} />
@@ -1121,64 +1147,68 @@ export default function MobileHistory() {
             </div>
 
             {/* Incident Details Card */}
-            <div style={{
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              borderRadius: 18,
-              padding: 14,
-              display: 'flex',
-              gap: 12,
-              alignItems: 'center',
-              margin: '16px 0 12px',
-            }}>
-              {selectedIncident.photoUrl ? (
-                <img
-                  src={selectedIncident.photoUrl}
-                  alt="Incident Scene"
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 12,
-                    objectFit: 'cover',
-                    border: '1.5px solid #CBD5E1',
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
+            {(() => {
+              const detailTheme = getIncidentTypeTheme(selectedIncident.aiDetectedType, selectedIncident.status);
+              const DetailIcon = detailTheme.icon;
+              return (
                 <div style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 12,
-                  background: (!selectedIncident.aiDetectedType || selectedIncident.aiDetectedType.toLowerCase().includes('unrecognized') || selectedIncident.aiDetectedType.toLowerCase().includes('unknown')) ? '#FEF3C7' : '#EFF6FF',
-                  color: (!selectedIncident.aiDetectedType || selectedIncident.aiDetectedType.toLowerCase().includes('unrecognized') || selectedIncident.aiDetectedType.toLowerCase().includes('unknown')) ? '#D97706' : '#2563EB',
+                  background: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 18,
+                  padding: 14,
                   display: 'flex',
+                  gap: 12,
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
+                  margin: '16px 0 12px',
                 }}>
-                  {(!selectedIncident.aiDetectedType || selectedIncident.aiDetectedType.toLowerCase().includes('unrecognized') || selectedIncident.aiDetectedType.toLowerCase().includes('unknown')) ? (
-                    <HelpCircle size={28} color="#D97706" />
+                  {selectedIncident.photoUrl && !failedImages[selectedIncident.id] ? (
+                    <img
+                      src={selectedIncident.photoUrl}
+                      alt="Incident Scene"
+                      onError={() => setFailedImages(prev => ({ ...prev, [selectedIncident.id]: true }))}
+                      style={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: 12,
+                        objectFit: 'cover',
+                        border: '1.5px solid #CBD5E1',
+                        flexShrink: 0,
+                      }}
+                    />
                   ) : (
-                    <AlertTriangle size={24} />
+                    <div style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 12,
+                      background: detailTheme.bgLight,
+                      border: `1.5px solid ${detailTheme.borderLight}`,
+                      color: detailTheme.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <DetailIcon size={28} color={detailTheme.color} />
+                    </div>
                   )}
-                </div>
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
-                  {selectedIncident.latitude && selectedIncident.longitude
-                    ? getNearestBarangay(selectedIncident.latitude, selectedIncident.longitude)
-                    : 'Balayan, Batangas'}
-                </div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 3 }}>
-                  GPS: {selectedIncident.latitude?.toFixed(4)}, {selectedIncident.longitude?.toFixed(4)}
-                </div>
-                {selectedIncident.adminNotes && (
-                  <div style={{ fontSize: 11.5, color: '#475569', marginTop: 4, fontStyle: 'italic' }}>
-                    "{selectedIncident.adminNotes}"
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                      {selectedIncident.latitude && selectedIncident.longitude
+                        ? getNearestBarangay(selectedIncident.latitude, selectedIncident.longitude)
+                        : 'Balayan, Batangas'}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 3 }}>
+                      GPS: {selectedIncident.latitude?.toFixed(4)}, {selectedIncident.longitude?.toFixed(4)}
+                    </div>
+                    {selectedIncident.adminNotes && (
+                      <div style={{ fontSize: 11.5, color: '#475569', marginTop: 4, fontStyle: 'italic' }}>
+                        "{selectedIncident.adminNotes}"
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              );
+            })()}
 
             {/* ── ACTIVITY TIMELINE ── */}
             <div style={{

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Check, Zap, Truck, Search, HelpCircle, ClipboardCheck, Info } from 'lucide-react';
 import { IoIosSend } from 'react-icons/io';
 import type { MobileToastItem } from '../contexts/MobileToastContext';
-import { getDepartmentTheme } from '../utils/departmentUtils';
+import { getDepartmentTheme, getIncidentTypeTheme } from '../utils/departmentUtils';
 
 interface MobileToastCardProps {
   toast: MobileToastItem;
@@ -36,6 +36,8 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
   const navigate = useNavigate();
   const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
   const deptTheme = toast.department ? getDepartmentTheme(toast.department) : null;
+  const candidateTypeTheme = getIncidentTypeTheme(`${toast.title || ''} ${toast.message || ''}`, toast.status);
+  const incidentTheme = !candidateTypeTheme.isUnclassified ? candidateTypeTheme : null;
 
   // Swipe state
   const [swipeX, setSwipeX] = useState(0);
@@ -295,11 +297,25 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
           }}>
             <Check size={16} strokeWidth={2.5} />
           </div>
-        ) : (Boolean(toast.title && toast.title.toLowerCase().includes('unrecognized')) || Boolean(toast.message && toast.message.toLowerCase().includes('unrecognized'))) ? (
+        ) : incidentTheme ? (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, width: 28, height: 28,
+            color: incidentTheme.color, background: incidentTheme.bgLight, borderRadius: 8,
+            border: `1px solid ${incidentTheme.borderLight}`,
+          }}>
+            <incidentTheme.icon size={16} style={{ width: 16, height: 16 }} />
+          </div>
+        ) : (
+          toast.status === 'PENDING' ||
+          Boolean(toast.title && (toast.title.toLowerCase().includes('unrecognized') || toast.title.toLowerCase().includes('pending'))) ||
+          Boolean(toast.message && (toast.message.toLowerCase().includes('unrecognized') || toast.message.toLowerCase().includes('pending')))
+        ) ? (
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, width: 28, height: 28,
             color: '#D97706', background: '#FEF3C7', borderRadius: 8,
+            border: '1px solid #FDE68A',
           }}>
             <HelpCircle size={16} />
           </div>
@@ -329,7 +345,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
             borderRadius: 8, overflow: 'hidden',
             border: '1px solid #CBD5E1',
           }}>
-            <img src="/logo.jpg" alt="SendResQPls" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/logo.svg" alt="SendResQPls" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         )}
 

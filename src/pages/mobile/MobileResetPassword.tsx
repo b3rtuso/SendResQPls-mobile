@@ -149,7 +149,7 @@ export default function MobileResetPassword() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <img
-              src="/logo.jpg"
+              src="/logo.svg"
               alt="SRQ Logo"
               style={{
                 width: 48,

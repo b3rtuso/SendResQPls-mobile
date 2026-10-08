@@ -1813,6 +1813,16 @@ input[type="password"]::placeholder {
   font-family: var(--font, inherit);
 }
 
+/* ── Explicit Cross-WebView Placeholder Visibility (Phones & Tablets) ── */
+input::placeholder,
+textarea::placeholder,
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #94A3B8 !important;
+  -webkit-text-fill-color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
 /* Suppress browser internal icons that displace password text */
 input::-ms-reveal,
 input::-ms-clear {
@@ -1824,5 +1834,6 @@ input::-webkit-credentials-auto-fill-button {
   position: absolute;
   right: 0;
 }
+
 
 

@@ -213,7 +213,7 @@ export default function MobileOnboarding({ onDone }: { onDone: () => void }) {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <img
-            src="/logo.jpg"
+            src="/logo.svg"
             alt="SRQ Logo"
             style={{
               width: 28,

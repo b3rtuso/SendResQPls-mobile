@@ -10,11 +10,15 @@ import {
   Building2,
   ShieldAlert,
   AlertCircle,
+  Car,
+  HelpCircle,
 } from 'lucide-react';
-import { FaFire } from 'react-icons/fa6';
+import { FaFire, FaHouseFloodWater } from 'react-icons/fa6';
 import { FaBriefcaseMedical } from 'react-icons/fa';
 import { GiPoliceBadge } from 'react-icons/gi';
 import { IoBandage } from 'react-icons/io5';
+import { RiCriminalFill, RiTyphoonFill } from 'react-icons/ri';
+import { MdLandslide } from 'react-icons/md';
 
 export interface DepartmentTheme {
   name: string;
@@ -23,6 +27,15 @@ export interface DepartmentTheme {
   color: string;
   bgLight: string;
   borderLight: string;
+}
+
+export interface IncidentTypeTheme {
+  label: string;
+  icon: React.ElementType;
+  color: string;
+  bgLight: string;
+  borderLight: string;
+  isUnclassified: boolean;
 }
 
 // Fallback palette for arbitrary future departments added by admin
@@ -235,4 +248,122 @@ export function cleanIncidentType(type?: string | null): string {
     .replace(/\s*low\s*confidence/gi, '')
     .trim();
 }
+
+/**
+ * Resolves the official Admin Analytics Map filter icon and color for any classified emergency:
+ *   - Fire:      FaFire (#EF4444)
+ *   - Flood:     FaHouseFloodWater (#3B82F6)
+ *   - Medical:   FaBriefcaseMedical (#22C55E)
+ *   - Trauma:    IoBandage (#F59E0B)
+ *   - Accident:  Car (#F97316)
+ *   - Crime:     RiCriminalFill (#000000)
+ *   - Typhoon:   RiTyphoonFill (#8B5CF6)
+ *   - Landslide: MdLandslide (#78716C)
+ * And when an emergency is pending classification (Emergency Pending / Unrecognized / Unknown / Pending),
+ * returns the Question Mark icon (HelpCircle).
+ */
+export function getIncidentTypeTheme(type?: string | null, status?: string | null): IncidentTypeTheme {
+  const cleaned = cleanIncidentType(type);
+  const normalized = cleaned.toUpperCase();
+
+  if (normalized.includes('FIRE') || normalized.includes('SUNOG') || normalized.includes('BLAZE')) {
+    return {
+      label: cleaned || 'Fire',
+      icon: FaFire,
+      color: '#EF4444',
+      bgLight: 'rgba(239, 68, 68, 0.12)',
+      borderLight: 'rgba(239, 68, 68, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('FLOOD') || normalized.includes('BAHA') || normalized.includes('INUNDAT')) {
+    return {
+      label: cleaned || 'Flood',
+      icon: FaHouseFloodWater,
+      color: '#3B82F6',
+      bgLight: 'rgba(59, 130, 246, 0.12)',
+      borderLight: 'rgba(59, 130, 246, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('MEDICAL') || normalized.includes('HEALTH') || normalized.includes('HEART') || normalized.includes('STROKE')) {
+    return {
+      label: cleaned || 'Medical',
+      icon: FaBriefcaseMedical,
+      color: '#22C55E',
+      bgLight: 'rgba(34, 197, 94, 0.12)',
+      borderLight: 'rgba(34, 197, 94, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('TRAUMA') || normalized.includes('INJURY') || normalized.includes('WOUND') || normalized.includes('BLEED') || normalized.includes('FRACTURE')) {
+    return {
+      label: cleaned || 'Trauma',
+      icon: IoBandage,
+      color: '#F59E0B',
+      bgLight: 'rgba(245, 158, 11, 0.12)',
+      borderLight: 'rgba(245, 158, 11, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('ACCIDENT') || normalized.includes('VEHIC') || normalized.includes('CRASH') || normalized.includes('COLLISION') || normalized.includes('CAR')) {
+    return {
+      label: cleaned || 'Accident',
+      icon: Car,
+      color: '#F97316',
+      bgLight: 'rgba(249, 115, 22, 0.12)',
+      borderLight: 'rgba(249, 115, 22, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('CRIME') || normalized.includes('THEFT') || normalized.includes('ROBBERY') || normalized.includes('ASSAULT') || normalized.includes('VIOLENCE')) {
+    return {
+      label: cleaned || 'Crime',
+      icon: RiCriminalFill,
+      color: '#000000',
+      bgLight: '#F1F5F9',
+      borderLight: '#CBD5E1',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('TYPHOON') || normalized.includes('STORM') || normalized.includes('BAGYO')) {
+    return {
+      label: cleaned || 'Typhoon',
+      icon: RiTyphoonFill,
+      color: '#8B5CF6',
+      bgLight: 'rgba(139, 92, 246, 0.12)',
+      borderLight: 'rgba(139, 92, 246, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  if (normalized.includes('LANDSLIDE') || normalized.includes('MUDSLIDE') || normalized.includes('EROSION')) {
+    return {
+      label: cleaned || 'Landslide',
+      icon: MdLandslide,
+      color: '#78716C',
+      bgLight: 'rgba(120, 113, 108, 0.12)',
+      borderLight: 'rgba(120, 113, 108, 0.28)',
+      isUnclassified: false,
+    };
+  }
+
+  // Emergency Pending / Unrecognized / Unknown / Pending classification -> Question Mark icon
+  const isPendingStatus = !status || status.toUpperCase() === 'PENDING';
+  return {
+    label: 'Emergency Pending',
+    icon: HelpCircle,
+    color: isPendingStatus ? '#D97706' : '#64748B',
+    bgLight: isPendingStatus ? '#FEF3C7' : '#F8FAFC',
+    borderLight: isPendingStatus ? '#FDE68A' : '#E2E8F0',
+    isUnclassified: true,
+  };
+}
+
 

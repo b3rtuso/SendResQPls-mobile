@@ -351,7 +351,7 @@ export default function LegalModal({
         <div className="legal-modal-header">
           <div className="legal-header-left">
             <img
-              src="/logo.jpg"
+              src="/logo.svg"
               alt="SRQ"
               className="legal-header-logo"
             />

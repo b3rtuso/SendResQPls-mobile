@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight, Truck, RefreshCw, HelpCircle } from 'lucide-react';
+import { ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight, Truck, RefreshCw, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getDepartmentTheme, cleanIncidentType } from '../../utils/departmentUtils';
+import { getDepartmentTheme, cleanIncidentType, getIncidentTypeTheme } from '../../utils/departmentUtils';
 import { getMyIncidents } from '../../api/client';
 
 // Pull notifications from localStorage (scoped per userId to prevent cross-account leakage)
@@ -338,7 +338,7 @@ const STATUS_META: Record<string, { label: string; color: string; bg: string; bo
   RESOLVED:   { label: 'Your report has been resolved',          color: '#16A34A', bg: '#F0FDF4', border: '#16A34A', icon: ShieldCheck },
   REJECTED:   { label: 'Report was not approved',                color: '#DC2626', bg: '#FEF2F2', border: '#DC2626', icon: XCircle },
   REVIEWING:  { label: 'Under review by MDRRMO',                 color: '#D97706', bg: '#FFFBEB', border: '#D97706', icon: Clock },
-  PENDING:    { label: 'Awaiting dispatcher review',             color: '#64748B', bg: '#F8FAFC', border: '#CBD5E1', icon: AlertCircle },
+  PENDING:    { label: 'Awaiting dispatcher review',             color: '#D97706', bg: '#FEF3C7', border: '#FDE68A', icon: HelpCircle },
 };
 
 export default function MobileNotifications() {
@@ -663,12 +663,13 @@ export default function MobileNotifications() {
             {notifications.map((n, i) => {
               const meta = STATUS_META[n.status] || STATUS_META.PENDING;
               const deptTheme = n.department ? getDepartmentTheme(n.department) : null;
-              const Icon = deptTheme?.icon || meta.icon;
-              const iconColor = deptTheme?.color || meta.color;
-              const iconBg = deptTheme?.bgLight || meta.bg;
-              const iconBorder = deptTheme?.borderLight || `${meta.color}25`;
+              const typeTheme = getIncidentTypeTheme(n.type, n.status);
+              const TypeIcon = typeTheme.icon;
+              const iconColor = typeTheme.color;
+              const iconBg = typeTheme.bgLight;
+              const iconBorder = typeTheme.borderLight;
 
-              const cleanType = cleanIncidentType(n.type) || 'Emergency Update';
+              const cleanType = typeTheme.label;
               const statusText = n.title || (
                 n.department && n.status === 'DISPATCHED'
                   ? `${deptTheme?.name || n.department} Dispatched`
@@ -703,7 +704,7 @@ export default function MobileNotifications() {
                       : '1px solid #E2E8F0',
                   }}
                 >
-                  {/* Icon square with tinted bg or SendResQPls logo */}
+                  {/* Icon square with Analytics Map classified emergency icon or Question Mark when Pending */}
                   <div style={{
                     width: 42, height: 42, borderRadius: 12,
                     background: iconBg, flexShrink: 0,
@@ -711,13 +712,7 @@ export default function MobileNotifications() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden',
                   }}>
-                    {deptTheme ? (
-                      <Icon size={20} color={iconColor} style={{ width: 20, height: 20 }} />
-                    ) : (cleanType.toLowerCase().includes('unrecognized') || cleanType.toLowerCase().includes('unknown') || Boolean(n.title && n.title.toLowerCase().includes('unrecognized'))) ? (
-                      <HelpCircle size={22} color="#D97706" />
-                    ) : (
-                      <Icon size={20} color={meta.color} />
-                    )}
+                    <TypeIcon size={20} color={iconColor} style={{ width: 20, height: 20 }} />
                   </div>
 
                   {/* Text block */}
