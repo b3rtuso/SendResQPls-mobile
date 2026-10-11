@@ -5,6 +5,7 @@ import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { SiGmail } from 'react-icons/si';
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,6 @@ import { openGmailApp, extractVerificationCode, getNativeClipboard } from '../..
 import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import LegalModal from '../../components/LegalModal';
 import WebBrowserBlocked from '../../components/WebBrowserBlocked';
-import { isAllowedPlatform } from '../../utils/platform';
 
 export default function MobileSignup() {
   const navigate = useNavigate();
@@ -39,8 +39,8 @@ export default function MobileSignup() {
   const [cooldown, setCooldown] = useState(0);
   const [clipboardCode, setClipboardCode] = useState<string | null>(null);
 
-  // Block access from a regular web browser — signup requires native app (lifted for local dev)
-  if (!isAllowedPlatform()) {
+  // Block access from a regular web browser — signup requires the native Android app
+  if (!Capacitor.isNativePlatform()) {
     return <WebBrowserBlocked />;
   }
 

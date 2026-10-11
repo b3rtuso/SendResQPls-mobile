@@ -16,25 +16,6 @@
 export default function middleware(request: Request): Response | undefined {
   const url = new URL(request.url);
 
-  // Always allow local development and local network (LAN) access on browser
-  const host = url.hostname.toLowerCase();
-  if (
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === '0.0.0.0' ||
-    host === '::1' ||
-    host.startsWith('192.168.') ||
-    host.startsWith('10.') ||
-    host.startsWith('172.') ||
-    host.endsWith('.local') ||
-    host.endsWith('.internal') ||
-    host.endsWith('.lan') ||
-    host.endsWith('.home') ||
-    host.endsWith('.test')
-  ) {
-    return undefined;
-  }
-
   const pathname = url.pathname.toLowerCase();
 
   // Always allow password reset, recovery, login, signup, and portal routes in any browser
