@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, PlusCircle, X, ChevronRight, Check, HelpCircle, Truck } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, PlusCircle, X, ChevronRight, Check, HelpCircle, Truck, ChevronDown, Filter } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
@@ -136,6 +136,9 @@ export default function MobileHistory() {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [loadingTracker, setLoadingTracker] = useState(false);
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+  const [isTimelineOpen, setIsTimelineOpen] = useState(true);
+  const [timelineFilter, setTimelineFilter] = useState<'all' | 'status' | 'ai' | 'notes'>('all');
+  const [timelineSort, setTimelineSort] = useState<'newest' | 'oldest'>('newest');
 
   // Pull-to-refresh states & refs
   const [pullDistance, setPullDistance] = useState(0);
@@ -1210,111 +1213,314 @@ export default function MobileHistory() {
               );
             })()}
 
-            {/* ── ACTIVITY TIMELINE ── */}
-            <div style={{
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              borderRadius: 18,
-              padding: '16px 14px',
-              margin: '12px 0 16px',
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 14,
-                paddingBottom: 8,
-                borderBottom: '1px solid #E2E8F0',
-              }}>
-                <div style={{ fontSize: 11.5, fontWeight: 900, color: '#0F172A', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                  ACTIVITY TIMELINE
-                </div>
-                <span style={{
-                  fontSize: 10,
-                  fontWeight: 800,
-                  color: '#2563EB',
-                  background: '#EFF6FF',
-                  border: '1px solid #DBEAFE',
-                  padding: '2px 8px',
-                  borderRadius: 6,
-                }}>
-                  {(() => {
-                    const activities = selectedIncident.activities && selectedIncident.activities.length > 0
-                      ? selectedIncident.activities
-                      : [
-                          { id: '1', title: `Incident reported by ${selectedIncident.reporter?.name || 'Citizen'} via mobile app`, createdAt: selectedIncident.createdAt },
-                          ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${cleanIncidentType(selectedIncident.aiDetectedType).toUpperCase()} detected`, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
-                          ...(selectedIncident.aiRecommendedDept ? [{ id: '3', title: `Auto-assigned to ${selectedIncident.aiRecommendedDept} based on AI recommendation`, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 5000).toISOString() }] : []),
-                          ...(selectedIncident.status !== 'PENDING' ? [{ id: '4', title: `Status changed to ${selectedIncident.status}`, createdAt: selectedIncident.updatedAt }] : []),
-                          ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, createdAt: selectedIncident.updatedAt }] : []),
-                        ];
-                    return `${activities.length} Events`;
-                  })()}
-                </span>
-              </div>
+            {/* ── ACTIVITY TIMELINE (RESPONSIVE COLLAPSIBLE DROPDOWN) ── */}
+            {(() => {
+              const formatTimelineDate = (dateInput: string | Date) => {
+                const d = new Date(dateInput);
+                if (isNaN(d.getTime())) return '';
+                const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                return `${datePart} • ${timePart}`;
+              };
 
-              <div style={{ position: 'relative', paddingLeft: 22 }}>
+              const rawActivities: Array<{ id: string; title: string; description?: string; createdAt: string }> =
+                selectedIncident.activities && selectedIncident.activities.length > 0
+                  ? selectedIncident.activities
+                  : [
+                      { id: '1', title: `Incident reported by ${selectedIncident.reporter?.name || 'Citizen'} via mobile app`, description: undefined, createdAt: selectedIncident.createdAt },
+                      ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${cleanIncidentType(selectedIncident.aiDetectedType).toUpperCase()} detected`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
+                      ...(selectedIncident.aiRecommendedDept ? [{ id: '3', title: `Auto-assigned to ${selectedIncident.aiRecommendedDept} based on AI recommendation`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 5000).toISOString() }] : []),
+                      ...(selectedIncident.status !== 'PENDING' ? [{ id: '4', title: `Status changed to ${selectedIncident.status}`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
+                      ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
+                    ];
+
+              let displayActivities = [...rawActivities];
+              if (timelineFilter === 'status') {
+                displayActivities = displayActivities.filter(a =>
+                  a.title.toLowerCase().includes('status') ||
+                  a.title.toLowerCase().includes('assigned') ||
+                  a.title.toLowerCase().includes('dispatch') ||
+                  a.title.toLowerCase().includes('reported')
+                );
+              } else if (timelineFilter === 'ai') {
+                displayActivities = displayActivities.filter(a =>
+                  a.title.toLowerCase().includes('ai') ||
+                  a.title.toLowerCase().includes('detected') ||
+                  a.title.toLowerCase().includes('hazard')
+                );
+              } else if (timelineFilter === 'notes') {
+                displayActivities = displayActivities.filter(a =>
+                  a.title.toLowerCase().includes('note') || !!a.description
+                );
+              }
+
+              if (displayActivities.length === 0 && rawActivities.length > 0) {
+                displayActivities = [...rawActivities];
+              }
+
+              displayActivities.sort((a, b) => {
+                const diff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                return timelineSort === 'newest' ? diff : -diff;
+              });
+
+              const latestItem = rawActivities[rawActivities.length - 1];
+
+              return (
                 <div style={{
-                  position: 'absolute',
-                  left: 6,
-                  top: 6,
-                  bottom: 8,
-                  width: 2,
-                  background: '#CBD5E1',
-                  transform: 'translateX(-50%)',
-                }} />
-
-                {(() => {
-                  const formatTimelineDate = (dateInput: string | Date) => {
-                    const d = new Date(dateInput);
-                    if (isNaN(d.getTime())) return '';
-                    const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                    return `${datePart} • ${timePart}`;
-                  };
-
-                  const activities: Array<{ id: string; title: string; description?: string; createdAt: string }> =
-                    selectedIncident.activities && selectedIncident.activities.length > 0
-                      ? selectedIncident.activities
-                      : [
-                          { id: '1', title: `Incident reported by ${selectedIncident.reporter?.name || 'Citizen'} via mobile app`, description: undefined, createdAt: selectedIncident.createdAt },
-                          ...(selectedIncident.aiDetectedType && selectedIncident.aiDetectedType !== 'Processing...' ? [{ id: '2', title: `AI analysis completed — ${cleanIncidentType(selectedIncident.aiDetectedType).toUpperCase()} detected`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 3000).toISOString() }] : []),
-                          ...(selectedIncident.aiRecommendedDept ? [{ id: '3', title: `Auto-assigned to ${selectedIncident.aiRecommendedDept} based on AI recommendation`, description: undefined, createdAt: new Date(new Date(selectedIncident.createdAt).getTime() + 5000).toISOString() }] : []),
-                          ...(selectedIncident.status !== 'PENDING' ? [{ id: '4', title: `Status changed to ${selectedIncident.status}`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
-                          ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
-                        ];
-
-                  return activities.map((item, idx) => (
-                    <div key={item.id || idx} style={{ position: 'relative', marginBottom: idx === activities.length - 1 ? 0 : 16 }}>
+                  background: '#F8FAFC',
+                  border: '1.5px solid #E2E8F0',
+                  borderRadius: 18,
+                  padding: '14px',
+                  margin: '12px 0 16px',
+                  boxShadow: '0 2px 10px rgba(15,23,42,0.03)',
+                  boxSizing: 'border-box',
+                }}>
+                  {/* Collapsible Dropdown Header Trigger */}
+                  <div
+                    onClick={() => setIsTimelineOpen(prev => !prev)}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={isTimelineOpen}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      paddingBottom: isTimelineOpen ? 10 : 0,
+                      borderBottom: isTimelineOpen ? '1px solid #E2E8F0' : 'none',
+                      transition: 'all 0.2s ease',
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                       <div style={{
-                        position: 'absolute',
-                        left: -16,
-                        top: 4,
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
-                        background: '#2563EB',
-                        border: '2px solid #FFFFFF',
-                        boxShadow: '0 0 0 1.5px #93C5FD',
-                        boxSizing: 'border-box',
-                        transform: 'translateX(-50%)',
-                      }} />
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'flex', alignItems: 'center' }}>
-                        <span>{formatTimelineDate(item.createdAt)}</span>
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        background: '#EFF6FF',
+                        border: '1px solid #DBEAFE',
+                        color: '#2563EB',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}>
+                        <Clock size={15} />
                       </div>
-                      <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A', marginTop: 3, lineHeight: 1.45 }}>
-                        {cleanIncidentType(item.title)}
-                      </div>
-                      {item.description && (
-                        <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, fontStyle: 'italic' }}>
-                          {cleanIncidentType(item.description)}
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{
+                          fontSize: 11.5,
+                          fontWeight: 900,
+                          color: '#0F172A',
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}>
+                          ACTIVITY TIMELINE
                         </div>
-                      )}
+                      </div>
                     </div>
-                  ));
-                })()}
-              </div>
-            </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <span style={{
+                        fontSize: 10,
+                        fontWeight: 800,
+                        color: '#2563EB',
+                        background: '#EFF6FF',
+                        border: '1px solid #DBEAFE',
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {rawActivities.length} Events
+                      </span>
+
+                      <div style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        background: isTimelineOpen ? '#EFF6FF' : '#F1F5F9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: isTimelineOpen ? '#2563EB' : '#64748B',
+                        transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s',
+                        transform: isTimelineOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      }}>
+                        <ChevronDown size={14} strokeWidth={2.5} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Teaser Preview when Collapsed */}
+                  {!isTimelineOpen && latestItem && (
+                    <div
+                      onClick={() => setIsTimelineOpen(true)}
+                      style={{
+                        marginTop: 10,
+                        padding: '8px 12px',
+                        background: '#FFFFFF',
+                        borderRadius: 12,
+                        border: '1px dashed #CBD5E1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#2563EB', flexShrink: 0 }} />
+                        <span style={{ fontSize: 11.5, color: '#475569', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          Latest: {cleanIncidentType(latestItem.title)}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, color: '#2563EB', flexShrink: 0 }}>
+                        Expand ▾
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Dropdown Expanded Body */}
+                  {isTimelineOpen && (
+                    <div style={{ marginTop: 12 }}>
+                      {/* Responsive Filter & Sort Toolbar */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 6,
+                        marginBottom: 12,
+                        padding: '6px 10px',
+                        background: '#FFFFFF',
+                        borderRadius: 10,
+                        border: '1px solid #E2E8F0',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: '#64748B' }}>
+                          <Filter size={12} color="#2563EB" />
+                          <span>Timeline:</span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          {/* Filter Dropdown */}
+                          <select
+                            value={timelineFilter}
+                            onChange={e => setTimelineFilter(e.target.value as any)}
+                            aria-label="Filter activity events"
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: '#0F172A',
+                              background: '#F8FAFC',
+                              border: '1px solid #E2E8F0',
+                              borderRadius: 6,
+                              padding: '3px 6px',
+                              cursor: 'pointer',
+                              outline: 'none',
+                            }}
+                          >
+                            <option value="all">All ({rawActivities.length})</option>
+                            <option value="status">Status & Deployment</option>
+                            <option value="ai">AI Analysis</option>
+                            <option value="notes">Notes & Logs</option>
+                          </select>
+
+                          {/* Sort Order Dropdown */}
+                          <select
+                            value={timelineSort}
+                            onChange={e => setTimelineSort(e.target.value as any)}
+                            aria-label="Sort timeline order"
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: '#2563EB',
+                              background: '#EFF6FF',
+                              border: '1px solid #DBEAFE',
+                              borderRadius: 6,
+                              padding: '3px 6px',
+                              cursor: 'pointer',
+                              outline: 'none',
+                            }}
+                          >
+                            <option value="newest">Newest First ▾</option>
+                            <option value="oldest">Oldest First ▴</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Responsive Vertical Timeline Track */}
+                      <div style={{
+                        position: 'relative',
+                        paddingLeft: 22,
+                        maxHeight: '340px',
+                        overflowY: 'auto',
+                        paddingRight: 4,
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          left: 6,
+                          top: 6,
+                          bottom: 8,
+                          width: 2,
+                          background: '#CBD5E1',
+                          transform: 'translateX(-50%)',
+                        }} />
+
+                        {displayActivities.map((item, idx) => {
+                          const isNewestItem = idx === 0 && timelineSort === 'newest';
+                          return (
+                            <div key={item.id || idx} style={{ position: 'relative', marginBottom: idx === displayActivities.length - 1 ? 0 : 16 }}>
+                              <div style={{
+                                position: 'absolute',
+                                left: -16,
+                                top: 4,
+                                width: 10,
+                                height: 10,
+                                borderRadius: '50%',
+                                background: isNewestItem ? '#16A34A' : '#2563EB',
+                                border: '2px solid #FFFFFF',
+                                boxShadow: isNewestItem ? '0 0 0 2px #86EFAC' : '0 0 0 1.5px #93C5FD',
+                                boxSizing: 'border-box',
+                                transform: 'translateX(-50%)',
+                              }} />
+                              <div style={{
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                color: '#64748B',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap',
+                                gap: 4,
+                              }}>
+                                <span>{formatTimelineDate(item.createdAt)}</span>
+                                {isNewestItem && (
+                                  <span style={{ fontSize: 9.5, fontWeight: 800, color: '#16A34A', background: '#DCFCE7', padding: '1px 5px', borderRadius: 4 }}>
+                                    LATEST
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A', marginTop: 3, lineHeight: 1.45, wordBreak: 'break-word' }}>
+                                {cleanIncidentType(item.title)}
+                              </div>
+                              {item.description && (
+                                <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2, fontStyle: 'italic', wordBreak: 'break-word' }}>
+                                  {cleanIncidentType(item.description)}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Direct Call Command Center Action */}
             <a

@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, AlertTriangle, CheckCircle2, Send, ExternalLink } from 'lucide-react';
 import { SiGmail } from 'react-icons/si';
-import { Capacitor } from '@capacitor/core';
 import { forgotPassword } from '../../api/client';
 import { openGmailApp } from '../../utils/mailHelper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import WebBrowserBlocked from '../../components/WebBrowserBlocked';
+import { isAllowedPlatform } from '../../utils/platform';
 
 export default function MobileForgotPassword() {
   const navigate = useNavigate();
@@ -18,8 +18,8 @@ export default function MobileForgotPassword() {
   const [error, setError] = useState('');
   const [focusField, setFocusField] = useState(false);
 
-  // Block access from a regular web browser — forgot password requires the native Android app
-  if (!Capacitor.isNativePlatform()) {
+  // Block access from a regular web browser — forgot password requires native app (lifted for local dev)
+  if (!isAllowedPlatform()) {
     return <WebBrowserBlocked />;
   }
 

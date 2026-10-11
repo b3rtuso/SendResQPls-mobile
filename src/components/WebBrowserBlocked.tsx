@@ -1,6 +1,9 @@
-import { ShieldAlert, Smartphone, ExternalLink } from 'lucide-react';
+import { ShieldAlert, Smartphone, ExternalLink, ArrowRight } from 'lucide-react';
+import { isLocalNetwork } from '../utils/platform';
 
 export default function WebBrowserBlocked() {
+  const local = isLocalNetwork();
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -78,6 +81,29 @@ export default function WebBrowserBlocked() {
           flexDirection: 'column',
           gap: '12px'
         }}>
+          {local && (
+            <a
+              href="/mobile/login"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '14px 20px',
+                backgroundColor: '#2563EB',
+                color: '#FFFFFF',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '14px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)'
+              }}
+            >
+              <Smartphone size={18} />
+              Open Mobile App (Local Network Allowed) <ArrowRight size={16} />
+            </a>
+          )}
+
           <a
             href="https://github.com/b3rtuso/SendResQPls/releases/latest"
             target="_blank"
