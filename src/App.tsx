@@ -116,6 +116,7 @@ function AnimatedMobileRoutes() {
       <Route path="signup" element={<MobileSignup />} />
       <Route path="forgot-password" element={<MobileForgotPassword />} />
       <Route path="reset-password" element={<MobileResetPassword />} />
+      <Route path="onboarding" element={<MobileOnboarding onDone={() => setOnboardingDone(true)} />} />
 
       {/* Authenticated Tab Shell (Persistent navbar + unified tab transitions) */}
       <Route
