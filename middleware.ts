@@ -16,6 +16,18 @@
 export default function middleware(request: Request): Response | undefined {
   const url = new URL(request.url);
 
+  // Always allow local development on desktop / browser
+  const host = url.hostname.toLowerCase();
+  if (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host.startsWith('192.168.') ||
+    host.startsWith('10.') ||
+    host.endsWith('.local')
+  ) {
+    return undefined;
+  }
+
   const pathname = url.pathname.toLowerCase();
 
   // Always allow password reset, recovery, login, signup, and portal routes in any browser

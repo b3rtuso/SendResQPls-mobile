@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 import { Smartphone, ArrowRight, KeyRound, PhoneCall } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
+import { isAllowedPlatform } from '../utils/platform';
 
 export default function GetTheApp() {
   const navigate = useNavigate();
 
-  // If opened inside the native Capacitor APK, seamlessly bypass and proceed to login
+  // If opened inside the native Capacitor APK or in local development, seamlessly bypass and proceed to login
   useEffect(() => {
-    if (Capacitor.isNativePlatform() || navigator.userAgent.toLowerCase().includes('sendresqpls')) {
+    if (Capacitor.isNativePlatform() || navigator.userAgent.toLowerCase().includes('sendresqpls') || isAllowedPlatform()) {
       navigate('/mobile/login', { replace: true });
     }
   }, [navigate]);
