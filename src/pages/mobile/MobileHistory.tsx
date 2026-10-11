@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, PlusCircle, X, ChevronRight, Check, HelpCircle, Truck, ChevronDown, Filter } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronLeft, Loader2, CheckCircle2, Clock, XCircle, PlusCircle, X, ChevronRight, Check, HelpCircle, Truck, ChevronDown } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { FiPhone } from 'react-icons/fi';
 import { getMyIncidents, getIncidents, getIncident, invalidateCache } from '../../api/client';
@@ -137,8 +137,6 @@ export default function MobileHistory() {
   const [loadingTracker, setLoadingTracker] = useState(false);
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [isTimelineOpen, setIsTimelineOpen] = useState(true);
-  const [timelineFilter, setTimelineFilter] = useState<'all' | 'status' | 'ai' | 'notes'>('all');
-  const [timelineSort, setTimelineSort] = useState<'newest' | 'oldest'>('newest');
 
   // Pull-to-refresh states & refs
   const [pullDistance, setPullDistance] = useState(0);
@@ -1234,35 +1232,6 @@ export default function MobileHistory() {
                       ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
                     ];
 
-              let displayActivities = [...rawActivities];
-              if (timelineFilter === 'status') {
-                displayActivities = displayActivities.filter(a =>
-                  a.title.toLowerCase().includes('status') ||
-                  a.title.toLowerCase().includes('assigned') ||
-                  a.title.toLowerCase().includes('dispatch') ||
-                  a.title.toLowerCase().includes('reported')
-                );
-              } else if (timelineFilter === 'ai') {
-                displayActivities = displayActivities.filter(a =>
-                  a.title.toLowerCase().includes('ai') ||
-                  a.title.toLowerCase().includes('detected') ||
-                  a.title.toLowerCase().includes('hazard')
-                );
-              } else if (timelineFilter === 'notes') {
-                displayActivities = displayActivities.filter(a =>
-                  a.title.toLowerCase().includes('note') || !!a.description
-                );
-              }
-
-              if (displayActivities.length === 0 && rawActivities.length > 0) {
-                displayActivities = [...rawActivities];
-              }
-
-              displayActivities.sort((a, b) => {
-                const diff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                return timelineSort === 'newest' ? diff : -diff;
-              });
-
               const latestItem = rawActivities[rawActivities.length - 1];
 
               return (
@@ -1386,72 +1355,7 @@ export default function MobileHistory() {
 
                   {/* Dropdown Expanded Body */}
                   {isTimelineOpen && (
-                    <div style={{ marginTop: 12 }}>
-                      {/* Responsive Filter & Sort Toolbar */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: 6,
-                        marginBottom: 12,
-                        padding: '6px 10px',
-                        background: '#FFFFFF',
-                        borderRadius: 10,
-                        border: '1px solid #E2E8F0',
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: '#64748B' }}>
-                          <Filter size={12} color="#2563EB" />
-                          <span>Timeline:</span>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          {/* Filter Dropdown */}
-                          <select
-                            value={timelineFilter}
-                            onChange={e => setTimelineFilter(e.target.value as any)}
-                            aria-label="Filter activity events"
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: '#0F172A',
-                              background: '#F8FAFC',
-                              border: '1px solid #E2E8F0',
-                              borderRadius: 6,
-                              padding: '3px 6px',
-                              cursor: 'pointer',
-                              outline: 'none',
-                            }}
-                          >
-                            <option value="all">All ({rawActivities.length})</option>
-                            <option value="status">Status & Deployment</option>
-                            <option value="ai">AI Analysis</option>
-                            <option value="notes">Notes & Logs</option>
-                          </select>
-
-                          {/* Sort Order Dropdown */}
-                          <select
-                            value={timelineSort}
-                            onChange={e => setTimelineSort(e.target.value as any)}
-                            aria-label="Sort timeline order"
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: '#2563EB',
-                              background: '#EFF6FF',
-                              border: '1px solid #DBEAFE',
-                              borderRadius: 6,
-                              padding: '3px 6px',
-                              cursor: 'pointer',
-                              outline: 'none',
-                            }}
-                          >
-                            <option value="newest">Newest First ▾</option>
-                            <option value="oldest">Oldest First ▴</option>
-                          </select>
-                        </div>
-                      </div>
-
+                    <div style={{ marginTop: 14 }}>
                       {/* Responsive Vertical Timeline Track */}
                       <div style={{
                         position: 'relative',
@@ -1470,10 +1374,10 @@ export default function MobileHistory() {
                           transform: 'translateX(-50%)',
                         }} />
 
-                        {displayActivities.map((item, idx) => {
-                          const isNewestItem = idx === 0 && timelineSort === 'newest';
+                        {rawActivities.map((item, idx) => {
+                          const isLatest = idx === rawActivities.length - 1;
                           return (
-                            <div key={item.id || idx} style={{ position: 'relative', marginBottom: idx === displayActivities.length - 1 ? 0 : 16 }}>
+                            <div key={item.id || idx} style={{ position: 'relative', marginBottom: idx === rawActivities.length - 1 ? 0 : 16 }}>
                               <div style={{
                                 position: 'absolute',
                                 left: -16,
@@ -1481,9 +1385,9 @@ export default function MobileHistory() {
                                 width: 10,
                                 height: 10,
                                 borderRadius: '50%',
-                                background: isNewestItem ? '#16A34A' : '#2563EB',
+                                background: isLatest ? '#16A34A' : '#2563EB',
                                 border: '2px solid #FFFFFF',
-                                boxShadow: isNewestItem ? '0 0 0 2px #86EFAC' : '0 0 0 1.5px #93C5FD',
+                                boxShadow: isLatest ? '0 0 0 2px #86EFAC' : '0 0 0 1.5px #93C5FD',
                                 boxSizing: 'border-box',
                                 transform: 'translateX(-50%)',
                               }} />
@@ -1498,7 +1402,7 @@ export default function MobileHistory() {
                                 gap: 4,
                               }}>
                                 <span>{formatTimelineDate(item.createdAt)}</span>
-                                {isNewestItem && (
+                                {isLatest && (
                                   <span style={{ fontSize: 9.5, fontWeight: 800, color: '#16A34A', background: '#DCFCE7', padding: '1px 5px', borderRadius: 4 }}>
                                     LATEST
                                   </span>
