@@ -1232,8 +1232,6 @@ export default function MobileHistory() {
                       ...(selectedIncident.adminNotes ? [{ id: '5', title: `Admin note: "${selectedIncident.adminNotes}"`, description: undefined, createdAt: selectedIncident.updatedAt }] : []),
                     ];
 
-              const latestItem = rawActivities[rawActivities.length - 1];
-
               return (
                 <div style={{
                   background: '#F8FAFC',
@@ -1323,35 +1321,6 @@ export default function MobileHistory() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Teaser Preview when Collapsed */}
-                  {!isTimelineOpen && latestItem && (
-                    <div
-                      onClick={() => setIsTimelineOpen(true)}
-                      style={{
-                        marginTop: 10,
-                        padding: '8px 12px',
-                        background: '#FFFFFF',
-                        borderRadius: 12,
-                        border: '1px dashed #CBD5E1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
-                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#2563EB', flexShrink: 0 }} />
-                        <span style={{ fontSize: 11.5, color: '#475569', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          Latest: {cleanIncidentType(latestItem.title)}
-                        </span>
-                      </div>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: '#2563EB', flexShrink: 0 }}>
-                        Expand ▾
-                      </span>
-                    </div>
-                  )}
 
                   {/* Dropdown Expanded Body */}
                   {isTimelineOpen && (
