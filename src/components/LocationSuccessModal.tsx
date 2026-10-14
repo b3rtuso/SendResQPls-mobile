@@ -78,18 +78,18 @@ export default function LocationSuccessModal() {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
-          maxWidth: 340,
+          maxWidth: 'min(340px, calc(100vw - 32px))',
           background: '#FFFFFF',
           border: '1px solid #E2E8F0',
-          borderRadius: 24,
-          padding: '28px 22px 22px',
+          borderRadius: 'clamp(18px, 5vw, 24px)',
+          padding: 'clamp(22px, 5vw, 28px) clamp(16px, 4.5vw, 22px) clamp(18px, 4vw, 22px)',
           textAlign: 'center',
           boxShadow: '0 25px 60px -12px rgba(15, 23, 42, 0.25), 0 10px 20px -5px rgba(15, 23, 42, 0.1)',
           animation: 'locModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Glowing emerald badge with location pin & checkmark */}
-        <div style={{ position: 'relative', width: 72, height: 72, margin: '0 auto 18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: 'clamp(60px, 16vw, 72px)', height: 'clamp(60px, 16vw, 72px)', margin: '0 auto 18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{
             position: 'absolute',
             inset: 0,
@@ -98,8 +98,8 @@ export default function LocationSuccessModal() {
             animation: 'locPulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           }} />
           <div style={{
-            width: 64,
-            height: 64,
+            width: 'clamp(52px, 14vw, 64px)',
+            height: 'clamp(52px, 14vw, 64px)',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
             border: '2px solid #A7F3D0',
@@ -110,29 +110,29 @@ export default function LocationSuccessModal() {
             zIndex: 1,
             boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
           }}>
-            <FaLocationDot size={28} color="#059669" />
+            <FaLocationDot size={26} color="#059669" />
             <div style={{
               position: 'absolute',
               bottom: -2,
               right: -2,
-              width: 22,
-              height: 22,
+              width: 20,
+              height: 20,
               borderRadius: '50%',
               background: '#10B981',
-              border: '2.5px solid #FFFFFF',
+              border: '2px solid #FFFFFF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 2px 6px rgba(16, 185, 129, 0.4)',
             }}>
-              <Check size={13} strokeWidth={3.5} color="#FFFFFF" />
+              <Check size={12} strokeWidth={3.5} color="#FFFFFF" />
             </div>
           </div>
         </div>
 
         <h2 style={{
           color: '#0F1F38',
-          fontSize: 20,
+          fontSize: 'clamp(18px, 5vw, 20.5px)',
           fontWeight: 800,
           lineHeight: 1.25,
           margin: '0 0 10px',
@@ -143,9 +143,9 @@ export default function LocationSuccessModal() {
 
         <p style={{
           color: '#64748B',
-          fontSize: 13.5,
+          fontSize: 'clamp(12.5px, 3.4vw, 13.5px)',
           lineHeight: 1.5,
-          margin: '0 0 24px',
+          margin: '0 0 clamp(18px, 4vw, 24px)',
           padding: '0 6px',
         }}>
           Your device GPS is now active. High-accuracy coordinates are ready for emergency response.
@@ -157,11 +157,11 @@ export default function LocationSuccessModal() {
           onClick={handleClose}
           style={{
             width: '100%',
-            padding: '14px',
+            padding: 'clamp(12px, 3.5vw, 14px)',
             borderRadius: 9999,
             background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
             color: '#FFFFFF',
-            fontSize: 15,
+            fontSize: 'clamp(13.5px, 3.8vw, 15px)',
             fontWeight: 700,
             border: 'none',
             cursor: 'pointer',

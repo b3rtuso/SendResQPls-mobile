@@ -7,8 +7,8 @@ import { openGmailApp } from '../../utils/mailHelper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Capacitor } from '@capacitor/core';
 import WebBrowserBlocked from '../../components/WebBrowserBlocked';
+import { isAllowedPlatform } from '../../utils/platform';
 
 export default function MobileForgotPassword() {
   const navigate = useNavigate();
@@ -18,8 +18,8 @@ export default function MobileForgotPassword() {
   const [error, setError] = useState('');
   const [focusField, setFocusField] = useState(false);
 
-  // Block access from a regular web browser — forgot password requires the native Android app
-  if (!Capacitor.isNativePlatform()) {
+  // Block access from a regular web browser — forgot password requires native app (lifted for local dev/LAN)
+  if (!isAllowedPlatform()) {
     return <WebBrowserBlocked />;
   }
 
@@ -75,8 +75,8 @@ export default function MobileForgotPassword() {
     display: 'flex',
     alignItems: 'center',
     position: 'relative',
-    minHeight: 50,
-    height: 50,
+    minHeight: 'clamp(44px, 6vh, 50px)',
+    height: 'clamp(44px, 6vh, 50px)',
     background: hasError ? '#FFF8F8' : focusField ? '#FFFFFF' : '#F8FAFC',
     border: `1.5px solid ${hasError ? '#EF4444' : focusField ? '#2563EB' : '#E2E8F0'}`,
     borderRadius: 14,
@@ -87,28 +87,27 @@ export default function MobileForgotPassword() {
   });
 
   return (
-    <div className="mobile-shell mobile-auth-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: '#F1F5F9' }}>
+    <div className="w-full min-h-screen flex flex-col bg-[#F1F5F9] mobile-auth-transition">
       <style>{`
         .mf-header {
           background:
             radial-gradient(circle 100px at calc(100% - 40px) 20px, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.05) 99%, transparent 100%),
             linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
-          padding: 48px 24px 38px;
           position: relative;
           box-shadow: 0 6px 24px rgba(15, 31, 56, 0.35);
           border-radius: 0 0 24px 24px;
           color: white;
         }
         .mf-form-card {
-          margin: 16px 20px 30px;
-          background: #ffffff;
-          border-radius: 22px;
-          padding: 28px 24px 34px;
-          box-shadow: 0 8px 40px rgba(30,58,95,0.12), 0 2px 8px rgba(0,0,0,0.06);
           position: relative;
           z-index: 2;
           box-sizing: border-box;
           animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @media (min-width: 640px) {
+          .mf-header {
+            border-radius: 0 0 32px 32px;
+          }
         }
         .mf-input-error::placeholder {
           color: #EF4444 !important;
@@ -116,23 +115,24 @@ export default function MobileForgotPassword() {
         }
         .mf-auth-btn {
           width: 100%;
-          padding: 16px;
+          padding: clamp(12px, 3.5vw, 16px);
           background: linear-gradient(135deg, #2563EB, #1D4ED8);
           color: white;
           border: none;
           border-radius: 14px;
-          font-size: 15px;
+          font-size: clamp(13.5px, 3.8vw, 15px);
           font-weight: 700;
           font-family: inherit;
           cursor: pointer;
           display: flex;
           align-items: center;
-          justify-content: center;
+          justifyContent: center;
           gap: 10px;
           box-shadow: 0 4px 16px rgba(37,99,235,0.38);
           transition: transform 0.18s, box-shadow 0.18s;
           margin-top: 10px;
           letter-spacing: 0.01em;
+          min-height: clamp(44px, 6vh, 50px);
         }
         .mf-auth-btn:hover:not(:disabled) {
           transform: translateY(-1px);
@@ -159,62 +159,66 @@ export default function MobileForgotPassword() {
         }
       `}</style>
 
-      {/* Branded Header */}
-      <div className="mf-header">
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <button
-            type="button"
-            onClick={() => navigate('/mobile/login')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              borderRadius: 20,
-              padding: '6px 14px',
-              color: 'white',
-              fontSize: 12.5,
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginBottom: 16,
-              fontFamily: 'inherit',
-            }}
-          >
-            <ArrowLeft size={14} /> Back to Login
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <img
-              src="/logo.svg"
-              alt="SRQ Logo"
+      {/* ── 1. Full-Width Spanning Header ── */}
+      <header className="w-full mf-header px-4 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-10">
+        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <button
+              type="button"
+              onClick={() => navigate('/mobile/login')}
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
-                objectFit: 'cover',
-                border: '2px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: 20,
+                padding: '6px 14px',
+                color: 'white',
+                fontSize: 12.5,
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginBottom: 16,
+                fontFamily: 'inherit',
+                minHeight: 36,
               }}
-            />
-            <div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
-                MDRRMO Balayan
-              </div>
-              <div style={{ fontSize: 13, color: '#93C5FD', fontWeight: 700 }}>
-                Account Recovery
+            >
+              <ArrowLeft size={14} /> Back to Login
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <img
+                src="/logo.svg"
+                alt="SRQ Logo"
+                style={{
+                  width: 'clamp(42px, 11vw, 48px)',
+                  height: 'clamp(42px, 11vw, 48px)',
+                  borderRadius: 14,
+                  objectFit: 'cover',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+                }}
+              />
+              <div>
+                <div style={{ fontSize: 'clamp(10px, 2.6vw, 11px)', color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+                  MDRRMO Balayan
+                </div>
+                <div style={{ fontSize: 'clamp(12px, 3.2vw, 13px)', color: '#93C5FD', fontWeight: 700 }}>
+                  Account Recovery
+                </div>
               </div>
             </div>
+
+            <h1 style={{ color: 'white', fontSize: 'clamp(20px, 5.5vw, 24px)', fontWeight: 900, letterSpacing: '-0.4px', margin: 0 }}>
+              Forgot Password?
+            </h1>
           </div>
-
-          <h1 style={{ color: 'white', fontSize: 24, fontWeight: 900, letterSpacing: '-0.4px', margin: 0 }}>
-            Forgot Password?
-          </h1>
         </div>
-      </div>
+      </header>
 
-      {/* Floating Form Card */}
-      <div className="mf-form-card">
+      {/* ── 2. Fluid Form Wrapper with Responsive Container ── */}
+      <main className="w-full flex-1 flex flex-col items-center px-4 sm:px-8 md:px-12 py-6 sm:py-8">
+        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:border sm:border-slate-200/80 p-6 sm:p-8 md:p-10 relative z-10">
         {sent ? (
           <div style={{ textAlign: 'center', padding: '12px 6px' }}>
             <div style={{
@@ -337,7 +341,7 @@ export default function MobileForgotPassword() {
                     border: 'none',
                     background: 'transparent',
                     outline: 'none',
-                    fontSize: 14,
+                    fontSize: 'clamp(13px, 3.5vw, 14.5px)',
                     fontFamily: 'inherit',
                     color: '#0F172A',
                     padding: '0 16px 0 46px',
@@ -347,7 +351,7 @@ export default function MobileForgotPassword() {
               </div>
             </div>
 
-            <Button type="submit" className="mf-auth-btn" disabled={loading} style={{ minHeight: 48 }}>
+            <Button type="submit" className="mf-auth-btn" disabled={loading} style={{ minHeight: 'clamp(44px, 6vh, 50px)' }}>
               {loading ? (
                 <>
                   <span className="mf-spin" /> Sending Link…
@@ -392,12 +396,12 @@ export default function MobileForgotPassword() {
           </form>
         )}
       </div>
+      </main>
 
       {/* Bottom spacer & branding footer */}
-      <div style={{ flex: 1 }} />
-      <div style={{ textAlign: 'center', padding: '16px 24px 24px', fontSize: 11, color: '#CBD5E1' }}>
+      <footer className="w-full text-center py-6 text-xs text-slate-400">
         MDRRMO Balayan, Batangas · SendResQPls v2
-      </div>
+      </footer>
     </div>
   );
 }

@@ -378,11 +378,10 @@ export default function MobileHistory() {
 
   return (
     <div
-      className="mobile-shell"
+      className="w-full flex-1 flex flex-col bg-[#F1F5F9]"
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      style={{ background: '#F1F5F9' }}
     >
       <style>{`
         .mh-filter-chip {
@@ -456,15 +455,15 @@ export default function MobileHistory() {
         }
         .srq-tracker-sheet {
           width: 100%;
-          max-width: 440px;
+          max-width: min(450px, calc(100vw - 28px));
           margin: auto;
           background: #FFFFFF;
           border-radius: 24px;
-          max-height: min(84dvh, 720px);
+          max-height: min(88dvh, 720px);
           overflow-y: auto;
           box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35), 0 2px 10px rgba(0, 0, 0, 0.05);
           animation: trackerModalPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-          padding: 22px 20px 24px;
+          padding: clamp(16px, 4vw, 22px) clamp(14px, 4vw, 20px) clamp(18px, 4.5vw, 24px);
           box-sizing: border-box;
           border: 1px solid rgba(226, 232, 240, 0.8);
         }
@@ -541,82 +540,81 @@ export default function MobileHistory() {
 
       <div className="mobile-page" style={{ paddingBottom: 90 }}>
         {/* Header (flush top, matching Home header gradient) */}
-        <div style={{
+        <div className="w-full" style={{
           background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
           margin: 0,
-          padding: '24px 20px 20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
+          padding: 'max(env(safe-area-inset-top, 0px) + clamp(12px, 2.5vw, 16px), 20px) 0 clamp(14px, 3.5vw, 20px)',
           color: 'white',
           boxShadow: '0 6px 24px rgba(15, 31, 56, 0.35)',
           borderRadius: '0 0 24px 24px',
           marginBottom: 0,
         }}>
-          {/* Pull-to-refresh Indicator — only shows when user is actively pulling */}
-          {(pullDistance > 0 || refreshing) && (
-            <div style={{
-              height: refreshing ? 40 : Math.min(pullDistance, 50),
-              opacity: pullDistance > 0 || refreshing ? 1 : 0,
-              transition: isPulling ? 'none' : 'height 0.2s ease, opacity 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              color: 'rgba(255,255,255,0.85)',
-              fontSize: 12,
-              fontWeight: 600,
-              gap: 8,
-              marginBottom: 8,
-            }}>
-              <RefreshCw
-                size={14}
-                className={refreshing ? "spin" : ""}
-                style={{
-                  transform: refreshing ? undefined : `rotate(${pullDistance * 3}deg)`,
-                  transition: refreshing ? undefined : 'transform 0.1s linear'
-                }}
-              />
-              <span>{refreshing ? 'Syncing...' : pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}</span>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/mobile')}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 12,
-                border: '1.5px solid rgba(255, 255, 255, 0.25)',
-                background: 'rgba(255, 255, 255, 0.12)',
+          <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
+            {/* Pull-to-refresh Indicator — only shows when user is actively pulling */}
+            {(pullDistance > 0 || refreshing) && (
+              <div style={{
+                height: refreshing ? 40 : Math.min(pullDistance, 50),
+                opacity: pullDistance > 0 || refreshing ? 1 : 0,
+                transition: isPulling ? 'none' : 'height 0.2s ease, opacity 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white',
-                padding: 0,
-              }}
-              aria-label="Back"
-            >
-              <ChevronLeft size={20} />
-            </Button>
-            <div>
-              <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'white', letterSpacing: '-0.2px' }}>Report History</h1>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: '2px 0 0' }}>Tap any report to view live response status</p>
+                overflow: 'hidden',
+                color: 'rgba(255,255,255,0.85)',
+                fontSize: 12,
+                fontWeight: 600,
+                gap: 8,
+                marginBottom: 8,
+              }}>
+                <RefreshCw
+                  size={14}
+                  className={refreshing ? "spin" : ""}
+                  style={{
+                    transform: refreshing ? undefined : `rotate(${pullDistance * 3}deg)`,
+                    transition: refreshing ? undefined : 'transform 0.1s linear'
+                  }}
+                />
+                <span>{refreshing ? 'Syncing...' : pullDistance > 60 ? 'Release to refresh' : 'Pull to refresh'}</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/mobile')}
+                style={{
+                  width: 'clamp(32px, 8.5vw, 36px)',
+                  height: 'clamp(32px, 8.5vw, 36px)',
+                  borderRadius: 12,
+                  border: '1.5px solid rgba(255, 255, 255, 0.25)',
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  padding: 0,
+                }}
+                aria-label="Back"
+              >
+                <ChevronLeft size={20} />
+              </Button>
+              <div>
+                <h1 style={{ fontSize: 'clamp(16px, 4.5vw, 19px)', fontWeight: 800, margin: 0, color: 'white', letterSpacing: '-0.2px' }}>Report History</h1>
+                <p style={{ fontSize: 'clamp(10px, 2.7vw, 11px)', color: 'rgba(255,255,255,0.7)', margin: '2px 0 0' }}>Tap any report to view live response status</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{ padding: '16px 20px 0' }}>
+        <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 pt-3 sm:pt-4">
 
         {/* ── Status Filter Chips with Admin Portal Palette ── */}
         <div style={{
           display: 'flex',
-          gap: 8,
+          gap: 'clamp(6px, 1.8vw, 8px)',
           overflowX: 'auto',
-          margin: '0 0 16px',
+          margin: '0 0 clamp(12px, 3vw, 16px)',
           padding: '0 0 4px',
           scrollbarWidth: 'none',
         }}>
@@ -633,6 +631,8 @@ export default function MobileHistory() {
                   color: isActive ? theme.activeColor : theme.inactiveColor,
                   borderColor: isActive ? theme.activeBorder : theme.inactiveBorder,
                   boxShadow: isActive ? `0 2px 10px ${theme.activeGlow}` : 'none',
+                  padding: 'clamp(5px, 1.5vw, 7px) clamp(9px, 2.5vw, 13px)',
+                  fontSize: 'clamp(11px, 2.9vw, 12px)',
                 }}
                 onClick={() => { setStatusFilter(tab); setPage(1); }}
               >
@@ -644,160 +644,217 @@ export default function MobileHistory() {
             );
           })}
         </div>
+      </div>
 
+      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 pb-24">
         {loading ? (
           <MobileHistorySkeleton count={5} />
+        ) : displayedIncidents.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '48px 24px',
+            background: 'white',
+            borderRadius: 20,
+            border: '1px solid #E2E8F0',
+            maxWidth: 460,
+            margin: '12px auto 0',
+          }}>
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: 18,
+              background: '#EFF6FF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 14px',
+              color: '#2563EB',
+            }}>
+              <Clock size={28} />
+            </div>
+            <h3 style={{ fontWeight: 800, margin: '0 0 6px', color: '#0F172A', fontSize: 16 }}>
+              {statusFilter === 'ALL' ? 'No reports yet' : `No ${statusFilter.toLowerCase()} reports`}
+            </h3>
+            <p style={{ color: '#64748B', fontSize: 13, margin: '0 0 20px', lineHeight: 1.5 }}>
+              {statusFilter === 'ALL'
+                ? 'When you submit an emergency alert, its real-time response progress will appear here.'
+                : `There are currently no reports with ${statusFilter.toLowerCase()} status.`}
+            </p>
+            <button
+              onClick={() => navigate('/mobile/report')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '12px 20px',
+                borderRadius: 14,
+                background: '#2563EB',
+                color: 'white',
+                border: 'none',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                boxShadow: '0 4px 14px rgba(37,99,235,0.3)',
+              }}
+            >
+              <PlusCircle size={17} /> Create an Alert
+            </button>
+          </div>
         ) : (
-          <div className="history-list">
-            {displayedIncidents.map((inc) => {
-              const theme = STATUS_THEMES[inc.status] || STATUS_THEMES.PENDING;
-              const StatusIcon = STATUS_ICONS[inc.status] || HelpCircle;
-              const typeTheme = getIncidentTypeTheme(inc.aiDetectedType, inc.status);
-              const TypeIcon = typeTheme.icon;
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {displayedIncidents.map((inc) => {
+                const theme = STATUS_THEMES[inc.status] || STATUS_THEMES.PENDING;
+                const StatusIcon = STATUS_ICONS[inc.status] || HelpCircle;
+                const typeTheme = getIncidentTypeTheme(inc.aiDetectedType, inc.status);
+                const TypeIcon = typeTheme.icon;
 
-              return (
-                <div
-                  className="mh-history-card"
-                  key={inc.id}
-                  onClick={() => setSelectedIncident(inc)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`View details for ${typeTheme.label}`}
-                >
-                  {/* Top Row: Thumbnail + Info */}
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-                    {/* Thumbnail Image or Classified Emergency Icon box */}
-                    {inc.photoUrl && !failedImages[inc.id] ? (
-                      <img
-                        src={inc.photoUrl}
-                        alt="Incident photo"
-                        onError={() => setFailedImages(prev => ({ ...prev, [inc.id]: true }))}
-                        style={{
-                          width: 54,
-                          height: 54,
+                return (
+                  <div
+                    className="mh-history-card h-full mb-0"
+                    key={inc.id}
+                    onClick={() => setSelectedIncident(inc)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${typeTheme.label}`}
+                    style={{ marginBottom: 0 }}
+                  >
+                    {/* Top Row: Thumbnail + Info */}
+                    <div style={{ display: 'flex', gap: 'clamp(8px, 2.5vw, 12px)', alignItems: 'center', marginBottom: 'clamp(8px, 2vw, 12px)' }}>
+                      {/* Thumbnail Image or Classified Emergency Icon box */}
+                      {inc.photoUrl && !failedImages[inc.id] ? (
+                        <img
+                          src={inc.photoUrl}
+                          alt="Incident photo"
+                          onError={() => setFailedImages(prev => ({ ...prev, [inc.id]: true }))}
+                          style={{
+                            width: 'clamp(44px, 12vw, 54px)',
+                            height: 'clamp(44px, 12vw, 54px)',
+                            borderRadius: 14,
+                            objectFit: 'cover',
+                            flexShrink: 0,
+                            border: '1.5px solid #E2E8F0',
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: 'clamp(44px, 12vw, 54px)',
+                          height: 'clamp(44px, 12vw, 54px)',
                           borderRadius: 14,
-                          objectFit: 'cover',
-                          flexShrink: 0,
-                          border: '1.5px solid #E2E8F0',
-                        }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: 54,
-                        height: 54,
-                        borderRadius: 14,
-                        background: typeTheme.bgLight,
-                        border: `1.5px solid ${typeTheme.borderLight}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: typeTheme.color,
-                        flexShrink: 0,
-                      }}>
-                        <TypeIcon size={24} color={typeTheme.color} />
-                      </div>
-                    )}
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        fontSize: 14.5,
-                        fontWeight: 800,
-                        color: '#0F172A',
-                        letterSpacing: '-0.2px',
-                        marginBottom: 4,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}>
-                        <span style={{
-                          display: 'inline-flex',
+                          background: typeTheme.bgLight,
+                          border: `1.5px solid ${typeTheme.borderLight}`,
+                          display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          width: 22,
-                          height: 22,
-                          borderRadius: 6,
-                          background: typeTheme.bgLight,
-                          border: `1px solid ${typeTheme.borderLight}`,
+                          color: typeTheme.color,
                           flexShrink: 0,
                         }}>
-                          <TypeIcon size={13} color={typeTheme.color} />
-                        </span>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {typeTheme.label}
-                        </span>
+                          <TypeIcon size={22} color={typeTheme.color} />
+                        </div>
+                      )}
+
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: 'clamp(13px, 3.6vw, 14.5px)',
+                          fontWeight: 800,
+                          color: '#0F172A',
+                          letterSpacing: '-0.2px',
+                          marginBottom: 4,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 22,
+                            height: 22,
+                            borderRadius: 6,
+                            background: typeTheme.bgLight,
+                            border: `1px solid ${typeTheme.borderLight}`,
+                            flexShrink: 0,
+                          }}>
+                            <TypeIcon size={13} color={typeTheme.color} />
+                          </span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {typeTheme.label}
+                          </span>
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: 'clamp(10.5px, 2.8vw, 12px)',
+                          color: '#64748B',
+                          fontWeight: 500,
+                        }}>
+                          <FaLocationDot size={12} color="#2563EB" />
+                          <span>
+                            {inc.latitude && inc.longitude
+                              ? getNearestBarangay(inc.latitude, inc.longitude).split(',')[0]
+                              : 'Balayan, Batangas'}
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Status Badge */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 4,
-                        fontSize: 12,
-                        color: '#64748B',
-                        fontWeight: 500,
+                        padding: 'clamp(3px, 1vw, 5px) clamp(7px, 2vw, 10px)',
+                        borderRadius: 999,
+                        background: theme.bg,
+                        color: theme.color,
+                        border: `1px solid ${theme.border}`,
+                        fontSize: 'clamp(10px, 2.6vw, 11px)',
+                        fontWeight: 800,
+                        flexShrink: 0,
                       }}>
-                        <FaLocationDot size={12} color="#2563EB" />
-                        <span>
-                          {inc.latitude && inc.longitude
-                            ? getNearestBarangay(inc.latitude, inc.longitude).split(',')[0]
-                            : 'Balayan, Batangas'}
-                        </span>
+                        <StatusIcon size={12} />
+                        <span>{theme.label}</span>
                       </div>
                     </div>
 
-                    {/* Status Badge */}
+                    {/* Bottom Row: Date & Assigned Dept */}
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 4,
-                      padding: '5px 10px',
-                      borderRadius: 999,
-                      background: theme.bg,
-                      color: theme.color,
-                      border: `1px solid ${theme.border}`,
-                      fontSize: 11,
-                      fontWeight: 800,
-                      flexShrink: 0,
-                    }}>
-                      <StatusIcon size={12} />
-                      <span>{theme.label}</span>
-                    </div>
-                  </div>
-
-                  {/* Bottom Row: Date & Assigned Dept */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingTop: 10,
-                    borderTop: '1px solid #F1F5F9',
-                    fontSize: 11.5,
-                    color: '#94A3B8',
-                  }}>
-                    <div>
-                      {new Date(inc.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} •{' '}
-                      {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                    <div style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      fontWeight: 700,
-                      color: '#2563EB',
-                      background: '#EFF6FF',
-                      padding: '4px 10px',
-                      borderRadius: 8,
-                      border: '1px solid #DBEAFE',
+                      justifyContent: 'space-between',
+                      paddingTop: 10,
+                      borderTop: '1px solid #F1F5F9',
                       fontSize: 11.5,
+                      color: '#94A3B8',
                     }}>
-                      <span>Track Status</span>
-                      <ChevronRight size={13} strokeWidth={2.5} />
+                      <div>
+                        {new Date(inc.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} •{' '}
+                        {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        fontWeight: 700,
+                        color: '#2563EB',
+                        background: '#EFF6FF',
+                        padding: '4px 10px',
+                        borderRadius: 8,
+                        border: '1px solid #DBEAFE',
+                        fontSize: 11.5,
+                      }}>
+                        <span>Track Status</span>
+                        <ChevronRight size={13} strokeWidth={2.5} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
 
             {/* Infinite Scroll Sentinel Element */}
             <div ref={sentinelRef} style={{ height: 1 }} />
@@ -837,63 +894,9 @@ export default function MobileHistory() {
                 <span>All {filteredIncidents.length} incident reports loaded</span>
               </div>
             )}
-
-            {/* Empty State */}
-            {displayedIncidents.length === 0 && (
-              <div style={{
-                textAlign: 'center',
-                padding: '48px 24px',
-                background: 'white',
-                borderRadius: 20,
-                border: '1px solid #E2E8F0',
-                marginTop: 12,
-              }}>
-                <div style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 18,
-                  background: '#EFF6FF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 14px',
-                  color: '#2563EB',
-                }}>
-                  <Clock size={28} />
-                </div>
-                <h3 style={{ fontWeight: 800, margin: '0 0 6px', color: '#0F172A', fontSize: 16 }}>
-                  {statusFilter === 'ALL' ? 'No reports yet' : `No ${statusFilter.toLowerCase()} reports`}
-                </h3>
-                <p style={{ color: '#64748B', fontSize: 13, margin: '0 0 20px', lineHeight: 1.5 }}>
-                  {statusFilter === 'ALL'
-                    ? 'When you submit an emergency alert, its real-time response progress will appear here.'
-                    : `There are currently no reports with ${statusFilter.toLowerCase()} status.`}
-                </p>
-                <button
-                  onClick={() => navigate('/mobile/report')}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '12px 20px',
-                    borderRadius: 14,
-                    background: '#2563EB',
-                    color: 'white',
-                    border: 'none',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    boxShadow: '0 4px 14px rgba(37,99,235,0.3)',
-                  }}
-                >
-                  <PlusCircle size={17} /> Create an Alert
-                </button>
-              </div>
-            )}
-          </div>
+          </>
         )}
-        </div>
+      </div>
       </div>
 
       {/* ─── LIVE DELIVERY-STYLE INCIDENT STATUS TRACKER MODAL ─── */}

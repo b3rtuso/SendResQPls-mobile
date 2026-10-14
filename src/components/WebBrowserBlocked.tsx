@@ -1,6 +1,9 @@
-import { ShieldAlert, Smartphone, ExternalLink } from 'lucide-react';
+import { ShieldAlert, Smartphone, ExternalLink, ArrowRight } from 'lucide-react';
+import { isLocalNetwork } from '../utils/platform';
 
 export default function WebBrowserBlocked() {
+  const local = isLocalNetwork();
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -15,18 +18,18 @@ export default function WebBrowserBlocked() {
       boxSizing: 'border-box'
     }}>
       <div style={{
-        maxWidth: '480px',
+        maxWidth: 'min(480px, calc(100vw - 32px))',
         width: '100%',
         backgroundColor: '#1E293B',
         border: '1px solid #334155',
         borderRadius: '16px',
-        padding: '36px 28px',
+        padding: 'clamp(24px, 6vw, 36px) clamp(18px, 5vw, 28px)',
         textAlign: 'center',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
       }}>
         <div style={{
-          width: '68px',
-          height: '68px',
+          width: 'clamp(56px, 15vw, 68px)',
+          height: 'clamp(56px, 15vw, 68px)',
           backgroundColor: 'rgba(239, 68, 68, 0.12)',
           border: '2px solid rgba(239, 68, 68, 0.3)',
           borderRadius: '50%',
@@ -36,7 +39,7 @@ export default function WebBrowserBlocked() {
           margin: '0 auto 20px auto',
           color: '#EF4444'
         }}>
-          <ShieldAlert size={36} />
+          <ShieldAlert size={32} />
         </div>
 
         <span style={{
@@ -55,7 +58,7 @@ export default function WebBrowserBlocked() {
         </span>
 
         <h1 style={{
-          fontSize: '22px',
+          fontSize: 'clamp(18px, 5vw, 22px)',
           fontWeight: 800,
           color: '#FFFFFF',
           marginBottom: '12px',
@@ -65,7 +68,7 @@ export default function WebBrowserBlocked() {
         </h1>
 
         <p style={{
-          fontSize: '14px',
+          fontSize: 'clamp(12.5px, 3.5vw, 14px)',
           color: '#94A3B8',
           lineHeight: 1.6,
           marginBottom: '28px'
@@ -78,6 +81,29 @@ export default function WebBrowserBlocked() {
           flexDirection: 'column',
           gap: '12px'
         }}>
+          {local && (
+            <a
+              href="/mobile/login"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: 'clamp(12px, 3vw, 14px) 20px',
+                backgroundColor: '#2563EB',
+                color: '#FFFFFF',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: 'clamp(13px, 3.5vw, 14px)',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)'
+              }}
+            >
+              <Smartphone size={18} />
+              Open Mobile App (Local Network Allowed) <ArrowRight size={16} />
+            </a>
+          )}
+
           <a
             href="https://github.com/b3rtuso/SendResQPls/releases/latest"
             target="_blank"
@@ -87,12 +113,12 @@ export default function WebBrowserBlocked() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              padding: '14px 20px',
+              padding: 'clamp(12px, 3vw, 14px) 20px',
               backgroundColor: '#EF4444',
               color: '#FFFFFF',
               borderRadius: '10px',
               fontWeight: 700,
-              fontSize: '14px',
+              fontSize: 'clamp(13px, 3.5vw, 14px)',
               textDecoration: 'none',
               transition: 'background 0.2s',
               boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'

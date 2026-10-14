@@ -90,10 +90,10 @@ export default function LegalModal({
 
         .legal-modal-card {
           width: 100%;
-          max-width: 520px;
+          max-width: min(520px, calc(100vw - 24px));
           max-height: calc(100dvh - 32px);
           background-color: #FFFFFF;
-          border-radius: 20px;
+          border-radius: clamp(16px, 4.5vw, 20px);
           box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.85);
           display: flex;
           flex-direction: column;
@@ -105,7 +105,7 @@ export default function LegalModal({
         }
 
         .legal-modal-header {
-          padding: 18px 20px 14px;
+          padding: clamp(14px, 3.5vw, 18px) clamp(16px, 4vw, 20px) clamp(12px, 3vw, 14px);
           border-bottom: 1px solid #E2E8F0;
           background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
           display: flex;
@@ -139,7 +139,7 @@ export default function LegalModal({
         }
 
         .legal-header-title {
-          font-size: 16px;
+          font-size: clamp(14.5px, 4vw, 16px);
           font-weight: 800;
           color: #0F172A;
           line-height: 1.2;
@@ -168,9 +168,9 @@ export default function LegalModal({
         }
 
         .legal-content-scroll {
-          padding: 18px 20px;
+          padding: clamp(14px, 3.5vw, 18px) clamp(16px, 4vw, 20px);
           overflow-y: auto;
-          font-size: 13.5px;
+          font-size: clamp(12.5px, 3.2vw, 13.5px);
           color: #334155;
           line-height: 1.6;
           flex: 1;
@@ -260,7 +260,7 @@ export default function LegalModal({
 
         /* ─── RESPONSIVE FOOTER ACTIONS ─── */
         .legal-modal-footer {
-          padding: 14px 20px;
+          padding: clamp(10px, 2.8vw, 14px) clamp(14px, 3.5vw, 20px);
           border-top: 1px solid #E2E8F0;
           background: #F8FAFC;
           display: flex;
@@ -273,8 +273,8 @@ export default function LegalModal({
         }
 
         .legal-btn-secondary {
-          padding: 11px 20px;
-          font-size: 13px;
+          padding: clamp(9px, 2.5vw, 11px) clamp(14px, 3.5vw, 20px);
+          font-size: clamp(12px, 3vw, 13px);
           font-weight: 600;
           border-radius: 12px;
           border: 1px solid #CBD5E1;
@@ -293,8 +293,8 @@ export default function LegalModal({
         }
 
         .legal-btn-primary {
-          padding: 11px 22px;
-          font-size: 13px;
+          padding: clamp(9px, 2.5vw, 11px) clamp(14px, 3.5vw, 22px);
+          font-size: clamp(12px, 3vw, 13px);
           font-weight: 700;
           border-radius: 12px;
           border: none;

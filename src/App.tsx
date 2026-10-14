@@ -93,10 +93,10 @@ function AuthenticatedMobileLayout() {
   const location = useLocation();
 
   return (
-    <div className="mobile-shell">
+    <div className="mobile-shell w-full min-h-screen flex flex-col bg-[#F1F5F9]">
       <GlobalStatusSync />
       {/* Scrollable animated viewport for the active tab */}
-      <div key={location.pathname} className="mobile-tab-view">
+      <div key={location.pathname} className="mobile-tab-view w-full flex-1 flex flex-col">
         <Outlet />
       </div>
 

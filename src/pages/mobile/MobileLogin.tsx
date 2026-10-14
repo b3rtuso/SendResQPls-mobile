@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import LegalModal from '../../components/LegalModal';
-import { Capacitor } from '@capacitor/core';
 import WebBrowserBlocked from '../../components/WebBrowserBlocked';
+import { isAllowedPlatform } from '../../utils/platform';
 
 export default function MobileLogin() {
   const navigate = useNavigate();
@@ -29,8 +29,8 @@ export default function MobileLogin() {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [focusField, setFocusField] = useState<'email'|'pass'|null>(null);
 
-  // Block access from a regular web browser — login requires the native Android app
-  if (!Capacitor.isNativePlatform()) {
+  // Block access from a regular web browser — login requires native app (lifted for local dev/LAN)
+  if (!isAllowedPlatform()) {
     return <WebBrowserBlocked />;
   }
 
@@ -106,7 +106,7 @@ export default function MobileLogin() {
 
   const inputStyle = (isPass?: boolean): React.CSSProperties => ({
     width: '100%', height: '100%', border: 'none', background: 'transparent',
-    outline: 'none', fontSize: 14,
+    outline: 'none', fontSize: 'clamp(13px, 3.5vw, 14.5px)',
     fontFamily: isPass && !showPass ? '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : 'inherit',
     letterSpacing: isPass && !showPass ? '0.12em' : 'normal',
     lineHeight: 'normal',
@@ -119,44 +119,40 @@ export default function MobileLogin() {
     background: hasError ? '#FFF8F8' : focusField === field ? '#fff' : '#F8FAFC',
     border: `1.5px solid ${hasError ? '#EF4444' : focusField === field ? '#2563EB' : '#E2E8F0'}`,
     borderRadius: 14, transition: 'all 0.18s',
-    minHeight: 50, height: 50,
+    minHeight: 'clamp(44px, 6vh, 50px)', height: 'clamp(44px, 6vh, 50px)',
     boxShadow: hasError
       ? '0 0 0 3px rgba(239,68,68,0.09)'
       : focusField === field ? '0 0 0 3px rgba(37,99,235,0.1)' : 'none',
   });
 
   return (
-    <div className="mobile-shell mobile-auth-transition" style={{ background: '#F1F5F9' }}>
+    <div className="w-full min-h-screen flex flex-col bg-[#F1F5F9] mobile-auth-transition">
       <style>{`
         .ml-login-header {
           background:
             radial-gradient(circle 100px at calc(100% - 40px) 20px, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.05) 99%, transparent 100%),
             linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
-          padding: 48px 24px 38px;
           position: relative;
           box-shadow: 0 6px 24px rgba(15, 31, 56, 0.35);
           border-radius: 0 0 24px 24px;
           color: white;
         }
         .ml-form-card {
-          margin: 16px 20px 30px;
-          background: #fff;
-          border-radius: 22px;
-          padding: 28px 24px;
-          box-shadow: 0 8px 40px rgba(30,58,95,0.12), 0 2px 8px rgba(0,0,0,0.06);
-          position: relative; z-index: 2;
+          position: relative;
+          z-index: 2;
           animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         .ml-auth-btn {
-          width: 100%; padding: 16px;
+          width: 100%; padding: clamp(12px, 3.5vw, 16px);
           background: linear-gradient(135deg, #2563EB, #1D4ED8);
           color: white; border: none; border-radius: 14px;
-          font-size: 15px; font-weight: 700; font-family: inherit;
+          font-size: clamp(13.5px, 3.8vw, 15px); font-weight: 700; font-family: inherit;
           cursor: pointer; display: flex; align-items: center;
-          justify-content: center; gap: 10px;
+          justifyContent: center; gap: 10px;
           box-shadow: 0 4px 16px rgba(37,99,235,0.38);
           transition: transform 0.18s, box-shadow 0.18s;
           margin-top: 8px; letter-spacing: 0.01em;
+          min-height: clamp(44px, 6vh, 50px);
         }
         .ml-auth-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(37,99,235,0.46); }
         .ml-auth-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
@@ -167,30 +163,52 @@ export default function MobileLogin() {
           color: #EF4444 !important;
           opacity: 0.85 !important;
         }
+        @media (min-width: 640px) {
+          .ml-login-header {
+            border-radius: 0 0 32px 32px;
+          }
+        }
       `}</style>
 
-      {/* Branded header */}
-      <div className="ml-login-header">
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <img
-            src="/logo.svg" alt="SRQ"
-            style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
-          />
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
-            MDRRMO Balayan, Batangas
+      {/* ── 1. Full-Width Spanning Header ── */}
+      <header className="w-full ml-login-header px-4 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-10">
+        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <img
+              src="/logo.svg" alt="SRQ"
+              style={{ width: 'clamp(44px, 12vw, 56px)', height: 'clamp(44px, 12vw, 56px)', borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+            />
+            <div style={{ fontSize: 'clamp(10px, 2.6vw, 11px)', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
+              MDRRMO Balayan, Batangas
+            </div>
+            <h1 style={{ color: 'white', fontSize: 'clamp(22px, 6vw, 26px)', fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
+              Log in to<br />
+              <span style={{ color: '#93C5FD' }}>SendResQPls</span>
+            </h1>
           </div>
-          <h1 style={{ color: 'white', fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
-            Log in to<br />
-            <span style={{ color: '#93C5FD' }}>SendResQPls</span>
-          </h1>
+          <div className="hidden sm:block text-right">
+            <span className="text-sm text-blue-100/80">Don't have an account?</span>
+            <button
+              type="button"
+              onClick={() => navigate('/mobile/signup')}
+              className="ml-3 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs tracking-wide transition border border-white/20 min-h-[44px]"
+            >
+              Sign Up
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Floating form card */}
-      <form className="ml-form-card" onSubmit={handleLogin} noValidate>
-        <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px', lineHeight: 1.55 }}>
-          I-login ang iyong account para makapag-report ng emergency.
-        </p>
+      {/* ── 2. Responsive Form Main Container ── */}
+      <main className="w-full flex-1 flex flex-col items-center px-4 sm:px-8 md:px-12 py-6 sm:py-8">
+        <form
+          className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:border sm:border-slate-200/80 p-6 sm:p-8 md:p-10 relative z-10"
+          onSubmit={handleLogin}
+          noValidate
+        >
+          <p style={{ fontSize: 'clamp(12px, 3.2vw, 13px)', color: '#64748B', margin: '0 0 20px', lineHeight: 1.55 }}>
+            I-login ang iyong account para makapag-report ng emergency.
+          </p>
 
         {sessionExpired && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 12px', marginBottom: 16 }}>
@@ -363,6 +381,7 @@ export default function MobileLogin() {
           .
         </p>
       </form>
+      </main>
 
       {/* In-app Legal Modal (Read-only on Login) */}
       <LegalModal
@@ -371,11 +390,10 @@ export default function MobileLogin() {
         onClose={() => setLegalModalDoc(null)}
       />
 
-      {/* Bottom spacer */}
-      <div style={{ flex: 1 }} />
-      <div style={{ textAlign: 'center', padding: '16px 24px', fontSize: 11, color: '#CBD5E1' }}>
+      {/* Bottom spacer & branding footer */}
+      <footer className="w-full text-center py-6 text-xs text-slate-400">
         MDRRMO Balayan, Batangas · SendResQPls v2
-      </div>
+      </footer>
     </div>
   );
 }

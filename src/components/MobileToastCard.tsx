@@ -206,7 +206,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
       {/* Main content row */}
       <div style={{
         display: 'flex', alignItems: 'center',
-        gap: 12, padding: '12px 14px',
+        gap: 12, padding: 'clamp(10px, 2.8vw, 13px) clamp(12px, 3.5vw, 15px)',
       }}>
         {/* Left Icon / Badge */}
         {toast.icon ? (
@@ -354,7 +354,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
           flex: 1, minWidth: 0,
         }}>
           <div style={{
-            fontSize: 13.5,
+            fontSize: 'clamp(12.5px, 3.5vw, 14px)',
             fontWeight: 700,
             color: toast.type === 'error' ? '#DC2626' : '#0F172A',
             lineHeight: 1.35,
@@ -365,7 +365,7 @@ export default function MobileToastCard({ toast, onDismiss, index }: MobileToast
 
           {toast.message && (
             <div style={{
-              fontSize: 12,
+              fontSize: 'clamp(11px, 3vw, 12.5px)',
               color: '#475569',
               marginTop: 2,
               lineHeight: 1.4,

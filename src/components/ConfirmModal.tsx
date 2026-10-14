@@ -130,9 +130,9 @@ export default function ConfirmModal({
             overflowY: 'auto',
             background: '#FFFFFF',
             border: '1px solid #FEE2E2',
-            borderRadius: 18,
+            borderRadius: 'clamp(16px, 4vw, 20px)',
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(220, 38, 38, 0.08)',
-            padding: '24px 20px',
+            padding: 'clamp(18px, 4.5vw, 24px) clamp(16px, 4vw, 20px)',
             color: '#0F172A',
             fontFamily: "var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
             display: 'flex',
@@ -147,8 +147,8 @@ export default function ConfirmModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 'clamp(32px, 8.5vw, 36px)',
+                  height: 'clamp(32px, 8.5vw, 36px)',
                   borderRadius: 10,
                   background: '#FEE2E2',
                   display: 'flex',
@@ -160,7 +160,7 @@ export default function ConfirmModal({
               >
                 <Trash2 size={18} />
               </div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#991B1B' }}>
+              <div style={{ fontSize: 'clamp(14.5px, 4vw, 16.5px)', fontWeight: 800, color: '#991B1B' }}>
                 {resolvedTitle}
               </div>
             </div>
@@ -186,12 +186,12 @@ export default function ConfirmModal({
             </button>
           </div>
 
-          <div style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 'clamp(12.5px, 3.4vw, 13.5px)', color: '#475569', lineHeight: 1.5 }}>
             {resolvedMessage}
           </div>
 
           {detail && (
-            <div style={{ fontSize: 12, color: '#9F1239', background: '#FFF1F2', border: '1px solid #FECDD3', padding: '10px 12px', borderRadius: 8 }}>
+            <div style={{ fontSize: 'clamp(11.5px, 3vw, 12px)', color: '#9F1239', background: '#FFF1F2', border: '1px solid #FECDD3', padding: '10px 12px', borderRadius: 8 }}>
               {detail}
             </div>
           )}
@@ -201,12 +201,12 @@ export default function ConfirmModal({
               type="button"
               onClick={onCancel}
               style={{
-                padding: '8px 16px',
+                padding: 'clamp(7px, 2vw, 8px) clamp(13px, 3.5vw, 16px)',
                 background: '#F8FAFC',
                 color: '#475569',
                 border: '1px solid #CBD5E1',
                 borderRadius: 9999,
-                fontSize: 13,
+                fontSize: 'clamp(12px, 3.2vw, 13px)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
@@ -226,12 +226,12 @@ export default function ConfirmModal({
               type="button"
               onClick={onConfirm}
               style={{
-                padding: '8px 18px',
+                padding: 'clamp(7px, 2vw, 8px) clamp(14px, 3.8vw, 18px)',
                 background: '#DC2626',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 9999,
-                fontSize: 13,
+                fontSize: 'clamp(12px, 3.2vw, 13px)',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'inline-flex',
@@ -304,9 +304,9 @@ export default function ConfirmModal({
           overflowY: 'auto',
           background: '#FFFFFF',
           border: '1px solid #E2E8F0',
-          borderRadius: 18,
+          borderRadius: 'clamp(16px, 4vw, 20px)',
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.04)',
-          padding: '24px 20px',
+          padding: 'clamp(18px, 4.5vw, 24px) clamp(16px, 4vw, 20px)',
           color: '#0F172A',
           fontFamily: "var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
           display: 'flex',
@@ -321,8 +321,8 @@ export default function ConfirmModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div
               style={{
-                width: 36,
-                height: 36,
+                width: 'clamp(32px, 8.5vw, 36px)',
+                height: 'clamp(32px, 8.5vw, 36px)',
                 borderRadius: 10,
                 background: accentBg,
                 display: 'flex',
@@ -334,7 +334,7 @@ export default function ConfirmModal({
             >
               <IconComponent size={18} />
             </div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A' }}>
+            <div style={{ fontSize: 'clamp(14.5px, 4vw, 16.5px)', fontWeight: 700, color: '#0F172A' }}>
               {resolvedTitle}
             </div>
           </div>
@@ -360,7 +360,7 @@ export default function ConfirmModal({
           </button>
         </div>
 
-        <div style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 'clamp(12.5px, 3.4vw, 13.5px)', color: '#475569', lineHeight: 1.5 }}>
           {resolvedMessage}
         </div>
 
@@ -451,12 +451,12 @@ export default function ConfirmModal({
             type="button"
             onClick={onCancel}
             style={{
-              padding: '8px 16px',
+              padding: 'clamp(7px, 2vw, 8px) clamp(13px, 3.5vw, 16px)',
               background: '#F8FAFC',
               color: '#475569',
               border: '1px solid #CBD5E1',
               borderRadius: 9999,
-              fontSize: 13,
+              fontSize: 'clamp(12px, 3.2vw, 13px)',
               fontWeight: 600,
               cursor: 'pointer',
               transition: 'all 0.15s',
@@ -476,12 +476,12 @@ export default function ConfirmModal({
             type="button"
             onClick={onConfirm}
             style={{
-              padding: '8px 18px',
+              padding: 'clamp(7px, 2vw, 8px) clamp(14px, 3.8vw, 18px)',
               background: isDiscard ? '#DC2626' : accentColor,
               color: '#FFFFFF',
               border: 'none',
               borderRadius: 9999,
-              fontSize: 13,
+              fontSize: 'clamp(12px, 3.2vw, 13px)',
               fontWeight: 700,
               cursor: 'pointer',
               display: 'inline-flex',

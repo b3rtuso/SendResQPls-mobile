@@ -375,7 +375,7 @@ export default function MobileReport() {
   };
 
   return (
-    <div className="mobile-shell" style={{ background: '#F1F5F9' }}>
+    <div className="w-full flex-1 flex flex-col bg-[#F1F5F9] min-h-screen">
       <style>{`
         @keyframes scaleUp {
           from { opacity: 0; transform: scale(0.92); }
@@ -384,7 +384,8 @@ export default function MobileReport() {
         .viewfinder-box {
           position: relative;
           width: 100%;
-          min-height: 240px;
+          min-height: clamp(200px, 28vh, 260px);
+          height: clamp(200px, 32vh, 280px);
           border-radius: 20px;
           overflow: hidden;
           background: #0F172A;
@@ -397,56 +398,54 @@ export default function MobileReport() {
         }
       `}</style>
 
-      <div className="mobile-page" style={{ paddingBottom: 100 }}>
+      <div className="mobile-page" style={{ paddingBottom: 'clamp(80px, 12vh, 100px)' }}>
         {/* Header (flush top, matching Home header gradient & Alerts/Updates sizing) */}
-        <div className="mobile-header-bar" style={{
+        <div className="mobile-header-bar w-full" style={{
           background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
           margin: 0,
-          padding: 'max(env(safe-area-inset-top, 0px) + 16px, 24px) 20px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
+          padding: 'max(env(safe-area-inset-top, 0px) + clamp(12px, 2.5vw, 16px), 20px) 0 clamp(14px, 3.5vw, 18px)',
           color: 'white',
           boxShadow: '0 6px 24px rgba(15, 31, 56, 0.35)',
           borderRadius: '0 0 24px 24px',
-          marginBottom: 18,
+          marginBottom: 'clamp(12px, 3vw, 18px)',
         }}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleBack}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              border: '1.5px solid rgba(255, 255, 255, 0.25)',
-              background: 'rgba(255, 255, 255, 0.12)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              padding: 0,
-            }}
-            aria-label="Go back"
-          >
-            <ChevronLeft size={20} />
-          </Button>
-          <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'white', letterSpacing: '-0.2px' }}>Emergency Alert</h1>
-            <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.75)', margin: '2px 0 0' }}>MDRRMO Balayan Command Center</p>
+          <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBack}
+              style={{
+                width: 'clamp(32px, 8.5vw, 36px)',
+                height: 'clamp(32px, 8.5vw, 36px)',
+                borderRadius: 12,
+                border: '1.5px solid rgba(255, 255, 255, 0.25)',
+                background: 'rgba(255, 255, 255, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                padding: 0,
+              }}
+              aria-label="Go back"
+            >
+              <ChevronLeft size={20} />
+            </Button>
+            <div style={{ flex: 1 }}>
+              <h1 style={{ fontSize: 'clamp(16px, 4.5vw, 19px)', fontWeight: 800, margin: 0, color: 'white', letterSpacing: '-0.2px' }}>Emergency Alert</h1>
+              <p style={{ fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', color: 'rgba(255,255,255,0.75)', margin: '2px 0 0' }}>MDRRMO Balayan Command Center</p>
+            </div>
           </div>
         </div>
 
-        <div style={{ padding: '0 20px' }}>
+        <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
 
         {/* Offline Warning Banner */}
         {!isOnline && (
-          <div style={{
+          <div className="w-full mb-4" style={{
             background: '#FEF2F2',
             border: '1px solid #FCA5A5',
             borderRadius: 14,
             padding: '12px 16px',
-            marginBottom: 16,
             display: 'flex',
             alignItems: 'center',
             gap: 10,
@@ -466,12 +465,11 @@ export default function MobileReport() {
 
         {/* Queued reports badge */}
         {pendingCount > 0 && (
-          <div style={{
+          <div className="w-full mb-4" style={{
             background: '#FFFBEB',
             border: '1px solid #FDE68A',
             borderRadius: 14,
             padding: '10px 16px',
-            marginBottom: 16,
             display: 'flex',
             alignItems: 'center',
             gap: 10,
@@ -493,6 +491,7 @@ export default function MobileReport() {
         {/* Location Status Strip (matching Home tab dark card design, no side highlight) */}
         {isLocationOn === false && (
           <div
+            className="w-full mb-4"
             onClick={handleEnableGps}
             role="button"
             tabIndex={0}
@@ -501,7 +500,6 @@ export default function MobileReport() {
               border: '1px solid #E2E8F0',
               borderRadius: 14,
               padding: '14px 16px',
-              marginBottom: 16,
               display: 'flex',
               alignItems: 'center',
               gap: 12,
@@ -577,211 +575,225 @@ export default function MobileReport() {
           </div>
         )}
 
-        {/* Camera Viewfinder Box */}
-        <div style={{ marginBottom: 20 }}>
-          <div className="viewfinder-box" onClick={() => fileRef.current?.click()}>
-            {compressing ? (
-              <div style={{ textAlign: 'center', padding: '36px 20px', zIndex: 1, color: 'white' }}>
-                <Loader size={32} className="spin" style={{ color: '#60A5FA', margin: '0 auto 12px' }} />
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Optimizing Photo Clarity…</h3>
-                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#94A3B8' }}>Compressing for instant emergency dispatch</p>
-              </div>
-            ) : preview ? (
-              <img
-                src={preview}
-                alt="Captured emergency evidence"
-                style={{ width: '100%', height: 260, objectFit: 'cover' }}
-              />
-            ) : (
-              <div style={{ textAlign: 'center', padding: '40px 20px', zIndex: 1 }}>
-                <div style={{
-                  width: 58, height: 58, borderRadius: '50%',
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 14px', border: '1.5px solid rgba(239, 68, 68, 0.3)',
-                }}>
-                  <Camera size={28} color="#EF4444" />
-                </div>
-                <h3 style={{ margin: '0 0 6px', color: '#FFFFFF', fontSize: 16, fontWeight: 800 }}>
-                  Take Photo
-                </h3>
-                <p style={{ margin: 0, color: '#94A3B8', fontSize: 12.5, maxWidth: 240, lineHeight: 1.4 }}>
-                  Capture clear evidence of the scene for instant AI triage
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Photo actions */}
-          {preview && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8 }}>
-              <button
-                type="button"
-                onClick={handleDiscardPhoto}
-                style={{
-                  background: 'white', border: '1px solid #FECACA', borderRadius: 10,
-                  padding: '6px 14px', fontSize: 12.5, fontWeight: 700, color: '#DC2626',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                }}
-              >
-                <Trash2 size={13} /> Discard Photo
-              </button>
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                style={{
-                  background: 'white', border: '1px solid #CBD5E1', borderRadius: 10,
-                  padding: '6px 14px', fontSize: 12.5, fontWeight: 700, color: '#475569',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                }}
-              >
-                <RotateCcw size={13} /> Retake
-              </button>
-            </div>
-          )}
-        </div>
-
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          ref={fileRef}
-          style={{ display: 'none' }}
-          onChange={handlePhotoChange}
-        />
-
-        {/* Optional Incident Description Field */}
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-            <label
-              htmlFor="report-description"
-              style={{
-                fontSize: 12.5,
-                fontWeight: 800,
-                color: '#334155',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                letterSpacing: '0.01em',
-              }}
+        {/* 2-Column Responsive Grid on Tablet Screens (>=768px) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          {/* Left Column: Viewfinder Camera Evidence & Actions */}
+          <div className="flex flex-col gap-3">
+            <div
+              className="viewfinder-box w-full md:min-h-[300px] md:h-[340px]"
+              onClick={() => fileRef.current?.click()}
             >
-              <MessageSquare size={14} color="#2563EB" />
-              <span>Situation Details</span>
-              <span style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#64748B',
-                background: '#F1F5F9',
-                padding: '2px 7px',
-                borderRadius: 6,
-                border: '1px solid #E2E8F0',
-              }}>
-                Optional
-              </span>
-            </label>
-            {description.length > 0 && (
-              <span style={{ fontSize: 11, color: description.length > 250 ? '#EF4444' : '#94A3B8', fontWeight: 600 }}>
-                {description.length}/300
-              </span>
+              {compressing ? (
+                <div style={{ textAlign: 'center', padding: 'clamp(24px, 6vw, 36px) clamp(14px, 4vw, 20px)', zIndex: 1, color: 'white' }}>
+                  <Loader size={32} className="spin" style={{ color: '#60A5FA', margin: '0 auto 12px' }} />
+                  <h3 style={{ margin: 0, fontSize: 'clamp(13.5px, 3.8vw, 15px)', fontWeight: 700 }}>Optimizing Photo Clarity…</h3>
+                  <p style={{ margin: '4px 0 0', fontSize: 'clamp(11px, 3vw, 12px)', color: '#94A3B8' }}>Compressing for instant emergency dispatch</p>
+                </div>
+              ) : preview ? (
+                <img
+                  src={preview}
+                  alt="Captured emergency evidence"
+                  className="w-full h-full object-cover"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{ textAlign: 'center', padding: 'clamp(28px, 7vw, 40px) clamp(14px, 4vw, 20px)', zIndex: 1 }}>
+                  <div style={{
+                    width: 'clamp(48px, 13vw, 58px)', height: 'clamp(48px, 13vw, 58px)', borderRadius: '50%',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 14px', border: '1.5px solid rgba(239, 68, 68, 0.3)',
+                  }}>
+                    <Camera size={26} color="#EF4444" />
+                  </div>
+                  <h3 style={{ margin: '0 0 6px', color: '#FFFFFF', fontSize: 'clamp(14.5px, 4vw, 16px)', fontWeight: 800 }}>
+                    Take Photo
+                  </h3>
+                  <p style={{ margin: 0, color: '#94A3B8', fontSize: 'clamp(11px, 3vw, 12.5px)', maxWidth: 240, lineHeight: 1.4 }}>
+                    Capture clear evidence of the scene for instant AI triage
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Photo actions */}
+            {preview && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <button
+                  type="button"
+                  onClick={handleDiscardPhoto}
+                  style={{
+                    background: 'white', border: '1px solid #FECACA', borderRadius: 10,
+                    padding: 'clamp(5px, 1.5vw, 7px) clamp(10px, 2.5vw, 14px)',
+                    fontSize: 'clamp(11px, 2.8vw, 12.5px)', fontWeight: 700, color: '#DC2626',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                  }}
+                >
+                  <Trash2 size={13} /> Discard Photo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  style={{
+                    background: 'white', border: '1px solid #CBD5E1', borderRadius: 10,
+                    padding: 'clamp(5px, 1.5vw, 7px) clamp(10px, 2.5vw, 14px)',
+                    fontSize: 'clamp(11px, 2.8vw, 12.5px)', fontWeight: 700, color: '#475569',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                  }}
+                >
+                  <RotateCcw size={13} /> Retake
+                </button>
+              </div>
             )}
+            <p className="text-xs text-slate-500 mt-1 hidden md:block">
+              Take a clear photo of the emergency for instant AI classification and dispatch prioritization.
+            </p>
           </div>
 
-          <div style={{
-            background: '#FFFFFF',
-            border: '1.5px solid #E2E8F0',
-            borderRadius: 14,
-            padding: '12px 14px',
-            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-          }}>
-            <textarea
-              id="report-description"
-              name="description"
-              rows={3}
-              maxLength={300}
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                cachedReportDescription = e.target.value;
-              }}
-              placeholder="Briefly describe what you see (e.g. 2-car collision along highway, heavy smoke visible from 2nd floor, water rising near creek)..."
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            ref={fileRef}
+            style={{ display: 'none' }}
+            onChange={handlePhotoChange}
+          />
+
+          {/* Right Column: Situation Details, Guidelines, and Submit Action */}
+          <div className="flex flex-col gap-4">
+            <div className="w-full">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label
+                  htmlFor="report-description"
+                  style={{
+                    fontSize: 'clamp(11.5px, 3vw, 12.5px)',
+                    fontWeight: 800,
+                    color: '#334155',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  <MessageSquare size={14} color="#2563EB" />
+                  <span>Situation Details</span>
+                  <span style={{
+                    fontSize: 'clamp(9.5px, 2.5vw, 11px)',
+                    fontWeight: 700,
+                    color: '#64748B',
+                    background: '#F1F5F9',
+                    padding: '2px 7px',
+                    borderRadius: 6,
+                    border: '1px solid #E2E8F0',
+                  }}>
+                    Optional
+                  </span>
+                </label>
+                {description.length > 0 && (
+                  <span style={{ fontSize: 'clamp(9.5px, 2.5vw, 11px)', color: description.length > 250 ? '#EF4444' : '#94A3B8', fontWeight: 600 }}>
+                    {description.length}/300
+                  </span>
+                )}
+              </div>
+
+              <div style={{
+                background: '#FFFFFF',
+                border: '1.5px solid #E2E8F0',
+                borderRadius: 14,
+                padding: 'clamp(10px, 2.8vw, 12px) clamp(12px, 3.2vw, 14px)',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}>
+                <textarea
+                  id="report-description"
+                  name="description"
+                  rows={4}
+                  maxLength={300}
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                    cachedReportDescription = e.target.value;
+                  }}
+                  placeholder="Briefly describe what you see (e.g. 2-car collision along highway, heavy smoke visible from 2nd floor, water rising near creek)..."
+                  style={{
+                    width: '100%',
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    fontSize: 'clamp(12.5px, 3.4vw, 13.5px)',
+                    color: '#0F172A',
+                    fontFamily: 'inherit',
+                    resize: 'none',
+                    lineHeight: 1.5,
+                    boxSizing: 'border-box',
+                    display: 'block',
+                  }}
+                />
+              </div>
+              <p style={{ margin: '6px 4px 0', fontSize: 'clamp(10px, 2.7vw, 11px)', color: '#94A3B8', lineHeight: 1.4 }}>
+                Add extra details, landmarks, or hazards to assist dispatchers and responders.
+              </p>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              onClick={handleOpenReview}
+              disabled={!photo || sending || flushing || resolvingLoc || compressing}
               style={{
                 width: '100%',
+                padding: 'clamp(13px, 3.5vw, 17px)',
+                borderRadius: 16,
+                background: !photo ? '#94A3B8' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                color: 'white',
                 border: 'none',
-                background: 'transparent',
-                outline: 'none',
-                fontSize: 13.5,
-                color: '#0F172A',
-                fontFamily: 'inherit',
-                resize: 'none',
-                lineHeight: 1.5,
-                boxSizing: 'border-box',
-                display: 'block',
+                fontSize: 'clamp(14px, 3.8vw, 16px)',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                boxShadow: !photo ? 'none' : '0 6px 24px rgba(220,38,38,0.4)',
+                transition: 'all 0.2s ease',
+                minHeight: 'clamp(48px, 6.5vh, 54px)',
               }}
-            />
+            >
+              {resolvingLoc ? (
+                <><Loader size={20} className="spin" /> VERIFYING LOCATION…</>
+              ) : sending ? (
+                <><Loader size={20} className="spin" /> SENDING REPORT…</>
+              ) : flushing ? (
+                <><Loader size={20} className="spin" /> SYNCING QUEUED REPORTS…</>
+              ) : !isOnline ? (
+                <>QUEUE REPORT OFFLINE <IoIosSend size={19} /></>
+              ) : (
+                <>SEND EMERGENCY ALERT <IoIosSend size={19} /></>
+              )}
+            </Button>
+
+            {/* Offline reassurance notice below submit button */}
+            {!isOnline && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 7,
+                marginTop: 4,
+                padding: '10px 14px',
+                background: '#FEF3C7',
+                border: '1.5px solid #FDE68A',
+                borderRadius: 12,
+                fontSize: 12,
+                fontWeight: 700,
+                color: '#B45309',
+                textAlign: 'center',
+                lineHeight: 1.4,
+              }}>
+                <WifiOff size={15} color="#D97706" style={{ flexShrink: 0 }} />
+                <span>Offline Mode: Ang report ay direktang pupunta sa offline queue at awtomatikong ipapadala sa MDRRMO pagbalik ng internet connection.</span>
+              </div>
+            )}
           </div>
-          <p style={{ margin: '6px 4px 0', fontSize: 11, color: '#94A3B8', lineHeight: 1.4 }}>
-            Add extra details, landmarks, or hazards to assist dispatchers and responders.
-          </p>
         </div>
-
-        {/* Submit Button */}
-        <Button
-          onClick={handleOpenReview}
-          disabled={!photo || sending || flushing || resolvingLoc || compressing}
-          style={{
-            width: '100%',
-            padding: '17px',
-            borderRadius: 16,
-            background: !photo ? '#94A3B8' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-            color: 'white',
-            border: 'none',
-            fontSize: 16,
-            fontWeight: 800,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-            boxShadow: !photo ? 'none' : '0 6px 24px rgba(220,38,38,0.4)',
-            transition: 'all 0.2s ease',
-            minHeight: 54,
-          }}
-        >
-          {resolvingLoc ? (
-            <><Loader size={20} className="spin" /> VERIFYING LOCATION…</>
-          ) : sending ? (
-            <><Loader size={20} className="spin" /> SENDING REPORT…</>
-          ) : flushing ? (
-            <><Loader size={20} className="spin" /> SYNCING QUEUED REPORTS…</>
-          ) : !isOnline ? (
-            <>QUEUE REPORT OFFLINE <IoIosSend size={19} /></>
-          ) : (
-            <>SEND EMERGENCY ALERT <IoIosSend size={19} /></>
-          )}
-        </Button>
-
-        {/* Offline reassurance notice below submit button */}
-        {!isOnline && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 7,
-            marginTop: 10,
-            padding: '10px 14px',
-            background: '#FEF3C7',
-            border: '1.5px solid #FDE68A',
-            borderRadius: 12,
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#B45309',
-            textAlign: 'center',
-            lineHeight: 1.4,
-          }}>
-            <WifiOff size={15} color="#D97706" style={{ flexShrink: 0 }} />
-            <span>Offline Mode: Ang report ay direktang pupunta sa offline queue at awtomatikong ipapadala sa MDRRMO pagbalik ng internet connection.</span>
-          </div>
-        )}
       </div>
 
       {/* ── Manual Barangay Selection Modal (Screen-Centered Dialog) ── */}
@@ -1244,7 +1256,7 @@ export default function MobileReport() {
       {/* ── Success Screen Modal Overlay (Facebook-Style, No Icons) ── */}
       {submittedIncident && (
         <div style={{
-          position: 'fixed', inset: 0, zIndex: 11000,
+          position: 'fixed', inset: 0, zIndex: 100000,
           background: 'rgba(15, 23, 42, 0.85)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',

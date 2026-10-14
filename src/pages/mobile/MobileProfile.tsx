@@ -44,13 +44,13 @@ function Field({
   return (
     <div style={{ marginBottom: 14 }}>
       <label style={{
-        display: 'block', fontSize: 12, fontWeight: 700,
+        display: 'block', fontSize: 'clamp(11px, 2.8vw, 12px)', fontWeight: 700,
         color: '#64748B', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px',
       }}>{label}</label>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
         background: '#F8FAFC', border: '1.5px solid #E2E8F0',
-        borderRadius: 12, padding: '13px 14px',
+        borderRadius: 12, padding: 'clamp(11px, 3vw, 14px) clamp(12px, 3.5vw, 15px)',
       }}>
         <Icon size={17} color="#94A3B8" style={{ flexShrink: 0 }} />
         <input
@@ -62,7 +62,7 @@ function Field({
           inputMode={inputMode}
           style={{
             flex: 1, border: 'none', background: 'none', outline: 'none',
-            fontSize: 15, fontFamily: 'var(--font)', color: '#0F172A', minWidth: 0,
+            fontSize: 'clamp(13px, 3.5vw, 15px)', fontFamily: 'var(--font)', color: '#0F172A', minWidth: 0,
           }}
         />
       </div>
@@ -70,23 +70,24 @@ function Field({
   );
 }
 
-function SectionHeader({ title, onBack }: { title: string; onBack: () => void }) {
+function SectionHeader({ title, onBack, maxWidthClass = 'max-w-2xl' }: { title: string; onBack: () => void; maxWidthClass?: string }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '18px 16px 14px',
       borderBottom: '1px solid #F1F5F9',
       position: 'sticky', top: 0, background: 'white', zIndex: 10,
+      width: '100%',
     }}>
-      <button onClick={onBack} style={{
-        background: '#F1F5F9', border: 'none', cursor: 'pointer',
-        width: 36, height: 36, borderRadius: 10,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: '#475569', flexShrink: 0,
-      }}>
-        <ChevronLeft size={20} />
-      </button>
-      <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: 0 }}>{title}</h2>
+      <div className={`${maxWidthClass} mx-auto w-full flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4`}>
+        <button onClick={onBack} style={{
+          background: '#F1F5F9', border: 'none', cursor: 'pointer',
+          width: 'clamp(34px, 9vw, 38px)', height: 'clamp(34px, 9vw, 38px)', borderRadius: 10,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#475569', flexShrink: 0,
+        }}>
+          <ChevronLeft size={20} />
+        </button>
+        <h2 style={{ fontSize: 'clamp(16px, 4.5vw, 18px)', fontWeight: 800, color: '#0F172A', margin: 0 }}>{title}</h2>
+      </div>
     </div>
   );
 }
@@ -373,94 +374,99 @@ export default function MobileProfile() {
 
   /* ── MAIN VIEW ─────────────────────────────────────────── */
   if (section === 'main') return (
-    <div className={`mobile-shell ${direction === 'backward' ? 'mobile-subpage-backward' : ''}`} key="profile-main" style={{ background: '#FFFFFF' }}>
+    <div className={`w-full min-h-screen flex flex-col bg-white ${direction === 'backward' ? 'mobile-subpage-backward' : ''}`} key="profile-main">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        {/* Hero Header — uses percentage width, no 100vw hack */}
+        {/* Hero Header */}
         <div style={{
           background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
-          padding: 'clamp(32px, 8vw, 48px) clamp(16px, 5vw, 28px) 28px',
+          padding: 'clamp(32px, 8vw, 48px) 0 28px',
           textAlign: 'center', color: 'white', width: '100%', boxSizing: 'border-box',
         }}>
-          {/* Avatar */}
-          <Avatar style={{
-            width: 'clamp(72px, 20vw, 96px)', height: 'clamp(72px, 20vw, 96px)',
-            margin: '0 auto 12px',
-            background: 'rgba(255,255,255,0.18)', border: '3px solid rgba(255,255,255,0.35)',
-            fontSize: 'clamp(24px, 7vw, 34px)', fontWeight: 800,
-          }}>
-            <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 text-center">
+            {/* Avatar */}
+            <Avatar style={{
+              width: 'clamp(72px, 20vw, 96px)', height: 'clamp(72px, 20vw, 96px)',
+              margin: '0 auto 12px',
+              background: 'rgba(255,255,255,0.18)', border: '3px solid rgba(255,255,255,0.35)',
+              fontSize: 'clamp(24px, 7vw, 34px)', fontWeight: 800,
+            }}>
+              <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
+                {initials}
+              </AvatarFallback>
+            </Avatar>
 
-          <h2 style={{ fontSize: 'clamp(20px, 5.5vw, 26px)', fontWeight: 800, margin: '0 0 4px', lineHeight: 1.2 }}>{name}</h2>
-          <p style={{ fontSize: 'clamp(12px, 3.5vw, 14px)', opacity: 0.75, margin: '0 0 2px', wordBreak: 'break-all' }}>{email || 'No email address'}</p>
-          <p style={{ fontSize: 'clamp(12px, 3.5vw, 14px)', opacity: 0.75, margin: '0 0 14px' }}>{phone || 'No phone number'}</p>
+            <h2 style={{ fontSize: 'clamp(20px, 5.5vw, 26px)', fontWeight: 800, margin: '0 0 4px', lineHeight: 1.2 }}>{name}</h2>
+            <p style={{ fontSize: 'clamp(12px, 3.5vw, 14px)', opacity: 0.75, margin: '0 0 2px', wordBreak: 'break-all' }}>{email || 'No email address'}</p>
+            <p style={{ fontSize: 'clamp(12px, 3.5vw, 14px)', opacity: 0.75, margin: '0 0 14px' }}>{phone || 'No phone number'}</p>
 
-          <Badge style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'rgba(255,255,255,0.15)', padding: '6px 16px',
-            borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px',
-            border: 'none', color: 'white',
-          }}>
-            <MdVerified size={15} style={{ color: '#60A5FA' }} /> VERIFIED CITIZEN
-          </Badge>
+            <Badge style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'rgba(255,255,255,0.15)', padding: '6px 16px',
+              borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px',
+              border: 'none', color: 'white',
+            }}>
+              <MdVerified size={15} style={{ color: '#60A5FA' }} /> VERIFIED CITIZEN
+            </Badge>
+          </div>
         </div>
 
-        {/* Menu */}
-        <div style={{ padding: '12px clamp(14px, 4vw, 20px)' }}>
-          {[
-            { icon: MdManageAccounts, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
-            {
-              icon: () => (
-                <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 }}>
-                  <FaBell size={18} />
-                  <FaCog size={10} style={{ position: 'absolute', top: -3, right: -4, background: '#EFF6FF', borderRadius: '50%', color: '#2563EB' }} />
-                </span>
-              ),
-              label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences',
-            },
-            { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
-          ].map(item => (
-            <div
-              key={item.label}
-              onClick={() => openSection(item.key)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: 'clamp(12px, 3.5vw, 16px) 4px',
-                borderBottom: '1px solid #E2E8F0', cursor: 'pointer',
-              }}
-            >
-              <div style={{
-                width: 'clamp(38px, 10vw, 44px)', height: 'clamp(38px, 10vw, 44px)',
-                borderRadius: 12, background: '#EFF6FF',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#2563EB', flexShrink: 0,
-              }}>
-                <item.icon size={20} />
+        {/* Menu & Logout wrapped in centered container */}
+        <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-2">
+          {/* Menu */}
+          <div style={{ padding: '12px 0' }}>
+            {[
+              { icon: MdManageAccounts, label: 'Account Details', key: 'account' as Section, desc: 'Name, email, and password' },
+              {
+                icon: () => (
+                  <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 }}>
+                    <FaBell size={18} />
+                    <FaCog size={10} style={{ position: 'absolute', top: -3, right: -4, background: '#EFF6FF', borderRadius: '50%', color: '#2563EB' }} />
+                  </span>
+                ),
+                label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences',
+              },
+              { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
+            ].map(item => (
+              <div
+                key={item.label}
+                onClick={() => openSection(item.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: 'clamp(12px, 3.5vw, 16px) 4px',
+                  borderBottom: '1px solid #E2E8F0', cursor: 'pointer',
+                }}
+              >
+                <div style={{
+                  width: 'clamp(38px, 10vw, 44px)', height: 'clamp(38px, 10vw, 44px)',
+                  borderRadius: 12, background: '#EFF6FF',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#2563EB', flexShrink: 0,
+                }}>
+                  <item.icon size={20} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 700, color: '#0F172A' }}>{item.label}</div>
+                  <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: '#94A3B8', marginTop: 2 }}>{item.desc}</div>
+                </div>
+                <ChevronRight size={18} color="#CBD5E1" style={{ flexShrink: 0 }} />
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 'clamp(13px, 3.8vw, 15px)', fontWeight: 700, color: '#0F172A' }}>{item.label}</div>
-                <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: '#94A3B8', marginTop: 2 }}>{item.desc}</div>
-              </div>
-              <ChevronRight size={18} color="#CBD5E1" style={{ flexShrink: 0 }} />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Logout */}
-        <div style={{ padding: '16px clamp(14px, 4vw, 20px) 8px' }}>
-          <Button variant="destructive" onClick={handleLogout} style={{
-            width: '100%', padding: 'clamp(12px, 3.5vw, 15px)',
-            borderRadius: 14, background: '#FEF2F2', color: '#DC2626',
-            border: '1.5px solid #FECACA', fontSize: 'clamp(13px, 3.8vw, 15px)',
-            fontWeight: 700,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            minHeight: 48,
-          }}>
-            <LogOut size={17} /> Log Out
-          </Button>
+          {/* Logout */}
+          <div style={{ padding: '16px 0 8px' }}>
+            <Button variant="destructive" onClick={handleLogout} style={{
+              width: '100%', padding: 'clamp(12px, 3.5vw, 15px)',
+              borderRadius: 14, background: '#FEF2F2', color: '#DC2626',
+              border: '1.5px solid #FECACA', fontSize: 'clamp(13px, 3.8vw, 15px)',
+              fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              minHeight: 48,
+            }}>
+              <LogOut size={17} /> Log Out
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -486,11 +492,11 @@ export default function MobileProfile() {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: 340,
+              maxWidth: 'min(340px, calc(100vw - 32px))',
               background: '#FFFFFF',
               border: '1px solid #E2E8F0',
-              borderRadius: 24,
-              padding: '28px 22px 22px',
+              borderRadius: 'clamp(18px, 5vw, 24px)',
+              padding: 'clamp(22px, 5vw, 28px) clamp(16px, 4.5vw, 22px) clamp(18px, 4vw, 22px)',
               textAlign: 'center',
               boxShadow: '0 25px 60px -12px rgba(15, 23, 42, 0.25), 0 10px 20px -5px rgba(15, 23, 42, 0.1)',
               animation: 'modalCenterPop 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -498,10 +504,10 @@ export default function MobileProfile() {
           >
             <h2 style={{
               color: '#0F1F38',
-              fontSize: 20,
+              fontSize: 'clamp(18px, 5vw, 21px)',
               fontWeight: 800,
               lineHeight: 1.3,
-              margin: '0 0 20px',
+              margin: '0 0 clamp(16px, 4vw, 20px)',
               letterSpacing: '-0.3px',
             }}>
               Are you sure you<br />want to log out?
@@ -512,21 +518,21 @@ export default function MobileProfile() {
               background: '#F0F7FF',
               border: '1.5px solid #BFDBFE',
               borderRadius: 16,
-              padding: '12px 14px',
+              padding: 'clamp(10px, 3vw, 12px) clamp(12px, 3.5vw, 14px)',
               display: 'flex',
               alignItems: 'center',
               gap: 12,
               textAlign: 'left',
-              marginBottom: 22,
+              marginBottom: 'clamp(18px, 4.5vw, 22px)',
             }}>
               <div style={{
-                width: 44,
-                height: 44,
+                width: 'clamp(38px, 11vw, 44px)',
+                height: 'clamp(38px, 11vw, 44px)',
                 borderRadius: '50%',
                 background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
                 color: '#FFFFFF',
                 fontWeight: 800,
-                fontSize: 15,
+                fontSize: 'clamp(13px, 3.8vw, 15px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -539,7 +545,7 @@ export default function MobileProfile() {
                 <div style={{
                   color: '#0F1F38',
                   fontWeight: 800,
-                  fontSize: 15.5,
+                  fontSize: 'clamp(14px, 4vw, 15.5px)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -549,7 +555,7 @@ export default function MobileProfile() {
                 </div>
                 <div style={{
                   color: '#1D4ED8',
-                  fontSize: 13,
+                  fontSize: 'clamp(12px, 3.4vw, 13px)',
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -568,11 +574,11 @@ export default function MobileProfile() {
                 onClick={executeLogout}
                 style={{
                   width: '100%',
-                  padding: '14px',
+                  padding: 'clamp(12px, 3.5vw, 14px)',
                   borderRadius: 9999,
                   background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
                   color: '#FFFFFF',
-                  fontSize: 15,
+                  fontSize: 'clamp(13.5px, 3.8vw, 15px)',
                   fontWeight: 700,
                   border: 'none',
                   cursor: 'pointer',
@@ -588,11 +594,11 @@ export default function MobileProfile() {
                 onClick={() => setShowLogoutModal(false)}
                 style={{
                   width: '100%',
-                  padding: '14px',
+                  padding: 'clamp(12px, 3.5vw, 14px)',
                   borderRadius: 9999,
                   background: '#FFFFFF',
                   color: '#334155',
-                  fontSize: 15,
+                  fontSize: 'clamp(13.5px, 3.8vw, 15px)',
                   fontWeight: 700,
                   border: '1.5px solid #E2E8F0',
                   cursor: 'pointer',
@@ -612,12 +618,12 @@ export default function MobileProfile() {
 
   /* ── ACCOUNT DETAILS ───────────────────────────────────── */
   if (section === 'account') return (
-    <div className="mobile-shell mobile-subpage-forward" key="profile-account" style={{ background: '#FFFFFF' }}>
+    <div className="w-full min-h-screen flex flex-col bg-white mobile-subpage-forward" key="profile-account">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        <SectionHeader title="Account Details" onBack={handleBackFromAccount} />
+        <SectionHeader title="Account Details" onBack={handleBackFromAccount} maxWidthClass="max-w-2xl" />
 
-        <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
+        <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-4">
           <Field label="Full Name" icon={FaUser} value={name} onChange={setName} placeholder="Juan Dela Cruz" />
           <Field label="Email Address" icon={FaEnvelope} value={email} onChange={setEmail} placeholder="juan@example.com" type="email" />
           <Field label="Phone Number *" icon={FiPhone} value={phone} onChange={v => setPhone(v.replace(/\D/g, '').slice(0, 11))} placeholder="09123456789 (11 digits)" type="tel" maxLength={11} inputMode="numeric" />
@@ -658,13 +664,13 @@ export default function MobileProfile() {
 
             {/* Current password */}
             <label style={{
-              display: 'block', fontSize: 11.5, fontWeight: 700,
+              display: 'block', fontSize: 'clamp(11px, 2.8vw, 12px)', fontWeight: 700,
               color: '#64748B', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px',
             }}>Current Password</label>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
               background: 'white', border: '1.5px solid #E2E8F0',
-              borderRadius: 12, padding: '12px 14px', marginBottom: 12,
+              borderRadius: 12, padding: 'clamp(10px, 2.8vw, 13px) clamp(12px, 3.5vw, 14px)', marginBottom: 12,
             }}>
               <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
@@ -672,7 +678,7 @@ export default function MobileProfile() {
                 placeholder="••••••••"
                 value={currentPass}
                 onChange={e => setCurrentPass(e.target.value)}
-                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 14, minWidth: 0, lineHeight: 'normal', verticalAlign: 'middle', fontFamily: showCurrentPass ? 'var(--font)' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', letterSpacing: showCurrentPass ? 'normal' : '0.12em' }}
+                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 'clamp(13px, 3.5vw, 14.5px)', minWidth: 0, lineHeight: 'normal', verticalAlign: 'middle', fontFamily: showCurrentPass ? 'var(--font)' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', letterSpacing: showCurrentPass ? 'normal' : '0.12em' }}
               />
               <button onClick={() => setShowCurrentPass(!showCurrentPass)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0, flexShrink: 0 }}>
                 {showCurrentPass ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -681,13 +687,13 @@ export default function MobileProfile() {
 
             {/* New password */}
             <label style={{
-              display: 'block', fontSize: 11.5, fontWeight: 700,
+              display: 'block', fontSize: 'clamp(11px, 2.8vw, 12px)', fontWeight: 700,
               color: '#64748B', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.5px',
             }}>New Password</label>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
               background: 'white', border: '1.5px solid #E2E8F0',
-              borderRadius: 12, padding: '12px 14px', marginBottom: (newPassClicked || newPass.length > 0) ? 10 : 14,
+              borderRadius: 12, padding: 'clamp(10px, 2.8vw, 13px) clamp(12px, 3.5vw, 14px)', marginBottom: (newPassClicked || newPass.length > 0) ? 10 : 14,
             }}>
               <FaLock size={15} color="#94A3B8" style={{ flexShrink: 0 }} />
               <input
@@ -697,7 +703,7 @@ export default function MobileProfile() {
                 onFocus={() => setNewPassClicked(true)}
                 onClick={() => setNewPassClicked(true)}
                 onChange={e => setNewPass(e.target.value)}
-                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 14, minWidth: 0, lineHeight: 'normal', verticalAlign: 'middle', fontFamily: showNewPass ? 'var(--font)' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', letterSpacing: showNewPass ? 'normal' : '0.12em' }}
+                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontSize: 'clamp(13px, 3.5vw, 14.5px)', minWidth: 0, lineHeight: 'normal', verticalAlign: 'middle', fontFamily: showNewPass ? 'var(--font)' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', letterSpacing: showNewPass ? 'normal' : '0.12em' }}
               />
               <button onClick={() => setShowNewPass(!showNewPass)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0, flexShrink: 0 }}>
                 {showNewPass ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -716,7 +722,7 @@ export default function MobileProfile() {
                 flexDirection: 'column',
                 gap: 6,
               }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: 'clamp(10.5px, 2.6vw, 11px)', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Password Requirements:
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '4px 10px' }}>
@@ -724,7 +730,7 @@ export default function MobileProfile() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    fontSize: 11.5,
+                    fontSize: 'clamp(10.5px, 2.6vw, 11.5px)',
                     color: newPassCriteria.length ? '#16A34A' : '#94A3B8',
                     fontWeight: newPassCriteria.length ? 700 : 500,
                     transition: 'color 0.15s ease',
@@ -736,7 +742,7 @@ export default function MobileProfile() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    fontSize: 11.5,
+                    fontSize: 'clamp(10.5px, 2.6vw, 11.5px)',
                     color: newPassCriteria.hasNumber ? '#16A34A' : '#94A3B8',
                     fontWeight: newPassCriteria.hasNumber ? 700 : 500,
                     transition: 'color 0.15s ease',
@@ -748,7 +754,7 @@ export default function MobileProfile() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    fontSize: 11.5,
+                    fontSize: 'clamp(10.5px, 2.6vw, 11.5px)',
                     color: newPassCriteria.hasUpper ? '#16A34A' : '#94A3B8',
                     fontWeight: newPassCriteria.hasUpper ? 700 : 500,
                     transition: 'color 0.15s ease',
@@ -760,7 +766,7 @@ export default function MobileProfile() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    fontSize: 11.5,
+                    fontSize: 'clamp(10.5px, 2.6vw, 11.5px)',
                     color: newPassCriteria.hasLower ? '#16A34A' : '#94A3B8',
                     fontWeight: newPassCriteria.hasLower ? 700 : 500,
                     transition: 'color 0.15s ease',
@@ -773,8 +779,8 @@ export default function MobileProfile() {
             )}
 
             <button onClick={handleChangePassword} disabled={saving} style={{
-              width: '100%', padding: 12, borderRadius: 12, background: '#0F172A', color: 'white',
-              border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              width: '100%', padding: 'clamp(11px, 3.2vw, 13px)', borderRadius: 12, background: '#0F172A', color: 'white',
+              border: 'none', fontSize: 'clamp(13px, 3.6vw, 14.5px)', fontWeight: 700, cursor: 'pointer',
               fontFamily: 'var(--font)', opacity: saving ? 0.6 : 1,
             }}>
               {saving ? 'Updating...' : 'Update Password'}
@@ -787,11 +793,11 @@ export default function MobileProfile() {
 
   /* ── NOTIFICATION SETTINGS ─────────────────────────────── */
   if (section === 'notifications') return (
-    <div className="mobile-shell mobile-subpage-forward" key="profile-notifications" style={{ background: '#FFFFFF' }}>
+    <div className="w-full min-h-screen flex flex-col bg-white mobile-subpage-forward" key="profile-notifications">
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
-        <SectionHeader title="Notification Settings" onBack={backToMain} />
-        <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
+        <SectionHeader title="Notification Settings" onBack={backToMain} maxWidthClass="max-w-2xl" />
+        <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-4">
           {([
             { key: 'statusUpdates', label: 'Status Updates', desc: 'Get notified when your report status changes' },
             { key: 'emergencyAlerts', label: 'Emergency Alerts', desc: 'Receive area-wide emergency broadcasts' },
@@ -836,10 +842,10 @@ export default function MobileProfile() {
     ];
 
     return (
-      <div className="mobile-shell mobile-subpage-forward" key="profile-help" style={{ background: '#FFFFFF' }}>
+      <div className="w-full min-h-screen flex flex-col bg-white mobile-subpage-forward" key="profile-help">
         <div style={{ flex: 1, paddingBottom: 80 }}>
-          <SectionHeader title="Help & Support" onBack={backToMain} />
-          <div style={{ padding: 'clamp(14px, 4vw, 20px)' }}>
+          <SectionHeader title="Help & Support" onBack={backToMain} maxWidthClass="max-w-3xl" />
+          <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-4">
             {/* Contact card */}
             <div style={{
               background: 'linear-gradient(135deg, #EFF6FF, #DBEAFE)',

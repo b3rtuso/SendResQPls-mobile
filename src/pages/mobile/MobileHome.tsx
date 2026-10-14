@@ -76,7 +76,7 @@ export default function MobileHome() {
 
 
   return (
-    <div className="mobile-shell" style={{ background: '#F1F5F9' }}>
+    <div className="w-full flex-1 flex flex-col bg-[#F1F5F9]">
       <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(14px); }
@@ -127,52 +127,54 @@ export default function MobileHome() {
       <div style={{ flex: 1, paddingBottom: 80 }}>
 
         {/* ── Header (normal flow — stays at the top of the page, does not follow scroll) ── */}
-        <div className="mobile-home-header" style={{ marginBottom: 24 }}>
-          {/* Top row: logo + actions */}
-          <div className="header-top">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <img src="/logo.svg" alt="SRQ" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.25)' }} />
-              <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1 }}>SendResQPls</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3, marginTop: 1 }}>MDRRMO Balayan, Batangas</div>
+        <div className="mobile-home-header w-full" style={{ marginBottom: 'clamp(14px, 3.5vw, 24px)' }}>
+          <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
+            {/* Top row: logo + actions */}
+            <div className="header-top">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <img src="/logo.svg" alt="SRQ" style={{ width: 'clamp(32px, 8.5vw, 36px)', height: 'clamp(32px, 8.5vw, 36px)', borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(255,255,255,0.25)' }} />
+                <div>
+                  <div style={{ fontSize: 'clamp(9px, 2.5vw, 10px)', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1 }}>SendResQPls</div>
+                  <div style={{ fontSize: 'clamp(10px, 2.8vw, 11px)', color: 'rgba(255,255,255,0.7)', lineHeight: 1.3, marginTop: 1 }}>MDRRMO Balayan, Batangas</div>
+                </div>
+              </div>
+              {/* Clickable Avatar redirects to Profile */}
+              <div
+                onClick={() => navigate('/mobile/profile')}
+                style={{ cursor: 'pointer' }}
+                aria-label="Profile"
+              >
+                <Avatar style={{
+                  width: 'clamp(34px, 9vw, 38px)', height: 'clamp(34px, 9vw, 38px)',
+                  background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
+                  fontWeight: 800, fontSize: 'clamp(11px, 3vw, 13px)', color: 'white',
+                }}>
+                  <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
               </div>
             </div>
-            {/* Clickable Avatar redirects to Profile */}
-            <div
-              onClick={() => navigate('/mobile/profile')}
-              style={{ cursor: 'pointer' }}
-              aria-label="Profile"
-            >
-              <Avatar style={{
-                width: 38, height: 38,
-                background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)',
-                fontWeight: 800, fontSize: 13, color: 'white',
-              }}>
-                <AvatarFallback style={{ background: 'transparent', color: 'white' }}>
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+            {/* Greeting row */}
+            <div>
+              <div className="greeting">Hello,</div>
+              <div className="user-name">{userName}</div>
             </div>
-          </div>
-          {/* Greeting row */}
-          <div>
-            <div className="greeting">Hello,</div>
-            <div className="user-name">{userName}</div>
           </div>
         </div>
 
         {/* ── SOS Card ─────────────────────────────────── */}
-        <div style={{ padding: '20px 20px 0' }}>
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-3 sm:pt-4">
           <div
-            className="sos-card"
+            className="sos-card max-w-xl mx-auto sm:p-8 md:p-10 sm:rounded-3xl"
             onClick={() => navigate('/mobile/report')}
             role="button"
             tabIndex={0}
             aria-label="Send emergency alert to MDRRMO"
-            style={{}}
+            style={{ margin: '0 auto' }}
           >
             {/* Concentric radar pulse container */}
-            <div style={{ position: 'relative', width: 72, height: 72, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'relative', width: 'clamp(58px, 15vw, 72px)', height: 'clamp(58px, 15vw, 72px)', margin: '0 auto clamp(10px, 2.5vw, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {/* Outer radar wave 1 */}
               <div style={{
                 position: 'absolute', inset: -8, borderRadius: '50%',
@@ -189,21 +191,21 @@ export default function MobileHome() {
               }} />
               {/* Inner Glowing SOS Icon Circle */}
               <div style={{
-                width: 62, height: 62, borderRadius: '50%',
+                width: 'clamp(50px, 13vw, 62px)', height: 'clamp(50px, 13vw, 62px)', borderRadius: '50%',
                 background: 'rgba(255,255,255,0.22)', border: '2px solid rgba(255,255,255,0.45)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                 position: 'relative', zIndex: 1,
               }}>
-                <AlertTriangle size={30} strokeWidth={2.4} color="white" />
+                <AlertTriangle size={28} strokeWidth={2.4} color="white" />
               </div>
             </div>
 
-            <h2 style={{ letterSpacing: '1.5px', fontSize: 20, margin: 0, fontWeight: 900 }}>SEND EMERGENCY ALERT</h2>
-            <p style={{ fontSize: 12.5, opacity: 0.88, marginTop: 6, marginBottom: 0, letterSpacing: '0.1px', lineHeight: 1.45 }}>
+            <h2 style={{ letterSpacing: 'clamp(0.5px, 0.3vw, 1.5px)', fontSize: 'clamp(16px, 4.6vw, 20px)', margin: 0, fontWeight: 900 }}>SEND EMERGENCY ALERT</h2>
+            <p style={{ fontSize: 'clamp(11.5px, 3.2vw, 12.5px)', opacity: 0.88, marginTop: 6, marginBottom: 0, letterSpacing: '0.1px', lineHeight: 1.45 }}>
               Tap to instantly report an incident to MDRRMO Balayan
             </p>
-            <div className="tap-hint" style={{ marginTop: 12 }}>
+            <div className="tap-hint" style={{ marginTop: 'clamp(8px, 2vw, 12px)' }}>
               <span className="tap-arrow"><ChevronDown size={12} /></span>
               <span>TAP TO REPORT NOW</span>
               <span className="tap-arrow"><ChevronDown size={12} /></span>
@@ -212,7 +214,7 @@ export default function MobileHome() {
 
           {/* Offline badge */}
           {!isOnline && (
-            <div style={{
+            <div className="max-w-xl mx-auto" style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -238,8 +240,9 @@ export default function MobileHome() {
 
         {/* ── Location Status Strip (taste-skill redesign: flat navy, left-edge accent) ── */}
         {isLocationOn === false && (
-          <div style={{ padding: '12px 20px 0' }}>
+          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-3 sm:pt-4">
             <div
+              className="max-w-xl mx-auto"
               onClick={() => setShowLocModal(true)}
               role="button"
               tabIndex={0}
@@ -247,10 +250,10 @@ export default function MobileHome() {
                 background: '#FFFFFF',
                 border: '1px solid #E2E8F0',
                 borderRadius: 14,
-                padding: '14px 16px',
+                padding: 'clamp(11px, 2.8vw, 14px) clamp(12px, 3.5vw, 16px)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
+                gap: 'clamp(8px, 2.5vw, 12px)',
                 cursor: 'pointer',
                 boxShadow: '0 2px 10px rgba(15, 23, 42, 0.06)',
               }}
@@ -264,10 +267,10 @@ export default function MobileHome() {
 
               {/* Text block */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.1px', marginBottom: 2 }}>
+                <div style={{ fontSize: 'clamp(11.5px, 3.2vw, 12.5px)', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.1px', marginBottom: 2 }}>
                   {locStatus === 'PERMISSION_DENIED' ? 'Location permission blocked' : 'Location (GPS) is off'}
                 </div>
-                <div style={{ fontSize: 11.5, color: '#64748B', lineHeight: 1.4 }}>
+                <div style={{ fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', color: '#64748B', lineHeight: 1.4 }}>
                   {locStatus === 'PERMISSION_DENIED'
                     ? 'Tap to open App Settings and allow access.'
                     : 'Turn on GPS so responders can find you.'}
@@ -281,9 +284,9 @@ export default function MobileHome() {
                   onClick={(e) => { e.stopPropagation(); openAppSettings(); }}
                   style={{
                     flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '7px 12px', borderRadius: 8, height: 'auto',
+                    padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 12px)', borderRadius: 8, height: 'auto',
                     background: '#2563EB', border: 'none',
-                    color: 'white', fontSize: 12, fontWeight: 700,
+                    color: 'white', fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 700,
                     whiteSpace: 'nowrap' as const,
                   }}
                 >
@@ -300,9 +303,9 @@ export default function MobileHome() {
                   }}
                   style={{
                     flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '7px 12px', borderRadius: 8, height: 'auto',
+                    padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 12px)', borderRadius: 8, height: 'auto',
                     background: locRequesting ? '#1D4ED8' : '#2563EB', border: 'none',
-                    color: 'white', fontSize: 12, fontWeight: 700,
+                    color: 'white', fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 700,
                     whiteSpace: 'nowrap' as const,
                     boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
                     opacity: locRequesting ? 0.85 : 1,
@@ -324,22 +327,20 @@ export default function MobileHome() {
           </div>
         )}
 
-
-
         {/* ── Emergency Hotlines ─────────────────────────── */}
-        <div style={{ padding: '24px 20px 0' }}>
-          <p className="srq-section-label">Emergency Hotlines</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+          <p className="srq-section-label" style={{ fontSize: 'clamp(9.5px, 2.6vw, 11px)' }}>Emergency Hotlines</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {hotlines.map((h) => (
               <a
                 key={h.number}
                 href={`tel:${h.number}`}
-                className="srq-hotline-card"
+                className="srq-hotline-card h-full"
               >
                 {/* Colored header — row layout with number and dial phone icon */}
                 <div style={{
                   background: `linear-gradient(135deg, ${h.color}ee 0%, ${h.color}aa 100%)`,
-                  padding: '12px 12px 10px',
+                  padding: 'clamp(8px, 2.2vw, 12px) clamp(8px, 2.5vw, 12px) clamp(7px, 2vw, 10px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -347,7 +348,7 @@ export default function MobileHome() {
                 }}>
                   {/* Number */}
                   <div style={{
-                    fontSize: 14.5,
+                    fontSize: 'clamp(13px, 3.8vw, 15px)',
                     fontWeight: 900,
                     color: 'white',
                     letterSpacing: '-0.3px',
@@ -358,19 +359,19 @@ export default function MobileHome() {
                   </div>
                   {/* Icon pill */}
                   <div style={{
-                    width: 28, height: 28, borderRadius: 8,
+                    width: 'clamp(24px, 6.5vw, 28px)', height: 'clamp(24px, 6.5vw, 28px)', borderRadius: 8,
                     background: 'rgba(255,255,255,0.22)',
                     border: '1px solid rgba(255,255,255,0.35)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <FiPhone size={14} color="white" />
+                    <FiPhone size={13} color="white" />
                   </div>
                 </div>
                 {/* Name row */}
                 <div style={{
-                  padding: '8px 12px 10px',
-                  fontSize: 11.5,
+                  padding: 'clamp(6px, 1.8vw, 8px) clamp(8px, 2.5vw, 12px) clamp(8px, 2vw, 10px)',
+                  fontSize: 'clamp(10px, 2.8vw, 11.5px)',
                   fontWeight: 800,
                   color: '#0F172A',
                   letterSpacing: '-0.1px',
@@ -384,32 +385,33 @@ export default function MobileHome() {
         </div>
 
         {/* ── Safety Tips ─────────────────────────────────── */}
-        <div style={{ padding: '24px 20px 20px' }}>
-          <p className="srq-section-label">Emergency Safety Tips</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <p className="srq-section-label" style={{ fontSize: 'clamp(9.5px, 2.6vw, 11px)' }}>Emergency Safety Tips</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {safetyTips.map((t) => (
               <div
                 key={t.title}
-                className="srq-tip-card"
+                className="srq-tip-card h-full"
+                style={{ padding: 'clamp(12px, 3.5vw, 16px)', gap: 'clamp(10px, 2.8vw, 14px)' }}
               >
                 {/* Icon box with tint */}
                 <div style={{
-                  width: 44, height: 44, borderRadius: 14,
+                  width: 'clamp(38px, 10vw, 44px)', height: 'clamp(38px, 10vw, 44px)', borderRadius: 14,
                   background: t.bg, border: `1.5px solid ${t.color}25`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                 }}>
-                  <t.icon size={20} color={t.color} strokeWidth={2} />
+                  <t.icon size={19} color={t.color} strokeWidth={2} />
                 </div>
                 {/* Text */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
-                    fontSize: 13.5, fontWeight: 800, color: '#0F172A',
+                    fontSize: 'clamp(12.5px, 3.4vw, 13.5px)', fontWeight: 800, color: '#0F172A',
                     marginBottom: 4, letterSpacing: '-0.1px',
                   }}>
                     {t.title}
                   </div>
-                  <div style={{ fontSize: 11.5, color: '#64748B', lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', color: '#64748B', lineHeight: 1.6 }}>
                     {t.tip}
                   </div>
                 </div>
@@ -426,7 +428,7 @@ export default function MobileHome() {
         <div
           onClick={() => setShowLocModal(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
+            position: 'fixed', inset: 0, zIndex: 100000,
             background: 'rgba(15, 23, 42, 0.7)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',

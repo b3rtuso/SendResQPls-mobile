@@ -493,89 +493,90 @@ export default function MobileNotifications() {
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="mobile-shell"
-      style={{ background: '#F8FAFC' }}
+      className="w-full flex-1 flex flex-col bg-[#F8FAFC]"
     >
       <div className="mobile-page" style={{ flex: 1, paddingBottom: 85 }}>
         {/* Header (flush top, matching Emergency Alert header gradient & safe-area sizing) */}
-        <div className="mobile-header-bar" style={{
+        <div className="mobile-header-bar w-full" style={{
           background: 'linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%)',
-          padding: 'max(env(safe-area-inset-top, 0px) + 16px, 24px) 20px 20px',
+          padding: 'max(env(safe-area-inset-top, 0px) + clamp(12px, 2.5vw, 16px), 20px) 0 clamp(14px, 3.5vw, 18px)',
           display: 'flex',
           flexDirection: 'column',
           color: 'white',
           boxShadow: '0 6px 24px rgba(15, 31, 56, 0.35)',
           borderRadius: '0 0 24px 24px',
-          marginBottom: 18,
+          marginBottom: 'clamp(12px, 3vw, 18px)',
         }}>
-          {/* Pull-to-refresh Indicator - matching History tab */}
-          {(pullDistance > 0 || refreshing) && (
-            <div style={{
-              height: refreshing ? 36 : Math.min(pullDistance, 45),
-              opacity: pullDistance > 0 || refreshing ? 1 : 0,
-              transition: isPulling ? 'none' : 'height 0.2s ease, opacity 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'rgba(255,255,255,0.95)',
-              fontSize: 12,
-              fontWeight: 700,
-              gap: 8,
-              marginBottom: 8,
-            }}>
-              <RefreshCw
-                size={14}
-                className={refreshing ? "spin" : ""}
-                style={{
-                  transform: refreshing ? undefined : `rotate(${pullDistance * 3}deg)`,
-                  transition: refreshing ? undefined : 'transform 0.1s linear'
-                }}
-              />
-              <span>{refreshing ? 'Syncing alerts...' : pullDistance > 60 ? 'Release to refresh' : 'Pull down to refresh'}</span>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/mobile')}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 12,
-                border: '1.5px solid rgba(255, 255, 255, 0.25)',
-                background: 'rgba(255, 255, 255, 0.12)',
+          <div className="max-w-4xl mx-auto w-full px-4 sm:px-6">
+            {/* Pull-to-refresh Indicator - matching History tab */}
+            {(pullDistance > 0 || refreshing) && (
+              <div style={{
+                height: refreshing ? 36 : Math.min(pullDistance, 45),
+                opacity: pullDistance > 0 || refreshing ? 1 : 0,
+                transition: isPulling ? 'none' : 'height 0.2s ease, opacity 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white',
-                padding: 0,
-              }}
-              aria-label="Back"
-            >
-              <ChevronLeft size={20} />
-            </Button>
-            <div style={{ flex: 1 }}>
-              <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: 'white', letterSpacing: '-0.2px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                Alerts & Updates
-                {unreadCount > 0 && (
-                  <Badge style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    background: '#EF4444', color: 'white', fontSize: 10, fontWeight: 800,
-                    minWidth: 18, height: 18, borderRadius: 9, padding: '0 4px',
-                    border: '1.5px solid rgba(255,255,255,0.25)',
-                  }}>
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </Badge>
-                )}
-              </h1>
-              <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.75)', margin: '2px 0 0' }}>Real-time notifications on your reports</p>
+                color: 'rgba(255,255,255,0.95)',
+                fontSize: 12,
+                fontWeight: 700,
+                gap: 8,
+                marginBottom: 8,
+              }}>
+                <RefreshCw
+                  size={14}
+                  className={refreshing ? "spin" : ""}
+                  style={{
+                    transform: refreshing ? undefined : `rotate(${pullDistance * 3}deg)`,
+                    transition: refreshing ? undefined : 'transform 0.1s linear'
+                  }}
+                />
+                <span>{refreshing ? 'Syncing alerts...' : pullDistance > 60 ? 'Release to refresh' : 'Pull down to refresh'}</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/mobile')}
+                style={{
+                  width: 'clamp(32px, 8.5vw, 36px)',
+                  height: 'clamp(32px, 8.5vw, 36px)',
+                  borderRadius: 12,
+                  border: '1.5px solid rgba(255, 255, 255, 0.25)',
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  padding: 0,
+                }}
+                aria-label="Back"
+              >
+                <ChevronLeft size={20} />
+              </Button>
+              <div style={{ flex: 1 }}>
+                <h1 style={{ fontSize: 'clamp(16px, 4.5vw, 19px)', fontWeight: 800, margin: 0, color: 'white', letterSpacing: '-0.2px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  Alerts & Updates
+                  {unreadCount > 0 && (
+                    <Badge style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      background: '#EF4444', color: 'white', fontSize: 10, fontWeight: 800,
+                      minWidth: 18, height: 18, borderRadius: 9, padding: '0 4px',
+                      border: '1.5px solid rgba(255,255,255,0.25)',
+                    }}>
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </Badge>
+                  )}
+                </h1>
+                <p style={{ fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', color: 'rgba(255,255,255,0.75)', margin: '2px 0 0' }}>Real-time notifications on your reports</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{ padding: '0 20px' }}>
+        <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 pb-24">
 
         {/* Action Bar (Mark all read & Clear all — static Refresh button removed per specification) */}
         {notifications.length > 0 && (
@@ -583,7 +584,7 @@ export default function MobileNotifications() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 14,
+            marginBottom: 'clamp(10px, 2.5vw, 14px)',
             padding: '0 2px',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
@@ -594,7 +595,7 @@ export default function MobileNotifications() {
                 display: 'inline-block',
                 flexShrink: 0,
               }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: unreadCount > 0 ? '#1E293B' : '#64748B', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 'clamp(11px, 3vw, 12px)', fontWeight: 700, color: unreadCount > 0 ? '#1E293B' : '#64748B', whiteSpace: 'nowrap' }}>
                 {unreadCount > 0 ? `${unreadCount} unread update${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
               </span>
             </div>
@@ -606,7 +607,7 @@ export default function MobileNotifications() {
                   onClick={handleMarkAllRead}
                   style={{
                     background: 'white', border: '1px solid #E2E8F0', borderRadius: 8,
-                    padding: '5px 11px', fontSize: 11.5, fontWeight: 700, color: '#2563EB',
+                    padding: 'clamp(4px, 1.2vw, 5px) clamp(8px, 2.2vw, 11px)', fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', fontWeight: 700, color: '#2563EB',
                     display: 'flex', alignItems: 'center', gap: 4, height: 'auto',
                   }}
                 >
@@ -619,7 +620,7 @@ export default function MobileNotifications() {
                 onClick={handleClearAll}
                 style={{
                   background: 'white', border: '1px solid #E2E8F0', borderRadius: 8,
-                  padding: '5px 10px', fontSize: 11.5, fontWeight: 700, color: '#94A3B8',
+                  padding: 'clamp(4px, 1.2vw, 5px) clamp(8px, 2.2vw, 10px)', fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', fontWeight: 700, color: '#94A3B8',
                   display: 'flex', alignItems: 'center', gap: 4, height: 'auto',
                 }}
               >
@@ -659,7 +660,7 @@ export default function MobileNotifications() {
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {notifications.map((n, i) => {
               const meta = STATUS_META[n.status] || STATUS_META.PENDING;
               const deptTheme = n.department ? getDepartmentTheme(n.department) : null;
@@ -686,9 +687,10 @@ export default function MobileNotifications() {
                 <div
                   key={`${n.id}-${i}`}
                   onClick={() => { handleMarkRead(n.id); navigate(`/mobile/history?incidentId=${targetId}`); }}
+                  className="h-full"
                   style={{
-                    display: 'flex', alignItems: 'flex-start', gap: 12,
-                    padding: '14px 16px',
+                    display: 'flex', alignItems: 'flex-start', gap: 'clamp(8px, 2.5vw, 12px)',
+                    padding: 'clamp(11px, 3vw, 14px) clamp(12px, 3.5vw, 16px)',
                     borderRadius: 16,
                     background: isUnread ? '#F0F7FF' : 'white',
                     boxShadow: isUnread
@@ -706,19 +708,19 @@ export default function MobileNotifications() {
                 >
                   {/* Icon square with Analytics Map classified emergency icon or Question Mark when Pending */}
                   <div style={{
-                    width: 42, height: 42, borderRadius: 12,
+                    width: 'clamp(36px, 10vw, 42px)', height: 'clamp(36px, 10vw, 42px)', borderRadius: 12,
                     background: iconBg, flexShrink: 0,
                     border: `1.5px solid ${iconBorder}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden',
                   }}>
-                    <TypeIcon size={20} color={iconColor} style={{ width: 20, height: 20 }} />
+                    <TypeIcon size={19} color={iconColor} style={{ width: 19, height: 19 }} />
                   </div>
 
                   {/* Text block */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.1px' }}>
+                      <div style={{ fontSize: 'clamp(12.5px, 3.5vw, 13.5px)', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.1px' }}>
                         {cleanType}
                       </div>
 
@@ -760,12 +762,12 @@ export default function MobileNotifications() {
                       </div>
                     </div>
 
-                    <div style={{ fontSize: 12.5, color: iconColor, fontWeight: 700, lineHeight: 1.35 }}>
+                    <div style={{ fontSize: 'clamp(11.5px, 3.2vw, 12.5px)', color: iconColor, fontWeight: 700, lineHeight: 1.35 }}>
                       {statusText}
                     </div>
 
                     {n.message && n.message !== statusText && (
-                      <div style={{ fontSize: 11.5, color: '#475569', marginTop: 3, lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 'clamp(10.5px, 2.9vw, 11.5px)', color: '#475569', marginTop: 3, lineHeight: 1.4 }}>
                         {n.message}
                       </div>
                     )}

@@ -5,7 +5,6 @@ import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { SiGmail } from 'react-icons/si';
 import { App } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
 import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import { openGmailApp, extractVerificationCode, getNativeClipboard } from '../..
 import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import LegalModal from '../../components/LegalModal';
 import WebBrowserBlocked from '../../components/WebBrowserBlocked';
+import { isAllowedPlatform } from '../../utils/platform';
 
 export default function MobileSignup() {
   const navigate = useNavigate();
@@ -39,8 +39,8 @@ export default function MobileSignup() {
   const [cooldown, setCooldown] = useState(0);
   const [clipboardCode, setClipboardCode] = useState<string | null>(null);
 
-  // Block access from a regular web browser — signup requires the native Android app
-  if (!Capacitor.isNativePlatform()) {
+  // Block access from a regular web browser — signup requires native app (lifted for local dev/LAN)
+  if (!isAllowedPlatform()) {
     return <WebBrowserBlocked />;
   }
 
@@ -55,11 +55,11 @@ export default function MobileSignup() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',
-    minHeight: 50,
+    minHeight: 'clamp(44px, 6vh, 50px)',
     border: 'none',
     background: 'transparent',
     outline: 'none',
-    fontSize: 14,
+    fontSize: 'clamp(13px, 3.5vw, 14.5px)',
     fontFamily: 'inherit',
     lineHeight: 'normal',
     verticalAlign: 'middle',
@@ -265,63 +265,75 @@ export default function MobileSignup() {
   };
 
   return (
-    <div className="mobile-shell mobile-auth mobile-auth-transition" style={{ background: '#F1F5F9' }}>
+    <div className="w-full min-h-screen flex flex-col bg-[#F1F5F9] mobile-auth-transition">
       <style>{`
         .ms-signup-header {
           background:
             radial-gradient(circle 100px at calc(100% - 40px) 20px, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.05) 99%, transparent 100%),
             linear-gradient(160deg, #0F1F38 0%, #1D4ED8 60%, #2563EB 100%);
-          padding: 48px 24px 38px;
           position: relative;
           box-shadow: 0 6px 24px rgba(15, 31, 56, 0.35);
           border-radius: 0 0 24px 24px;
           color: white;
         }
         .ms-form-card {
-          margin: 16px 20px 30px;
-          background: #fff;
-          border-radius: 22px;
-          padding: 28px 24px;
-          box-shadow: 0 8px 40px rgba(30,58,95,0.12), 0 2px 8px rgba(0,0,0,0.06);
-          position: relative; z-index: 2;
+          position: relative;
+          z-index: 2;
           animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @media (min-width: 640px) {
+          .ms-signup-header {
+            border-radius: 0 0 32px 32px;
+          }
         }
       `}</style>
 
-      {/* Branded header */}
-      <div className="ms-signup-header">
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <img
-            src="/logo.svg" alt="SRQ"
-            style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
-          />
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
-            MDRRMO Balayan, Batangas
+      {/* ── 1. Full-Width Spanning Header ── */}
+      <header className="w-full ms-signup-header px-4 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-10">
+        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <img
+              src="/logo.svg" alt="SRQ"
+              style={{ width: 'clamp(44px, 12vw, 56px)', height: 'clamp(44px, 12vw, 56px)', borderRadius: 16, objectFit: 'cover', marginBottom: 16, border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+            />
+            <div style={{ fontSize: 'clamp(10px, 2.6vw, 11px)', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, fontWeight: 600 }}>
+              MDRRMO Balayan, Batangas
+            </div>
+            <h1 style={{ color: 'white', fontSize: 'clamp(22px, 6vw, 26px)', fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
+              Create an<br />
+              <span style={{ color: '#93C5FD' }}>Account</span>
+            </h1>
           </div>
-          <h1 style={{ color: 'white', fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.15, margin: 0 }}>
-            Create an<br />
-            <span style={{ color: '#93C5FD' }}>Account</span>
-          </h1>
+          <div className="hidden sm:block text-right">
+            <span className="text-sm text-blue-100/80">Already registered?</span>
+            <button
+              type="button"
+              onClick={() => navigate('/mobile/login')}
+              className="ml-3 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs tracking-wide transition border border-white/20 min-h-[44px]"
+            >
+              Log In
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Floating form card */}
-      <div className="ms-form-card">
-        <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 20px', lineHeight: 1.55 }}>
-          Register now to report emergencies immediately.
-        </p>
+      {/* ── 2. Fluid Form Wrapper with Responsive Container ── */}
+      <main className="w-full flex-1 flex flex-col items-center px-4 sm:px-8 md:px-12 py-6 sm:py-8">
+        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:border sm:border-slate-200/80 p-6 sm:p-8 md:p-10 relative z-10">
+          <p style={{ fontSize: 'clamp(12px, 3.2vw, 13px)', color: '#64748B', margin: '0 0 20px', lineHeight: 1.55 }}>
+            Register now to report emergencies immediately.
+          </p>
 
+          {error && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 12px', marginBottom: 16 }}>
+              <span style={{ fontSize: 13, color: '#B91C1C', fontWeight: 600 }}>{error}</span>
+            </div>
+          )}
 
-        {error && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 12px', marginBottom: 16 }}>
-            <span style={{ fontSize: 13, color: '#B91C1C', fontWeight: 600 }}>{error}</span>
-          </div>
-        )}
-
-        <form autoComplete="on" onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div className="input-group">
-            <Label htmlFor="signup-name">Full Name</Label>
-            <div className="input-wrapper" style={{ height: 50 }}>
+          <form autoComplete="on" onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="input-group col-span-1">
+            <Label htmlFor="signup-name" style={{ fontSize: 'clamp(11.5px, 2.8vw, 12.5px)' }}>Full Name</Label>
+            <div className="input-wrapper" style={{ height: 'clamp(44px, 6vh, 50px)' }}>
               <FaUser size={16} className="input-icon" />
               <Input
                 id="signup-name"
@@ -335,9 +347,9 @@ export default function MobileSignup() {
             </div>
           </div>
 
-          <div className="input-group">
+          <div className="input-group col-span-1">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-              <Label htmlFor="signup-phone" style={{ margin: 0 }}>Phone Number *</Label>
+              <Label htmlFor="signup-phone" style={{ margin: 0, fontSize: 'clamp(11.5px, 2.8vw, 12.5px)' }}>Phone Number *</Label>
               <span style={{
                 fontSize: 11,
                 fontWeight: 700,
@@ -347,7 +359,7 @@ export default function MobileSignup() {
                 {form.phone.length}/11 digits
               </span>
             </div>
-            <div className="input-wrapper" style={{ height: 50 }}>
+            <div className="input-wrapper" style={{ height: 'clamp(44px, 6vh, 50px)' }}>
               <FiPhone size={16} className="input-icon" />
               <Input
                 id="signup-phone"
@@ -369,10 +381,10 @@ export default function MobileSignup() {
           </div>
 
           {/* Email + Send Code */}
-          <div className="input-group">
-            <Label htmlFor="signup-email">Email Address</Label> 
+          <div className="input-group col-span-1 sm:col-span-2">
+            <Label htmlFor="signup-email" style={{ fontSize: 'clamp(11.5px, 2.8vw, 12.5px)' }}>Email Address</Label> 
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
-              <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50 }}>
+              <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 'clamp(44px, 6vh, 50px)' }}>
                 <FaEnvelope size={16} className="input-icon" style={{ flexShrink: 0 }} />
                 <Input
                   id="signup-email"
@@ -398,16 +410,16 @@ export default function MobileSignup() {
                 disabled={sendingCode || cooldown > 0 || verified || !form.email}
                 style={{
                   flexShrink: 0,
-                  width: 95,
+                  width: 'clamp(88px, 24vw, 98px)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                   padding: '0 8px', borderRadius: 12,
-                  fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  fontSize: 'clamp(11px, 2.8vw, 12px)', fontWeight: 700, whiteSpace: 'nowrap',
                   background: verified ? '#22C55E' : '#DC2626',
                   color: 'white', border: 'none', cursor: verified ? 'default' : 'pointer',
                   opacity: (sendingCode || (cooldown > 0 && !verified)) ? 0.6 : 1,
                   fontFamily: 'var(--font)', transition: 'all 0.2s ease',
-                  minHeight: 50,
-                  height: 50,
+                  minHeight: 'clamp(44px, 6vh, 50px)',
+                  height: 'clamp(44px, 6vh, 50px)',
                 }}
               >
                 {verified ? (
@@ -479,23 +491,24 @@ export default function MobileSignup() {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 5,
+                    gap: 6,
                     background: '#EA4335',
                     color: '#FFFFFF',
                     border: 'none',
                     borderRadius: 8,
-                    padding: '7px 11px',
-                    fontSize: 11.5,
+                    padding: '8px 14px',
+                    fontSize: 12,
                     fontWeight: 700,
                     cursor: 'pointer',
                     flexShrink: 0,
                     boxShadow: '0 2px 6px rgba(234,67,53,0.25)',
                     transition: 'all 0.15s ease',
+                    minHeight: 44,
                   }}
                 >
-                  <SiGmail size={13} />
+                  <SiGmail size={14} />
                   Open Gmail
-                  <ExternalLink size={11} style={{ opacity: 0.8 }} />
+                  <ExternalLink size={12} style={{ opacity: 0.8 }} />
                 </button>
               </div>
             )}
@@ -503,7 +516,7 @@ export default function MobileSignup() {
 
           {/* Verification Code Input */}
           {codeSent && !verified && (
-            <div className="input-group" style={{ animation: 'fadeIn 0.3s ease' }}>
+            <div className="input-group col-span-1 sm:col-span-2" style={{ animation: 'fadeIn 0.3s ease' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <Label htmlFor="signup-code" style={{ marginBottom: 0 }}>Verification Code</Label>
                 {clipboardCode && !codeInput ? (
@@ -520,13 +533,14 @@ export default function MobileSignup() {
                       border: '1px solid #BFDBFE',
                       borderRadius: 6,
                       color: '#1D4ED8',
-                      fontSize: 11,
+                      fontSize: 11.5,
                       fontWeight: 700,
-                      padding: '2px 8px',
+                      padding: '6px 12px',
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
+                      minHeight: 36,
                     }}
                   >
                     <span>Paste {clipboardCode}</span>
@@ -536,7 +550,7 @@ export default function MobileSignup() {
                 )}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', flexWrap: 'nowrap' }}>
-                <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 50, position: 'relative' }}>
+                <div className="input-wrapper" style={{ flex: 1, minWidth: 0, height: 'clamp(44px, 6vh, 50px)', position: 'relative' }}>
                   <FaLock size={16} className="input-icon" />
                   <Input
                     id="signup-code"
@@ -559,8 +573,8 @@ export default function MobileSignup() {
                       ...inputStyle,
                       letterSpacing: codeInput ? '4px' : 'normal',
                       fontWeight: codeInput ? 700 : 400,
-                      fontSize: codeInput ? 16 : 14,
-                      paddingRight: codeInput ? 38 : 16,
+                      fontSize: codeInput ? 'clamp(14px, 4vw, 16px)' : 'clamp(13px, 3.5vw, 14px)',
+                      paddingRight: codeInput ? 44 : 16,
                       userSelect: 'text',
                       WebkitUserSelect: 'text',
                     }}
@@ -572,14 +586,14 @@ export default function MobileSignup() {
                       title="Clear code"
                       style={{
                         position: 'absolute',
-                        right: 12,
+                        right: 8,
                         top: '50%',
                         transform: 'translateY(-50%)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: 22,
-                        height: 22,
+                        width: 28,
+                        height: 28,
                         borderRadius: '50%',
                         background: '#E2E8F0',
                         border: 'none',
@@ -587,7 +601,7 @@ export default function MobileSignup() {
                         cursor: 'pointer',
                       }}
                     >
-                      <X size={12} />
+                      <X size={14} />
                     </button>
                   )}
                 </div>
@@ -598,12 +612,12 @@ export default function MobileSignup() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     padding: '0 16px', borderRadius: 12,
-                    fontSize: 13, fontWeight: 700,
+                    fontSize: 'clamp(12px, 3vw, 13px)', fontWeight: 700,
                     background: '#3B82F6', color: 'white',
                     border: 'none',
                     opacity: (verifying || codeInput.length !== 6) ? 0.5 : 1,
-                    minHeight: 50,
-                    height: 50,
+                    minHeight: 'clamp(44px, 6vh, 50px)',
+                    height: 'clamp(44px, 6vh, 50px)',
                   }}
                 >
                   {verifying ? '...' : 'Verify'}
@@ -612,9 +626,9 @@ export default function MobileSignup() {
             </div>
           )}
 
-          <div className="input-group">
-            <Label htmlFor="signup-password">Password</Label>
-            <div className="input-wrapper" style={{ height: 50 }}>
+          <div className="input-group col-span-1">
+            <Label htmlFor="signup-password" style={{ fontSize: 'clamp(11.5px, 2.8vw, 12.5px)' }}>Password</Label>
+            <div className="input-wrapper" style={{ height: 'clamp(44px, 6vh, 50px)' }}>
               <FaLock size={16} className="input-icon" />
               <Input
                 id="signup-password"
@@ -630,10 +644,11 @@ export default function MobileSignup() {
                 {showPass ? <Eye size={18} /> : <EyeOff size={18} />}
               </Button>
             </div>
+          </div>
 
-            {/* Live Password Requirements Checklist */}
+          {/* Live Password Requirements Checklist */}
+          <div className="col-span-1 flex flex-col justify-end">
             <div style={{
-              marginTop: 8,
               padding: '10px 12px',
               background: '#F8FAFC',
               borderRadius: 12,
@@ -696,13 +711,15 @@ export default function MobileSignup() {
 
           {/* Terms & Conditions Checkbox Row (Unboxed, Minimized) */}
           <div
+            className="col-span-1 sm:col-span-2"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
-              marginTop: 2,
+              gap: 10,
+              marginTop: 4,
               marginBottom: 4,
-              padding: '2px 0',
+              padding: '4px 0',
+              minHeight: 44,
             }}
           >
             <input
@@ -714,8 +731,8 @@ export default function MobileSignup() {
                 if (error) setError('');
               }}
               style={{
-                width: 14,
-                height: 14,
+                width: 18,
+                height: 18,
                 accentColor: '#2563EB',
                 cursor: 'pointer',
                 flexShrink: 0,
@@ -779,18 +796,23 @@ export default function MobileSignup() {
             </label>
           </div>
 
-          <Button
-            type="button"
-            className="auth-btn signup"
-            onClick={handleSignup}
-            disabled={loading}
-            style={{
-              marginTop: 8,
-              minHeight: 48,
-            }}
-          >
-            {loading ? 'Creating...' : 'Create Account'}
-          </Button>
+          <div className="col-span-1 sm:col-span-2">
+            <Button
+              type="button"
+              className="auth-btn signup w-full"
+              onClick={handleSignup}
+              disabled={loading}
+              style={{
+                marginTop: 8,
+                minHeight: 'clamp(44px, 6vh, 50px)',
+                padding: 'clamp(12px, 3.5vw, 16px)',
+                fontSize: 'clamp(13.5px, 3.8vw, 15px)',
+                fontWeight: 700,
+              }}
+            >
+              {loading ? 'Creating...' : 'Create Account'}
+            </Button>
+          </div>
         </form>
 
         <p className="auth-footer" style={{ marginTop: 24 }}>
@@ -798,6 +820,7 @@ export default function MobileSignup() {
           <a href="#" onClick={(e) => { e.preventDefault(); navigate('/mobile/login'); }}>Log In</a>
         </p>
       </div>
+      </main>
 
       {/* In-app Legal Modal (Terms & Conditions / Privacy Policy) */}
       <LegalModal
@@ -807,6 +830,11 @@ export default function MobileSignup() {
         onAccept={() => handleToggleTerms(true)}
         acceptLabel="I Agree & Accept"
       />
+
+      {/* Bottom spacer & branding footer */}
+      <footer className="w-full text-center py-6 text-xs text-slate-400">
+        MDRRMO Balayan, Batangas · SendResQPls v2
+      </footer>
     </div>
   );
 }

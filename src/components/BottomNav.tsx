@@ -50,19 +50,14 @@ export default function BottomNav() {
   return (
     <nav className="bottom-nav">
       <style>{`
-        /* ── Bottom Nav Shell ── */
+        /* ── Bottom Nav Shell: Full-Width Docked Bar ── */
         .bottom-nav {
           position: fixed !important;
           bottom: 0 !important;
           left: 0 !important;
           right: 0 !important;
-          margin: 0 auto !important;
           width: 100% !important;
-          max-width: 100% !important;
-          height: 68px !important;
-          display: grid !important;
-          grid-template-columns: repeat(5, 1fr) !important;
-          align-items: stretch !important;
+          height: clamp(60px, 8.5vh, 68px) !important;
           background: #FFFFFF !important;
           border-top: 1px solid #E2E8F0 !important;
           box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05) !important;
@@ -79,20 +74,31 @@ export default function BottomNav() {
           will-change: transform !important;
         }
 
+        /* ── Centered Inner Container for Balanced Tab Spacing ── */
+        .bottom-nav-inner {
+          width: 100%;
+          max-width: 768px;
+          margin: 0 auto;
+          height: 100%;
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          align-items: stretch;
+        }
+
         /* ── Individual Tab ── */
         .bn-tab {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: flex-start;
-          padding-top: 8px;
+          padding-top: clamp(6px, 1vh, 8px);
           text-decoration: none;
-          font-size: 9.5px;
+          font-size: clamp(8.5px, 2.4vw, 10px);
           font-weight: 600;
           color: #94A3B8;
-          height: 68px;
+          height: 100%;
           transition: none !important; /* Instant 0ms response */
-          letter-spacing: 0.04em;
+          letter-spacing: clamp(0.01em, 0.1vw, 0.04em);
           text-transform: uppercase;
           position: relative;
           cursor: pointer;
@@ -132,11 +138,11 @@ export default function BottomNav() {
         /* Glowing soft squircle pill directly behind the icon — lights up instantly */
         .bn-pill {
           position: absolute;
-          top: 8px;
+          top: clamp(5px, 0.8vh, 8px);
           left: 50%;
           transform: translateX(-50%);
-          width: 44px;
-          height: 34px;
+          width: clamp(38px, 10vw, 44px);
+          height: clamp(28px, 4.2vh, 34px);
           border-radius: 12px;
           background: rgba(37, 99, 235, 0.12);
           border: 1px solid rgba(37, 99, 235, 0.18);
@@ -153,11 +159,11 @@ export default function BottomNav() {
         }
 
         .bn-label {
-          font-size: 9.5px;
+          font-size: clamp(8.5px, 2.4vw, 10px);
           font-weight: 600;
-          margin-top: 4px;
+          margin-top: clamp(2px, 0.5vh, 4px);
           line-height: 1;
-          letter-spacing: 0.04em;
+          letter-spacing: clamp(0.01em, 0.1vw, 0.04em);
           position: relative;
           z-index: 2;
           transition: none !important;
@@ -231,37 +237,39 @@ export default function BottomNav() {
         }
       `}</style>
 
-      {tabs.map(({ to, icon: Icon, label, end, isBell }) => {
-        const active = isTabActive(to, end);
-        return (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            draggable={false}
-            onContextMenu={(e) => e.preventDefault()}
-            onPointerDown={() => setOptimisticTab(to)}
-            className={`bn-tab${active ? ' active' : ''}`}
-          >
-            {/* Top accent glow bar — lights up instantly when selected/pressed */}
-            <div className="bn-top-bar" />
+      <div className="bottom-nav-inner">
+        {tabs.map(({ to, icon: Icon, label, end, isBell }) => {
+          const active = isTabActive(to, end);
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              onPointerDown={() => setOptimisticTab(to)}
+              className={`bn-tab${active ? ' active' : ''}`}
+            >
+              {/* Top accent glow bar — lights up instantly when selected/pressed */}
+              <div className="bn-top-bar" />
 
-            {/* Under-icon glowing soft pill — lights up instantly when selected/pressed */}
-            <div className="bn-pill" />
+              {/* Under-icon glowing soft pill — lights up instantly when selected/pressed */}
+              <div className="bn-pill" />
 
-            {/* Icon with optional badge */}
-            <div className="bn-icon-wrap" draggable={false}>
-              <Icon size={20} />
-              {isBell && unread > 0 && (
-                <span className="bn-badge">{unread > 9 ? '9+' : unread}</span>
-              )}
-            </div>
+              {/* Icon with optional badge */}
+              <div className="bn-icon-wrap" draggable={false}>
+                <Icon size={20} />
+                {isBell && unread > 0 && (
+                  <span className="bn-badge">{unread > 9 ? '9+' : unread}</span>
+                )}
+              </div>
 
-            {/* Label */}
-            <span className="bn-label">{label}</span>
-          </NavLink>
-        );
-      })}
+              {/* Label */}
+              <span className="bn-label">{label}</span>
+            </NavLink>
+          );
+        })}
+      </div>
     </nav>
   );
 }

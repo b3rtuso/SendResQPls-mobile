@@ -25,8 +25,11 @@ function MobileToastStack() {
           position: 'fixed',
           /* Respect notch / dynamic island / camera punch hole with 24px safe fallback */
           top: 'max(env(safe-area-inset-top, 24px), 24px)',
-          left: 12,
-          right: 12,
+          left: 0,
+          right: 0,
+          margin: '0 auto',
+          width: 'calc(100% - 24px)',
+          maxWidth: '520px',
           zIndex: 200000,
           display: 'flex',
           flexDirection: 'column',
