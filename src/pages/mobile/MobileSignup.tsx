@@ -14,8 +14,6 @@ import { validatePhilippineMobile } from '../../utils/phoneValidator';
 import { openGmailApp, extractVerificationCode, getNativeClipboard } from '../../utils/mailHelper';
 import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
 import LegalModal from '../../components/LegalModal';
-import WebBrowserBlocked from '../../components/WebBrowserBlocked';
-import { isAllowedPlatform } from '../../utils/platform';
 
 export default function MobileSignup() {
   const navigate = useNavigate();
@@ -38,11 +36,6 @@ export default function MobileSignup() {
   const [verifying, setVerifying] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [clipboardCode, setClipboardCode] = useState<string | null>(null);
-
-  // Block access from a regular web browser — signup requires native app (lifted for local dev/LAN)
-  if (!isAllowedPlatform()) {
-    return <WebBrowserBlocked />;
-  }
 
   useEffect(() => {
     if (cooldown <= 0) return;

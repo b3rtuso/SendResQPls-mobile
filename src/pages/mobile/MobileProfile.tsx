@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import {
-  LogOut, ChevronRight,
+  LogOut, ChevronRight, Download,
   ChevronLeft, Save, Info, MessageCircle, Eye, EyeOff, CheckCircle2, FileText, ShieldCheck,
 } from 'lucide-react';
 import { FaUser, FaEnvelope, FaLock, FaBell, FaCog } from 'react-icons/fa';
@@ -427,10 +428,11 @@ export default function MobileProfile() {
                 label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences',
               },
               { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
+              ...(!Capacitor.isNativePlatform() ? [{ icon: Download, label: 'Install App / Download APK', key: 'get-app' as any, desc: 'Install PWA or download Android APK' }] : []),
             ].map(item => (
               <div
                 key={item.label}
-                onClick={() => openSection(item.key)}
+                onClick={() => item.key === 'get-app' ? navigate('/get-the-app') : openSection(item.key)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: 'clamp(12px, 3.5vw, 16px) 4px',

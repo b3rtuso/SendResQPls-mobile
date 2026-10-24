@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { getMyIncidents } from '../api/client';
 import { addNotification, getDeletedActivityIds } from '../pages/mobile/MobileNotifications';
 import { useMobileToast } from '../contexts/MobileToastContext';
@@ -108,6 +109,16 @@ export default function GlobalStatusSync() {
               status: inc.status,
               department: inc.assignedDepartment,
             });
+
+            // Web Notification API (PWA / Browser)
+            if (!Capacitor.isNativePlatform() && typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+              try {
+                new Notification(title, {
+                  body: message,
+                  icon: '/icon-192.png',
+                });
+              } catch {}
+            }
 
             // 2. Show floating Facebook-style toast card
             push({

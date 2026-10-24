@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, AlertTriangle, Camera, Loader, WifiOff, Clock,
-  RotateCcw, ArrowRight, Trash2,
+  RotateCcw, ArrowRight, Trash2, SwitchCamera, X,
   MessageSquare, ChevronDown,
 } from 'lucide-react';
 import { FaLocationDot } from 'react-icons/fa6';
@@ -33,8 +33,7 @@ let cachedReportDescription = '';
 
 export default function MobileReport() {
   const navigate = useNavigate();
-  const fileRef = useRef<HTMLInputElement>(null);
-  const isOnline = useNetworkStatus();
+    const isOnline = useNetworkStatus();
   const { confirm } = useConfirm();
   const { push: showToast } = useMobileToast();
 
@@ -147,19 +146,94 @@ export default function MobileReport() {
     }
   };
 
-  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    // Reset file input so selecting the same file again triggers onChange
-    e.target.value = '';
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraFacing, setCameraFacing] = useState<'environment' | 'user'>('environment');
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
-    if (!file) {
-      // User cancelled file selection dialog -> KEEP EXISTING PHOTO INTACT!
-      return;
+  const stopCameraStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const startCamera = async (facing: 'environment' | 'user' = cameraFacing) => {
+    stopCameraStream();
+    setCameraError(null);
+    setIsCameraActive(true);
+
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera is not supported on this browser/device.');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: facing },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+    } catch (err: any) {
+      console.warn('[Camera] start error:', err);
+      setCameraError(
+        err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'
+          ? 'Camera permission was denied. Please allow camera permissions to capture evidence.'
+          : 'Unable to start camera. Please ensure camera is connected and permitted.'
+      );
+      setIsCameraActive(false);
+    }
+  };
+
+  const toggleCameraFacing = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
+    setCameraFacing(nextFacing);
+    await startCamera(nextFacing);
+  };
+
+  const captureLivePhoto = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current || !streamRef.current) return;
+
+    const video = videoRef.current;
+    if (!video.videoWidth || !video.videoHeight) return;
 
     setCompressing(true);
     try {
-      // Automatically optimize high-res photo for fastest transmission
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context unavailable');
+
+      if (cameraFacing === 'user') {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg', 0.92)
+      );
+      if (!blob) throw new Error('Blob creation failed');
+
+      const file = new File([blob], `emergency-capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      stopCameraStream();
+
       const { file: compressed } = await compressImage(file, {
         maxWidth: 1600,
         maxHeight: 1200,
@@ -171,16 +245,19 @@ export default function MobileReport() {
       cachedReportPreview = objectUrl;
       setPhoto(compressed);
       setPreview(objectUrl);
-    } catch {
-      const objectUrl = URL.createObjectURL(file);
-      cachedReportPhoto = file;
-      cachedReportPreview = objectUrl;
-      setPhoto(file);
-      setPreview(objectUrl);
+    } catch (err) {
+      console.error('[Capture] Error:', err);
+      showToast({ type: 'error', priority: 'normal', title: 'Capture Failed', message: 'Could not capture photo from camera.' });
     } finally {
       setCompressing(false);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      stopCameraStream();
+    };
+  }, []);
 
   const handleDiscardPhoto = async () => {
     if (!photo && !preview) return;
@@ -198,8 +275,7 @@ export default function MobileReport() {
       cachedReportPhoto = null;
       cachedReportPreview = null;
       cachedReportDescription = '';
-      if (fileRef.current) fileRef.current.value = '';
-    }
+          }
   };
 
   const handleBack = async () => {
@@ -218,14 +294,13 @@ export default function MobileReport() {
       cachedReportPhoto = null;
       cachedReportPreview = null;
       cachedReportDescription = '';
-      if (fileRef.current) fileRef.current.value = '';
-    }
+          }
     navigate('/mobile');
   };
 
   const handleOpenReview = async () => {
     if (!photo) {
-      showToast({ type: 'warning', priority: 'normal', title: 'No photo', message: 'Please capture or upload an image of the emergency.' });
+      showToast({ type: 'warning', priority: 'normal', title: 'No photo', message: 'Please capture a live photo of the emergency.' });
       return;
     }
 
@@ -580,10 +655,61 @@ export default function MobileReport() {
           {/* Left Column: Viewfinder Camera Evidence & Actions */}
           <div className="flex flex-col gap-3">
             <div
-              className="viewfinder-box w-full md:min-h-[300px] md:h-[340px]"
-              onClick={() => fileRef.current?.click()}
+              className="viewfinder-box w-full md:min-h-[300px] md:h-[340px] relative overflow-hidden"
+              onClick={() => {
+                if (!preview && !isCameraActive && !compressing) {
+                  startCamera();
+                }
+              }}
             >
-              {compressing ? (
+              {isCameraActive ? (
+                <div className="relative w-full h-full bg-black flex items-center justify-center">
+                  <video
+                    ref={videoRef}
+                    playsInline
+                    autoPlay
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+
+                  {/* Top Controls: Close Stream & Flip Camera */}
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between z-20">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        stopCameraStream();
+                      }}
+                      className="w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition"
+                      title="Cancel Camera"
+                    >
+                      <X size={18} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={toggleCameraFacing}
+                      className="px-3 py-1.5 rounded-full bg-black/60 text-white flex items-center gap-1.5 text-xs font-bold hover:bg-black/80 transition"
+                      title="Switch Camera (Front/Rear)"
+                    >
+                      <SwitchCamera size={14} />
+                      <span>{cameraFacing === 'environment' ? 'Rear' : 'Front'}</span>
+                    </button>
+                  </div>
+
+                  {/* Bottom Control: Shutter Button */}
+                  <div className="absolute bottom-4 inset-x-0 flex items-center justify-center z-20">
+                    <button
+                      type="button"
+                      onClick={captureLivePhoto}
+                      className="w-16 h-16 rounded-full border-4 border-white bg-red-600 active:scale-95 transition shadow-lg flex items-center justify-center"
+                      title="Snap Live Photo"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-white" />
+                    </button>
+                  </div>
+                </div>
+              ) : compressing ? (
                 <div style={{ textAlign: 'center', padding: 'clamp(24px, 6vw, 36px) clamp(14px, 4vw, 20px)', zIndex: 1, color: 'white' }}>
                   <Loader size={32} className="spin" style={{ color: '#60A5FA', margin: '0 auto 12px' }} />
                   <h3 style={{ margin: 0, fontSize: 'clamp(13.5px, 3.8vw, 15px)', fontWeight: 700 }}>Optimizing Photo Clarity…</h3>
@@ -597,7 +723,7 @@ export default function MobileReport() {
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               ) : (
-                <div style={{ textAlign: 'center', padding: 'clamp(28px, 7vw, 40px) clamp(14px, 4vw, 20px)', zIndex: 1 }}>
+                <div style={{ textAlign: 'center', padding: 'clamp(28px, 7vw, 40px) clamp(14px, 4vw, 20px)', zIndex: 1, cursor: 'pointer' }}>
                   <div style={{
                     width: 'clamp(48px, 13vw, 58px)', height: 'clamp(48px, 13vw, 58px)', borderRadius: '50%',
                     background: 'rgba(239, 68, 68, 0.15)',
@@ -607,11 +733,16 @@ export default function MobileReport() {
                     <Camera size={26} color="#EF4444" />
                   </div>
                   <h3 style={{ margin: '0 0 6px', color: '#FFFFFF', fontSize: 'clamp(14.5px, 4vw, 16px)', fontWeight: 800 }}>
-                    Take Photo
+                    Open Live Camera
                   </h3>
                   <p style={{ margin: 0, color: '#94A3B8', fontSize: 'clamp(11px, 3vw, 12.5px)', maxWidth: 240, lineHeight: 1.4 }}>
-                    Capture clear evidence of the scene for instant AI triage
+                    Tap to start live camera and capture real-time scene evidence
                   </p>
+                  {cameraError && (
+                    <p style={{ margin: '8px 0 0', color: '#FCA5A5', fontSize: '11px', fontWeight: 600 }}>
+                      {cameraError}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -633,7 +764,13 @@ export default function MobileReport() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => fileRef.current?.click()}
+                  onClick={() => {
+                    setPhoto(null);
+                    setPreview(null);
+                    cachedReportPhoto = null;
+                    cachedReportPreview = null;
+                    startCamera();
+                  }}
                   style={{
                     background: 'white', border: '1px solid #CBD5E1', borderRadius: 10,
                     padding: 'clamp(5px, 1.5vw, 7px) clamp(10px, 2.5vw, 14px)',
@@ -641,23 +778,14 @@ export default function MobileReport() {
                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
                   }}
                 >
-                  <RotateCcw size={13} /> Retake
+                  <RotateCcw size={13} /> Retake Photo
                 </button>
               </div>
             )}
             <p className="text-xs text-slate-500 mt-1 hidden md:block">
-              Take a clear photo of the emergency for instant AI classification and dispatch prioritization.
+              Capture a live photo of the emergency for instant AI classification and dispatch prioritization.
             </p>
           </div>
-
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            ref={fileRef}
-            style={{ display: 'none' }}
-            onChange={handlePhotoChange}
-          />
 
           {/* Right Column: Situation Details, Guidelines, and Submit Action */}
           <div className="flex flex-col gap-4">
