@@ -1,5 +1,5 @@
 // SendResQPls Service Worker — enables offline support and installability
-const CACHE_NAME = 'sendresqpls-v5';
+const CACHE_NAME = 'sendresqpls-v6';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
@@ -45,6 +45,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
+
+  // 0. NEVER intercept cross-origin requests (e.g. Render backend, external APIs, /health)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
 
   // 1. Bypass non-GET requests, SSE, and API requests directly to network
   if (
