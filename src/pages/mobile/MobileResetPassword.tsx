@@ -294,7 +294,7 @@ export default function MobileResetPassword() {
                     id="reset-new-password"
                     type={showNewPass ? 'text' : 'password'}
                     className={error ? 'mr-input-error' : ''}
-                    placeholder="••••••••"
+                    placeholder="Enter new password (min. 8 characters)"
                     autoComplete="new-password"
                     value={newPass}
                     onChange={(e) => {
@@ -315,8 +315,8 @@ export default function MobileResetPassword() {
                       boxSizing: 'border-box',
                       lineHeight: 'normal',
                       verticalAlign: 'middle',
-                      fontFamily: showNewPass ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      letterSpacing: showNewPass ? 'normal' : '0.12em',
+                      fontFamily: showNewPass || !newPass ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      letterSpacing: showNewPass || !newPass ? 'normal' : '0.12em',
                     }}
                   />
                   <Button
@@ -364,7 +364,7 @@ export default function MobileResetPassword() {
                     id="reset-confirm-password"
                     type={showConfirmPass ? 'text' : 'password'}
                     className={error ? 'mr-input-error' : ''}
-                    placeholder="Repeat new password"
+                    placeholder="Confirm new password"
                     autoComplete="new-password"
                     value={confirmPass}
                     onChange={(e) => {

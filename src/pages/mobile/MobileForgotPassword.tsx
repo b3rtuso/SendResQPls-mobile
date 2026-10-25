@@ -263,6 +263,11 @@ export default function MobileForgotPassword() {
                   color: '#475569',
                   border: '1.5px solid #CBD5E1',
                   boxShadow: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  width: '100%',
                 }}
               >
                 Return to Login
