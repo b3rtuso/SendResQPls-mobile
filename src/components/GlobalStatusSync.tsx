@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { Capacitor } from '@capacitor/core';
 import { getMyIncidents } from '../api/client';
 import { addNotification, getDeletedActivityIds } from '../pages/mobile/MobileNotifications';
 import { useMobileToast } from '../contexts/MobileToastContext';
-import { INCIDENT_SYNC_EVENT } from '../utils/pushNotificationHelper';
+import { INCIDENT_SYNC_EVENT, showWebSystemNotification } from '../utils/pushNotificationHelper';
 import { cleanIncidentType } from '../utils/departmentUtils';
 
 const STATUS_KEY = 'srq_last_statuses';
@@ -33,13 +32,12 @@ const STATUS_MESSAGES: Record<string, string> = {
  * GlobalStatusSync
  * 
  * Runs globally across all tabs in AuthenticatedMobileLayout.
- * Polls the user's incidents every 12 seconds with skipCache=true.
+ * Polls the user's incidents every 5 seconds with skipCache=true.
  * When an admin updates an incident status or assigns a department:
  * 1. Saves update to srq_notifications (so it appears on the Alerts tab)
- * 2. Pops an in-app toast card using useMobileToast
- * 3. Dispatches INCIDENT_SYNC_EVENT so MobileHistory live-patches its state
- *    (Uses dedicated event instead of FCM_FOREGROUND_EVENT to prevent double-firing)
- * 4. Works consistently on both native Android and web browsers!
+ * 2. Posts an OS / Phone Notification Center alert via ServiceWorker (for PWA / Browser)
+ * 3. Pops an in-app toast card using useMobileToast
+ * 4. Dispatches INCIDENT_SYNC_EVENT so MobileHistory live-patches its state
  */
 export default function GlobalStatusSync() {
   const { push } = useMobileToast();
@@ -51,7 +49,6 @@ export default function GlobalStatusSync() {
       const token = localStorage.getItem('token');
       if (!userId || !token) return;
       if (typeof navigator !== 'undefined' && !navigator.onLine) return;
-      if (document.hidden) return;
       if (checkingRef.current) return;
 
       checkingRef.current = true;
@@ -110,17 +107,17 @@ export default function GlobalStatusSync() {
               department: inc.assignedDepartment,
             });
 
-            // Web Notification API (PWA / Browser)
-            if (!Capacitor.isNativePlatform() && typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-              try {
-                new Notification(title, {
-                  body: message,
-                  icon: '/icon-192.png',
-                });
-              } catch {}
-            }
+            // 2. Post to Phone / OS Notification Center (Browser & PWA via ServiceWorker)
+            showWebSystemNotification({
+              title,
+              body: message,
+              tag: `srq-incident-${inc.id}`,
+              url: `/mobile/history?incidentId=${inc.id}`,
+              incidentId: inc.id,
+              category: 'status',
+            }).catch(() => {});
 
-            // 2. Show floating Facebook-style toast card
+            // 3. Show floating Facebook-style toast card
             push({
               title,
               message,
@@ -133,7 +130,7 @@ export default function GlobalStatusSync() {
               navigateTo: `/mobile/history?incidentId=${inc.id}`,
             });
 
-            // 3. Dispatch dedicated sync event for MobileHistory (prevents FcmBannerOverlay duplicate popup)
+            // 4. Dispatch dedicated sync event for MobileHistory (prevents FcmBannerOverlay duplicate popup)
             window.dispatchEvent(
               new CustomEvent(INCIDENT_SYNC_EVENT, {
                 detail: {

@@ -1,5 +1,5 @@
-// SendResQPls Service Worker — enables offline support and installability
-const CACHE_NAME = 'sendresqpls-v7';
+// SendResQPls Service Worker — enables offline support, installability, and Notification Center alerts
+const CACHE_NAME = 'sendresqpls-v8';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
@@ -40,6 +40,80 @@ self.addEventListener('activate', (event) => {
     )
   );
   self.clients.claim();
+});
+
+// Message listener: allows the web app to trigger OS Notification Center alerts via the Service Worker
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (data && data.type === 'SHOW_NOTIFICATION' && data.payload) {
+    const { title, options } = data.payload;
+    if (title && self.registration && typeof self.registration.showNotification === 'function') {
+      event.waitUntil(
+        self.registration.showNotification(title, options || {})
+      );
+    }
+  }
+});
+
+// Push listener: handles standard Web Push payloads if sent to the browser
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: 'SendResQPls Alert',
+    body: 'New emergency status update received.',
+    url: '/mobile/notifications',
+    tag: 'srq-push',
+  };
+
+  if (event.data) {
+    try {
+      const parsed = event.data.json();
+      payload = {
+        title: parsed.title || payload.title,
+        body: parsed.body || parsed.message || payload.body,
+        url: parsed.url || (parsed.incidentId ? `/mobile/history?incidentId=${parsed.incidentId}` : payload.url),
+        tag: parsed.tag || (parsed.incidentId ? `srq-incident-${parsed.incidentId}` : payload.tag),
+      };
+    } catch {
+      try {
+        payload.body = event.data.text() || payload.body;
+      } catch {}
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: payload.tag,
+      renotify: true,
+      vibrate: [200, 100, 200],
+      data: { url: payload.url },
+    })
+  );
+});
+
+// Notification click: focuses open PWA/browser tab and navigates to the target incident or notifications page
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/mobile/notifications';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.postMessage({
+            type: 'NOTIFICATION_CLICK',
+            url: targetUrl,
+          });
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
 
 // Fetch: network-first for navigation and API; stale-while-revalidate for static assets

@@ -25,6 +25,11 @@ import {
   playNotificationSound,
   type NotificationSettings,
 } from '../../utils/notificationSettings';
+import {
+  getWebNotificationPermission,
+  requestWebNotificationPermission,
+  showWebSystemNotification,
+} from '../../utils/pushNotificationHelper';
 
 type Section = 'main' | 'account' | 'notifications' | 'help';
 
@@ -152,6 +157,17 @@ export default function MobileProfile() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [legalModalDoc, setLegalModalDoc] = useState<LegalDocType | null>(null);
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(() => getNotifSettings());
+  const [webNotifPerm, setWebNotifPerm] = useState<NotificationPermission | 'unsupported'>(() => getWebNotificationPermission());
+
+  useEffect(() => {
+    const syncPerm = () => setWebNotifPerm(getWebNotificationPermission());
+    window.addEventListener('srq-web-notif-permission', syncPerm);
+    document.addEventListener('visibilitychange', syncPerm);
+    return () => {
+      window.removeEventListener('srq-web-notif-permission', syncPerm);
+      document.removeEventListener('visibilitychange', syncPerm);
+    };
+  }, []);
 
   const getProfileChanges = () => detectFieldChanges(
     originalProfile,
@@ -800,6 +816,120 @@ export default function MobileProfile() {
 
         <SectionHeader title="Notification Settings" onBack={backToMain} maxWidthClass="max-w-2xl" />
         <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-4">
+          {!Capacitor.isNativePlatform() && webNotifPerm !== 'unsupported' && (
+            <div style={{
+              background: webNotifPerm === 'granted' ? '#F0FDF4' : webNotifPerm === 'denied' ? '#FEF2F2' : '#EFF6FF',
+              border: `1px solid ${webNotifPerm === 'granted' ? '#BBF7D0' : webNotifPerm === 'denied' ? '#FECACA' : '#BFDBFE'}`,
+              borderRadius: 16,
+              padding: 'clamp(14px, 4vw, 18px)',
+              marginBottom: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FaBell size={15} color={webNotifPerm === 'granted' ? '#16A34A' : webNotifPerm === 'denied' ? '#DC2626' : '#2563EB'} />
+                  <span style={{ fontSize: 'clamp(13px, 3.6vw, 14.5px)', fontWeight: 800, color: '#0F172A' }}>
+                    Phone Notification Center
+                  </span>
+                </div>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  padding: '3px 10px',
+                  borderRadius: 20,
+                  background: webNotifPerm === 'granted' ? '#DCFCE7' : webNotifPerm === 'denied' ? '#FEE2E2' : '#DBEAFE',
+                  color: webNotifPerm === 'granted' ? '#15803D' : webNotifPerm === 'denied' ? '#B91C1C' : '#1D4ED8',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                }}>
+                  {webNotifPerm === 'granted' ? 'Enabled' : webNotifPerm === 'denied' ? 'Blocked' : 'Action Needed'}
+                </span>
+              </div>
+              <p style={{ fontSize: 'clamp(11.5px, 3vw, 12.5px)', color: '#475569', margin: '0 0 12px', lineHeight: 1.5 }}>
+                {webNotifPerm === 'granted'
+                  ? 'Browser alerts are connected to your device Notification Center. Status updates and responder dispatches will appear in your system tray.'
+                  : webNotifPerm === 'denied'
+                  ? 'Notifications are blocked in your browser site settings. Tap the site settings icon in your browser address bar and allow Notifications.'
+                  : 'Allow browser notifications so responder dispatches and status updates appear directly in your phone Notification Center.'}
+              </p>
+              {webNotifPerm === 'default' && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const res = await requestWebNotificationPermission();
+                    setWebNotifPerm(res);
+                    if (res === 'granted') {
+                      playNotificationSound(true);
+                      await showWebSystemNotification({
+                        title: '✅ Notification Center Connected',
+                        body: 'You will now receive MDRRMO Balayan emergency status updates in your phone Notification Center.',
+                        tag: 'srq-notif-enabled',
+                        url: '/mobile/notifications',
+                        force: true,
+                      });
+                      showToast({
+                        type: 'success',
+                        priority: 'normal',
+                        title: 'Notification Center Enabled',
+                        message: 'Check your phone notification tray for the confirmation alert.',
+                      });
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: 12,
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                    color: '#FFFFFF',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font)',
+                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+                  }}
+                >
+                  Allow Notification Center Alerts
+                </button>
+              )}
+              {webNotifPerm === 'granted' && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    playNotificationSound(true);
+                    const ok = await showWebSystemNotification({
+                      title: '🚨 SendResQPls Test Alert',
+                      body: 'Phone Notification Center alerts are active and working on your browser.',
+                      tag: 'srq-test-' + Date.now(),
+                      url: '/mobile/notifications',
+                      force: true,
+                    });
+                    showToast({
+                      type: ok ? 'success' : 'info',
+                      priority: 'normal',
+                      title: ok ? 'Sent to Notification Center' : 'Notification Triggered',
+                      message: ok
+                        ? 'Pull down your phone Notification Center to see the alert.'
+                        : 'Alert dispatched to browser notification service.',
+                    });
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 12,
+                    border: '1px solid #86EFAC',
+                    background: '#FFFFFF',
+                    color: '#15803D',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font)',
+                  }}
+                >
+                  Send Test Alert to Notification Center
+                </button>
+              )}
+            </div>
+          )}
           {([
             { key: 'statusUpdates', label: 'Status Updates', desc: 'Get notified when your report status changes' },
             { key: 'emergencyAlerts', label: 'Emergency Alerts', desc: 'Receive area-wide emergency broadcasts' },

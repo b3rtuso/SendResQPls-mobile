@@ -2,6 +2,7 @@ import { PushNotifications } from '@capacitor/push-notifications';
 import { updateProfile } from '../api/client';
 import { Capacitor } from '@capacitor/core';
 import { addNotification } from '../pages/mobile/MobileNotifications';
+import { shouldShowNotification, type NotificationCategory } from './notificationSettings';
 
 // Custom event name used to broadcast incoming FCM notifications to the UI
 export const FCM_FOREGROUND_EVENT = 'srq-push-foreground';
@@ -60,6 +61,167 @@ function pushRoute(path: string) {
   }
 }
 
+// ── Web / PWA Notification Center Support ────────────────────────────────────
+let _swMessageListenerAttached = false;
+let _gestureListenerAttached = false;
+
+function ensureServiceWorkerClickBridge() {
+  if (_swMessageListenerAttached) return;
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+  _swMessageListenerAttached = true;
+
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    const data = event.data;
+    if (data && data.type === 'NOTIFICATION_CLICK' && typeof data.url === 'string') {
+      pushRoute(data.url);
+    }
+  });
+}
+
+export function getWebNotificationPermission(): NotificationPermission | 'unsupported' {
+  if (typeof window === 'undefined' || !('Notification' in window)) {
+    return 'unsupported';
+  }
+  return Notification.permission;
+}
+
+/**
+ * Requests browser Notification permission so the PWA can post alerts to the
+ * phone/OS Notification Center (System Tray / Status Bar).
+ * Also attaches a one-time user gesture fallback if the browser requires a tap.
+ */
+export async function requestWebNotificationPermission(): Promise<NotificationPermission | 'unsupported'> {
+  if (Capacitor.isNativePlatform()) return 'granted';
+  if (typeof window === 'undefined' || !('Notification' in window)) {
+    return 'unsupported';
+  }
+
+  ensureServiceWorkerClickBridge();
+
+  if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+    return Notification.permission;
+  }
+
+  try {
+    const result = await Notification.requestPermission();
+    window.dispatchEvent(new CustomEvent('srq-web-notif-permission', { detail: result }));
+    if (result !== 'default') {
+      return result;
+    }
+  } catch {
+    // Legacy callback fallback
+    try {
+      Notification.requestPermission((res) => {
+        window.dispatchEvent(new CustomEvent('srq-web-notif-permission', { detail: res }));
+      });
+    } catch {}
+  }
+
+  // Mobile browsers (Chrome on Android, Safari on iOS) often ignore requestPermission()
+  // unless triggered inside a direct user tap gesture. Attach a one-time tap listener.
+  if (Notification.permission === 'default' && !_gestureListenerAttached) {
+    _gestureListenerAttached = true;
+    const onFirstTap = async () => {
+      window.removeEventListener('pointerdown', onFirstTap);
+      window.removeEventListener('click', onFirstTap);
+      _gestureListenerAttached = false;
+      if (Notification.permission === 'default') {
+        try {
+          const res = await Notification.requestPermission();
+          window.dispatchEvent(new CustomEvent('srq-web-notif-permission', { detail: res }));
+        } catch {}
+      }
+    };
+    window.addEventListener('pointerdown', onFirstTap, { once: true, passive: true });
+    window.addEventListener('click', onFirstTap, { once: true, passive: true });
+  }
+
+  return Notification.permission;
+}
+
+export interface WebSystemNotificationOptions {
+  title: string;
+  body: string;
+  tag?: string;
+  url?: string;
+  incidentId?: string;
+  category?: NotificationCategory;
+  force?: boolean;
+}
+
+/**
+ * Displays a real OS / Phone Notification Center alert when running in the browser / PWA.
+ * Uses ServiceWorkerRegistration.showNotification() as required by Android Chrome & Mobile Browsers,
+ * with graceful fallback to `new Notification()` on desktop browsers without an active SW.
+ */
+export async function showWebSystemNotification(options: WebSystemNotificationOptions): Promise<boolean> {
+  if (Capacitor.isNativePlatform()) return false;
+  if (typeof window === 'undefined' || !('Notification' in window)) return false;
+
+  if (!options.force && !shouldShowNotification(options.category || 'status')) {
+    return false;
+  }
+
+  ensureServiceWorkerClickBridge();
+
+  if (Notification.permission !== 'granted') {
+    return false;
+  }
+
+  const targetUrl = options.url || (options.incidentId ? `/mobile/history?incidentId=${options.incidentId}` : '/mobile/notifications');
+  const tag = options.tag || (options.incidentId ? `srq-incident-${options.incidentId}` : `srq-alert-${Date.now()}`);
+
+  const notifPayload: NotificationOptions & Record<string, any> = {
+    body: options.body,
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag,
+    renotify: true,
+    vibrate: [200, 100, 200],
+    data: {
+      url: targetUrl,
+      incidentId: options.incidentId,
+      timestamp: Date.now(),
+    },
+  };
+
+  // 1. Primary path for Android / iOS / Desktop PWA: ServiceWorkerRegistration.showNotification()
+  if ('serviceWorker' in navigator) {
+    try {
+      let reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        reg = await navigator.serviceWorker.register('/sw.js');
+      }
+      if (reg && typeof reg.showNotification === 'function') {
+        await reg.showNotification(options.title, notifPayload);
+        return true;
+      }
+    } catch (swErr) {
+      console.warn('[WebNotif] SW showNotification fallback:', swErr);
+    }
+  }
+
+  // 2. Fallback for desktop browsers where Service Worker might not be controlling the page
+  try {
+    const n = new Notification(options.title, {
+      body: options.body,
+      icon: '/icon-192.png',
+      tag,
+    });
+    n.onclick = () => {
+      try {
+        window.focus();
+      } catch {}
+      pushRoute(targetUrl);
+      n.close();
+    };
+    return true;
+  } catch (err) {
+    console.warn('[WebNotif] Notification constructor failed:', err);
+    return false;
+  }
+}
+
 // ── Token save with retry ────────────────────────────────────────────────────
 /** Save push token to backend with up to 3 retries */
 async function saveTokenToBackend(token: string, attempt = 1): Promise<void> {
@@ -78,9 +240,9 @@ async function saveTokenToBackend(token: string, attempt = 1): Promise<void> {
 }
 
 export async function setupPushNotifications(): Promise<void> {
-  // Only execute on native platforms (Android/iOS)
+  // Web Browser / PWA mode: request Web Notification Center permission & bridge SW clicks
   if (!Capacitor.isNativePlatform()) {
-    console.log('[Push] Skipped — not running on a native device.');
+    await requestWebNotificationPermission();
     return;
   }
 
@@ -195,4 +357,3 @@ export async function setupPushNotifications(): Promise<void> {
     console.error('[Push] ❌ Setup error:', error.message);
   }
 }
-

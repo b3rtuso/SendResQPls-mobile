@@ -25,6 +25,7 @@ import {
 import { useLocationChecker } from '../../utils/useLocationChecker';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { cleanIncidentType } from '../../utils/departmentUtils';
+import { showWebSystemNotification } from '../../utils/pushNotificationHelper';
 
 // ── Module-level cache to persist photo across mobile tab switches ──────────
 let cachedReportPhoto: File | null = null;
@@ -432,13 +433,22 @@ export default function MobileReport() {
         offline: false,
       });
 
+      const reportSummaryMsg = `AI-classified as: ${cleanIncidentType(incident?.aiDetectedType) || 'Processing…'} — Routed to ${incident?.aiRecommendedDept || 'MDRRMO'}`;
       showToast({
         type: 'success',
         priority: 'important',
         title: 'Emergency Report Sent!',
-        message: `AI-classified as: ${cleanIncidentType(incident?.aiDetectedType) || 'Processing…'} — Routed to ${incident?.aiRecommendedDept || 'MDRRMO'}`,
+        message: reportSummaryMsg,
         icon: <IoIosSend size={18} />,
       });
+      showWebSystemNotification({
+        title: '🚨 Emergency Report Sent!',
+        body: reportSummaryMsg,
+        tag: `srq-incident-${incident?.id || Date.now()}`,
+        url: incident?.id ? `/mobile/history?incidentId=${incident.id}` : '/mobile/history',
+        incidentId: incident?.id,
+        category: 'status',
+      }).catch(() => {});
 
     } catch (error: any) {
       const detail = error?.response?.data?.details || error?.message || 'Please check your connection and try again.';
