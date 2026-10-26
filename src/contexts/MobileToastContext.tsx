@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from 'react';
 import { shouldShowNotification, playNotificationSound, type NotificationCategory } from '../utils/notificationSettings';
+import { showSystemNotification } from '../utils/pushNotificationHelper';
 
 export type MobileToastPriority = 'normal' | 'important' | 'critical';
 export type MobileToastType = 'success' | 'error' | 'warning' | 'info' | 'incident' | 'system' | 'update';
@@ -112,6 +113,15 @@ export function MobileToastProvider({ children }: { children: React.ReactNode })
     });
 
     playNotificationSound();
+
+    // Always post to Phone / OS Notification Center (System Tray) on both Browser and Native App!
+    showSystemNotification({
+      title: item.title,
+      body: item.message || item.title,
+      url: item.navigateTo,
+      incidentId: item.incidentId,
+      category: effectiveCategory,
+    }).catch(() => {});
 
     return id;
   }, []);

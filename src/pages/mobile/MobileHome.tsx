@@ -30,6 +30,7 @@ const safetyTips = [
 
 import { useLocationChecker } from '../../utils/useLocationChecker';
 import { useNetworkStatus } from '../../utils/useNetworkStatus';
+import NotificationPermissionStrip from '../../components/NotificationPermissionStrip';
 
 export default function MobileHome() {
   const navigate = useNavigate();
@@ -237,6 +238,9 @@ export default function MobileHome() {
             </div>
           )}
         </div>
+
+        {/* ── Browser Notification Center Status Strip ── */}
+        <NotificationPermissionStrip style={{ paddingTop: 'clamp(10px, 2.5vw, 14px)' }} />
 
         {/* ── Location Status Strip (taste-skill redesign: flat navy, left-edge accent) ── */}
         {isLocationOn === false && (

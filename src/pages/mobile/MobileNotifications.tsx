@@ -1,3 +1,4 @@
+import NotificationPermissionStrip from '../../components/NotificationPermissionStrip';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, XCircle, Clock, ChevronLeft, CheckCheck, Trash2, ArrowRight, Truck, RefreshCw, HelpCircle } from 'lucide-react';
@@ -576,6 +577,7 @@ export default function MobileNotifications() {
           </div>
         </div>
 
+        <NotificationPermissionStrip style={{ marginBottom: 14 }} />
         <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 pb-24">
 
         {/* Action Bar (Mark all read & Clear all — static Refresh button removed per specification) */}

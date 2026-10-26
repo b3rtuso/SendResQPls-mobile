@@ -1,6 +1,6 @@
 import { PushNotifications } from '@capacitor/push-notifications';
 import { updateProfile } from '../api/client';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { addNotification } from '../pages/mobile/MobileNotifications';
 import { shouldShowNotification, type NotificationCategory } from './notificationSettings';
 
@@ -64,6 +64,8 @@ function pushRoute(path: string) {
 // ── Web / PWA Notification Center Support ────────────────────────────────────
 let _swMessageListenerAttached = false;
 let _gestureListenerAttached = false;
+const _activeWebNotifications: any[] = [];
+const _recentSystemNotifs = new Map<string, number>();
 
 function ensureServiceWorkerClickBridge() {
   if (_swMessageListenerAttached) return;
@@ -88,7 +90,7 @@ export function getWebNotificationPermission(): NotificationPermission | 'unsupp
 /**
  * Requests browser Notification permission so the PWA can post alerts to the
  * phone/OS Notification Center (System Tray / Status Bar).
- * Also attaches a one-time user gesture fallback if the browser requires a tap.
+ * Uses a clean click/touchend gesture listener which is fully supported by Brave, Chrome, and Safari.
  */
 export async function requestWebNotificationPermission(): Promise<NotificationPermission | 'unsupported'> {
   if (Capacitor.isNativePlatform()) return 'granted';
@@ -117,13 +119,13 @@ export async function requestWebNotificationPermission(): Promise<NotificationPe
     } catch {}
   }
 
-  // Mobile browsers (Chrome on Android, Safari on iOS) often ignore requestPermission()
-  // unless triggered inside a direct user tap gesture. Attach a one-time tap listener.
+  // Brave, Chrome, and iOS Safari require a direct user click/touch gesture
+  // to display the permission dialog. Attach a one-time gesture listener.
   if (Notification.permission === 'default' && !_gestureListenerAttached) {
     _gestureListenerAttached = true;
-    const onFirstTap = async () => {
-      window.removeEventListener('pointerdown', onFirstTap);
-      window.removeEventListener('click', onFirstTap);
+    const onUserActivation = async () => {
+      window.removeEventListener('click', onUserActivation, true);
+      window.removeEventListener('touchend', onUserActivation, true);
       _gestureListenerAttached = false;
       if (Notification.permission === 'default') {
         try {
@@ -132,14 +134,14 @@ export async function requestWebNotificationPermission(): Promise<NotificationPe
         } catch {}
       }
     };
-    window.addEventListener('pointerdown', onFirstTap, { once: true, passive: true });
-    window.addEventListener('click', onFirstTap, { once: true, passive: true });
+    window.addEventListener('click', onUserActivation, { once: true, capture: true });
+    window.addEventListener('touchend', onUserActivation, { once: true, capture: true });
   }
 
   return Notification.permission;
 }
 
-export interface WebSystemNotificationOptions {
+export interface SystemNotificationOptions {
   title: string;
   body: string;
   tag?: string;
@@ -149,18 +151,62 @@ export interface WebSystemNotificationOptions {
   force?: boolean;
 }
 
-/**
- * Displays a real OS / Phone Notification Center alert when running in the browser / PWA.
- * Uses ServiceWorkerRegistration.showNotification() as required by Android Chrome & Mobile Browsers,
- * with graceful fallback to `new Notification()` on desktop browsers without an active SW.
- */
-export async function showWebSystemNotification(options: WebSystemNotificationOptions): Promise<boolean> {
-  if (Capacitor.isNativePlatform()) return false;
-  if (typeof window === 'undefined' || !('Notification' in window)) return false;
+function stringHashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
 
+/**
+ * Universal System Notification Engine:
+ * Posts directly to the Phone / OS Notification Center (System Tray / Status Bar)
+ * on BOTH the Native Android App (via native NotificationManager) AND
+ * the Web Browser / PWA (via ServiceWorker / Web Notification),
+ * even while the browser or mobile app is open on screen!
+ */
+export async function showSystemNotification(options: SystemNotificationOptions): Promise<boolean> {
   if (!options.force && !shouldShowNotification(options.category || 'status')) {
     return false;
   }
+
+  // Deduplication check: prevent duplicate popups within 3.5s
+  const now = Date.now();
+  const dedupKey = `${options.incidentId || ''}-${options.title}-${options.body}`;
+  _recentSystemNotifs.forEach((time, k) => {
+    if (now - time > 10000) _recentSystemNotifs.delete(k);
+  });
+  const lastFired = _recentSystemNotifs.get(dedupKey);
+  if (lastFired && now - lastFired < 3500) {
+    return false;
+  }
+  _recentSystemNotifs.set(dedupKey, now);
+
+  const targetUrl = options.url || (options.incidentId ? `/mobile/history?incidentId=${options.incidentId}` : '/mobile/notifications');
+
+  // ── 1. NATIVE ANDROID MOBILE APP PATH ──────────────────────────────────────
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const LocationAccuracy = registerPlugin<any>('LocationAccuracy');
+      if (LocationAccuracy && typeof LocationAccuracy.showLocalNotification === 'function') {
+        await LocationAccuracy.showLocalNotification({
+          title: options.title,
+          body: options.body,
+          route: targetUrl,
+          id: stringHashCode(options.title + (options.incidentId || '')) % 100000,
+        });
+        return true;
+      }
+    } catch (nativeErr) {
+      console.warn('[NativeNotification] Native showLocalNotification error:', nativeErr);
+    }
+    return false;
+  }
+
+  // ── 2. WEB BROWSER / PWA PATH (Brave, Chrome, Edge, Safari) ─────────────────
+  if (typeof window === 'undefined' || !('Notification' in window)) return false;
 
   ensureServiceWorkerClickBridge();
 
@@ -168,16 +214,19 @@ export async function showWebSystemNotification(options: WebSystemNotificationOp
     return false;
   }
 
-  const targetUrl = options.url || (options.incidentId ? `/mobile/history?incidentId=${options.incidentId}` : '/mobile/notifications');
-  const tag = options.tag || (options.incidentId ? `srq-incident-${options.incidentId}` : `srq-alert-${Date.now()}`);
+  // Unique tag per alert ensures OS Notification Center stacks every alert and
+  // never suppresses repeated status updates even while the browser is open
+  const uniqueTag = options.tag || `srq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const notifIcon = `${window.location.origin}/icon-192.png`;
 
   const notifPayload: NotificationOptions & Record<string, any> = {
     body: options.body,
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    tag,
+    icon: notifIcon,
+    badge: notifIcon,
+    tag: uniqueTag,
     renotify: true,
     vibrate: [200, 100, 200],
+    silent: false,
     data: {
       url: targetUrl,
       incidentId: options.incidentId,
@@ -185,12 +234,17 @@ export async function showWebSystemNotification(options: WebSystemNotificationOp
     },
   };
 
-  // 1. Primary path for Android / iOS / Desktop PWA: ServiceWorkerRegistration.showNotification()
+  // Primary Web Path: ServiceWorkerRegistration.showNotification()
   if ('serviceWorker' in navigator) {
     try {
-      let reg = await navigator.serviceWorker.getRegistration();
+      let reg: ServiceWorkerRegistration | undefined;
+      // Wait up to 1200ms for ready
+      const readyPromise = navigator.serviceWorker.ready;
+      const timeoutPromise = new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 1200));
+      reg = await Promise.race([readyPromise, timeoutPromise]);
+
       if (!reg) {
-        reg = await navigator.serviceWorker.register('/sw.js');
+        reg = await navigator.serviceWorker.getRegistration();
       }
       if (reg && typeof reg.showNotification === 'function') {
         await reg.showNotification(options.title, notifPayload);
@@ -201,12 +255,12 @@ export async function showWebSystemNotification(options: WebSystemNotificationOp
     }
   }
 
-  // 2. Fallback for desktop browsers where Service Worker might not be controlling the page
+  // Desktop / Brave fallback: new Notification()
   try {
     const n = new Notification(options.title, {
       body: options.body,
-      icon: '/icon-192.png',
-      tag,
+      icon: notifIcon,
+      tag: uniqueTag,
     });
     n.onclick = () => {
       try {
@@ -215,12 +269,18 @@ export async function showWebSystemNotification(options: WebSystemNotificationOp
       pushRoute(targetUrl);
       n.close();
     };
+    // Keep strong reference so desktop browser V8 engine does not garbage collect prematurely
+    _activeWebNotifications.push(n);
+    if (_activeWebNotifications.length > 10) _activeWebNotifications.shift();
     return true;
   } catch (err) {
     console.warn('[WebNotif] Notification constructor failed:', err);
     return false;
   }
 }
+
+// Backward-compatibility alias
+export const showWebSystemNotification = showSystemNotification;
 
 // ── Token save with retry ────────────────────────────────────────────────────
 /** Save push token to backend with up to 3 retries */
@@ -297,8 +357,7 @@ export async function setupPushNotifications(): Promise<void> {
       console.error('[Push] ❌ Registration error:', error.error);
     });
 
-    // 5. App is OPEN (foreground) — dispatch custom event so UI shows a banner
-    // Android does NOT auto-show a heads-up notification in foreground.
+    // 6. App is OPEN (foreground) — dispatch custom event AND post to Android Notification Center!
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
       console.log('[Push] Foreground notification received:', notification.title);
       const dept = notification.data?.assignedDepartment || notification.data?.department;
@@ -320,12 +379,22 @@ export async function setupPushNotifications(): Promise<void> {
         });
       }
 
+      // Explicitly post to Android Notification Center even while app is in foreground!
+      showSystemNotification({
+        title: notification.title || 'SendResqPls Alert',
+        body: notification.body || 'New emergency status update received.',
+        incidentId: notification.data?.incidentId,
+        url: notification.data?.incidentId ? `/mobile/history?incidentId=${notification.data.incidentId}` : '/mobile/notifications',
+        category: 'status',
+        force: true,
+      }).catch(() => {});
+
       window.dispatchEvent(
         new CustomEvent(FCM_FOREGROUND_EVENT, { detail: payload })
       );
     });
 
-    // 6. User TAPS notification from status bar (app was background/closed)
+    // 7. User TAPS notification from status bar (app was background/closed)
     // Uses pushRoute() instead of window.location.href to keep React Router alive.
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
       console.log('[Push] Notification tapped:', action.notification?.title);
@@ -343,10 +412,8 @@ export async function setupPushNotifications(): Promise<void> {
       }
 
       if (data.type === 'NEW_INCIDENT' && data.incidentId) {
-        // Admin: go to the specific incident detail page
         pushRoute(`/requests/${data.incidentId}`);
       } else if (data.incidentId) {
-        // Citizen: go to report history and automatically open Track Status modal
         pushRoute(`/mobile/history?incidentId=${data.incidentId}`);
       }
     });
