@@ -3,6 +3,8 @@ import { registerPlugin, Capacitor } from '@capacitor/core';
 
 export interface LocationAccuracyPluginInterface {
   enableLocation(): Promise<{ enabled: boolean; error?: string }>;
+  openLocationSettings?(): Promise<void>;
+  openAppSettings?(): Promise<void>;
 }
 
 const LocationAccuracy = registerPlugin<LocationAccuracyPluginInterface>('LocationAccuracy');
@@ -35,31 +37,97 @@ export interface LocationCheckerResult {
  * Open Phone System Location Settings (GPS toggle)
  */
 export function openLocationSettings() {
-  try {
-    // Android intent for Location settings
-    window.location.href = 'intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
-  } catch {
+  // 1. Native Capacitor Android App
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+    LocationAccuracy.openLocationSettings?.().catch(() => {
+      try {
+        window.location.href = 'intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
+      } catch {}
+    });
+    return;
+  }
+
+  // 2. Android Web / PWA (Chrome, Samsung Internet, Edge, WebAPK)
+  const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
+  if (isAndroid) {
     try {
-      window.open('geo:0,0', '_system');
+      window.location.href = 'intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
+      return;
     } catch {
-      // Fallback
+      try {
+        window.location.href = 'intent:#Intent;action=android.settings.SETTINGS;end';
+        return;
+      } catch {}
     }
   }
+
+  // 3. iOS Safari / PWA
+  const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIos) {
+    try {
+      window.location.href = 'App-Prefs:root=Privacy&path=LOCATION';
+      return;
+    } catch {
+      try {
+        window.location.href = 'app-settings:';
+        return;
+      } catch {}
+    }
+  }
+
+  // 4. Fallback (Desktop / other)
+  try {
+    window.open('chrome://settings/content/location', '_blank');
+  } catch {}
 }
 
 /**
  * Open App / Browser Permission Settings for SendResQPls
  */
 export function openAppSettings() {
-  try {
-    window.open('app-settings:', '_system');
-  } catch {
+  // 1. Native Capacitor Android App
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+    LocationAccuracy.openAppSettings?.().catch(() => {
+      try {
+        window.location.href = 'intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
+      } catch {}
+    });
+    return;
+  }
+
+  // 2. Android Web / PWA (Chrome, Samsung Internet, Edge, WebAPK)
+  const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
+  if (isAndroid) {
     try {
-      window.location.href = 'intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;package=' + (window.location.hostname || 'com.sendresqpls.app') + ';end';
+      // Opening Location Source Settings on Android displays GPS toggle & all app permissions
+      window.location.href = 'intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
+      return;
     } catch {
-      // Fallback
+      try {
+        window.location.href = 'intent:#Intent;action=android.settings.SETTINGS;end';
+        return;
+      } catch {}
     }
   }
+
+  // 3. iOS Safari / PWA
+  const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIos) {
+    try {
+      window.location.href = 'app-settings:';
+      return;
+    } catch {
+      try {
+        window.location.href = 'App-Prefs:root=Privacy&path=LOCATION';
+        return;
+      } catch {}
+    }
+  }
+
+  // 4. Fallback (Desktop / other)
+  try {
+    window.open('chrome://settings/content/location', '_blank');
+  } catch {}
 }
 
 /**

@@ -2,6 +2,8 @@ package com.mdrrmo.balayan.sendresqpls;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.Settings;
 import androidx.annotation.NonNull;
 
 import com.getcapacitor.JSObject;
@@ -106,6 +108,39 @@ public class LocationAccuracyPlugin extends Plugin {
             ret.put("error", e.getMessage());
             call.resolve(ret);
             savedCall = null;
+        }
+    }
+
+    @PluginMethod
+    public void openLocationSettings(PluginCall call) {
+        try {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(intent);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Could not open location settings: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void openAppSettings(PluginCall call) {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+            intent.setData(uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(intent);
+            call.resolve();
+        } catch (Exception e) {
+            try {
+                Intent fallback = new Intent(Settings.ACTION_SETTINGS);
+                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getActivity().startActivity(fallback);
+                call.resolve();
+            } catch (Exception ex) {
+                call.reject("Could not open settings: " + ex.getMessage());
+            }
         }
     }
 

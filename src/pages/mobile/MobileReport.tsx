@@ -739,9 +739,34 @@ export default function MobileReport() {
                     Tap to start live camera and capture real-time scene evidence
                   </p>
                   {cameraError && (
-                    <p style={{ margin: '8px 0 0', color: '#FCA5A5', fontSize: '11px', fontWeight: 600 }}>
-                      {cameraError}
-                    </p>
+                    <div style={{ margin: '10px 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                      <p style={{ margin: 0, color: '#FCA5A5', fontSize: '11.5px', fontWeight: 600 }}>
+                        {cameraError}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openAppSettings();
+                        }}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.25)',
+                          border: '1.5px solid rgba(239, 68, 68, 0.5)',
+                          color: '#FFFFFF',
+                          borderRadius: 8,
+                          padding: '5px 12px',
+                          fontSize: '11.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                        }}
+                      >
+                        <FaCog size={12} /> Open Phone Settings
+                      </button>
+                    </div>
                   )}
                 </div>
               )}

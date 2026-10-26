@@ -15,6 +15,7 @@ import { MobileToastProvider } from './components/MobileToastProvider';
 import { ConfirmProvider } from './contexts/ConfirmContext';
 import FcmBannerOverlay from './components/FcmBannerOverlay';
 import LocationSuccessModal from './components/LocationSuccessModal';
+import PwaInstallBanner from './components/PwaInstallBanner';
 import GlobalStatusSync from './components/GlobalStatusSync';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useState, useEffect } from 'react';
@@ -163,6 +164,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <ScrollToTop />
+        <PwaInstallBanner />
         <Routes>
           <Route
             path="/mobile/*"

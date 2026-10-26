@@ -1,11 +1,12 @@
 // SendResQPls Service Worker — enables offline support and installability
-const CACHE_NAME = 'sendresqpls-v6';
+const CACHE_NAME = 'sendresqpls-v7';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
   '/icon-192.png',
   '/icon-512.png',
   '/logo.svg',
+  '/logo.jpg',
   '/manifest.json'
 ];
 

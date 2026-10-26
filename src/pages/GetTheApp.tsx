@@ -60,9 +60,12 @@ export default function GetTheApp() {
         <div style={{ display: 'inline-block', marginBottom: 16 }}>
           <img
             src="/icon-192.png"
-            alt="SendResQPls"
+            alt="SendResQPls Official Logo"
             width={76}
             height={76}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = '/logo.svg';
+            }}
             style={{
               borderRadius: 20,
               border: '2px solid rgba(255,255,255,0.3)',

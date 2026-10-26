@@ -38,7 +38,7 @@ export default function MobileHome() {
   const userId = localStorage.getItem('userId');
 
   // Real-time location state via useLocationChecker (framework: Phone GPS ON? -> Allowed? -> Continue)
-  const { isLocationOn, status: locStatus, recheckLocation, requestLocation, requesting: locRequesting, openAppSettings } = useLocationChecker();
+  const { isLocationOn, status: locStatus, recheckLocation, requestLocation, requesting: locRequesting, openLocationSettings, openAppSettings } = useLocationChecker();
   const [showLocModal, setShowLocModal] = useState(false);
 
   // Real-time network state via native Capacitor Network plugin
@@ -586,6 +586,21 @@ export default function MobileHome() {
                   )}
                 </Button>
               )}
+
+              <Button
+                variant="outline"
+                onClick={() => openLocationSettings()}
+                style={{
+                  width: '100%', padding: '13px 20px',
+                  background: '#F8FAFC', color: '#1E293B',
+                  border: '1.5px solid #CBD5E1', borderRadius: 16,
+                  fontSize: 14, fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  minHeight: 48,
+                }}
+              >
+                <FaCog size={15} color="#2563EB" /> Open Phone Settings
+              </Button>
 
               <Button
                 variant="outline"
