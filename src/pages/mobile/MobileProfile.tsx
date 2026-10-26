@@ -428,7 +428,7 @@ export default function MobileProfile() {
                 label: 'Notification Settings', key: 'notifications' as Section, desc: 'Alerts and sound preferences',
               },
               { icon: BsQuestionCircleFill, label: 'Help & Support', key: 'help' as Section, desc: 'FAQs and contact details' },
-              ...(!Capacitor.isNativePlatform() ? [{ icon: Download, label: 'Install App / Download APK', key: 'get-app' as any, desc: 'Install PWA or download Android APK' }] : []),
+              ...(!Capacitor.isNativePlatform() ? [{ icon: Download, label: 'Download Android APK', key: 'get-app' as any, desc: 'Download official Android APK package' }] : []),
             ].map(item => (
               <div
                 key={item.label}

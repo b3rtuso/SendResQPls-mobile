@@ -15,10 +15,9 @@ import { MobileToastProvider } from './components/MobileToastProvider';
 import { ConfirmProvider } from './contexts/ConfirmContext';
 import FcmBannerOverlay from './components/FcmBannerOverlay';
 import LocationSuccessModal from './components/LocationSuccessModal';
-import PwaInstallBanner from './components/PwaInstallBanner';
 import GlobalStatusSync from './components/GlobalStatusSync';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { registerPushNavigate, unregisterPushNavigate, consumePendingRoute } from './utils/pushNotificationHelper';
 import { App as CapApp } from '@capacitor/app';
 import './App.css';
@@ -90,14 +89,49 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+const TAB_ORDER: Record<string, number> = {
+  '/mobile': 0,
+  '/mobile/': 0,
+  '/mobile/report': 1,
+  '/mobile/notifications': 2,
+  '/mobile/history': 3,
+  '/mobile/profile': 4,
+};
+
+function getTabIndex(pathname: string): number {
+  const clean = pathname.replace(/\/+$/, '') || '/mobile';
+  if (clean in TAB_ORDER) return TAB_ORDER[clean];
+  if (clean.startsWith('/mobile/report')) return 1;
+  if (clean.startsWith('/mobile/notifications')) return 2;
+  if (clean.startsWith('/mobile/history')) return 3;
+  if (clean.startsWith('/mobile/profile')) return 4;
+  return 0;
+}
+
 function AuthenticatedMobileLayout() {
   const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
+  const prevIdxRef = useRef(getTabIndex(location.pathname));
+  const directionRef = useRef<'right' | 'left'>('right');
+
+  const currentIdx = getTabIndex(location.pathname);
+  if (location.pathname !== prevPathRef.current) {
+    directionRef.current = currentIdx >= prevIdxRef.current ? 'right' : 'left';
+    prevIdxRef.current = currentIdx;
+    prevPathRef.current = location.pathname;
+  }
+
+  const transitionClass =
+    directionRef.current === 'right' ? 'mobile-tab-slide-right' : 'mobile-tab-slide-left';
 
   return (
     <div className="mobile-shell w-full min-h-screen flex flex-col bg-[#F1F5F9]">
       <GlobalStatusSync />
       {/* Scrollable animated viewport for the active tab */}
-      <div key={location.pathname} className="mobile-tab-view w-full flex-1 flex flex-col">
+      <div
+        key={location.pathname}
+        className={`mobile-tab-view ${transitionClass} w-full flex-1 flex flex-col`}
+      >
         <Outlet />
       </div>
 
@@ -164,7 +198,6 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <ScrollToTop />
-        <PwaInstallBanner />
         <Routes>
           <Route
             path="/mobile/*"

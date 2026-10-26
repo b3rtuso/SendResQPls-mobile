@@ -97,7 +97,7 @@ export default function BottomNav() {
           font-weight: 600;
           color: #94A3B8;
           height: 100%;
-          transition: none !important; /* Instant 0ms response */
+          transition: color 0.22s cubic-bezier(0.22, 1, 0.36, 1);
           letter-spacing: clamp(0.01em, 0.1vw, 0.04em);
           text-transform: uppercase;
           position: relative;
@@ -114,33 +114,34 @@ export default function BottomNav() {
           -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* Top accent line directly inside each tab — lights up instantly */
+        /* Top accent line directly inside each tab — smooth scale & fade */
         .bn-top-bar {
           position: absolute;
           top: 0;
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) scaleX(0.6);
           width: 32px;
           height: 3px;
           border-radius: 0 0 3px 3px;
           background: linear-gradient(90deg, #3B82F6, #2563EB);
           box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
           opacity: 0;
-          transition: none !important; /* Instant 0ms response */
+          transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
           pointer-events: none;
         }
 
         .bn-tab:active .bn-top-bar,
         .bn-tab.active .bn-top-bar {
           opacity: 1 !important;
+          transform: translateX(-50%) scaleX(1) !important;
         }
 
-        /* Glowing soft squircle pill directly behind the icon — lights up instantly */
+        /* Glowing soft squircle pill directly behind the icon — smooth scale & fade */
         .bn-pill {
           position: absolute;
           top: clamp(5px, 0.8vh, 8px);
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) scale(0.88);
           width: clamp(38px, 10vw, 44px);
           height: clamp(28px, 4.2vh, 34px);
           border-radius: 12px;
@@ -148,7 +149,7 @@ export default function BottomNav() {
           border: 1px solid rgba(37, 99, 235, 0.18);
           box-shadow: 0 2px 10px rgba(37, 99, 235, 0.12);
           opacity: 0;
-          transition: none !important; /* Instant 0ms response */
+          transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
           pointer-events: none;
           z-index: 1;
         }
@@ -156,6 +157,7 @@ export default function BottomNav() {
         .bn-tab:active .bn-pill,
         .bn-tab.active .bn-pill {
           opacity: 1 !important;
+          transform: translateX(-50%) scale(1) !important;
         }
 
         .bn-label {
@@ -166,7 +168,7 @@ export default function BottomNav() {
           letter-spacing: clamp(0.01em, 0.1vw, 0.04em);
           position: relative;
           z-index: 2;
-          transition: none !important;
+          transition: color 0.22s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         /* Active & Pressed state — immediate blue color */
@@ -184,7 +186,7 @@ export default function BottomNav() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.06s ease;
+          transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
           position: relative;
           z-index: 2;
           box-sizing: border-box;
@@ -196,7 +198,7 @@ export default function BottomNav() {
 
         .bn-tab:active .bn-icon-wrap,
         .bn-tab.active .bn-icon-wrap {
-          transform: scale(1.06);
+          transform: scale(1.08);
         }
 
         /* Notification badge */
@@ -224,17 +226,6 @@ export default function BottomNav() {
           from { transform: scale(0); }
           to   { transform: scale(1); }
         }
-
-        @media (prefers-reduced-motion: reduce) {
-          .bn-tab,
-          .bn-icon-wrap,
-          .bn-badge,
-          .bn-top-bar,
-          .bn-pill {
-            transition: none !important;
-            animation: none !important;
-          }
-        }
       `}</style>
 
       <div className="bottom-nav-inner">
@@ -250,10 +241,10 @@ export default function BottomNav() {
               onPointerDown={() => setOptimisticTab(to)}
               className={`bn-tab${active ? ' active' : ''}`}
             >
-              {/* Top accent glow bar — lights up instantly when selected/pressed */}
+              {/* Top accent glow bar — lights up smoothly when selected/pressed */}
               <div className="bn-top-bar" />
 
-              {/* Under-icon glowing soft pill — lights up instantly when selected/pressed */}
+              {/* Under-icon glowing soft pill — lights up smoothly when selected/pressed */}
               <div className="bn-pill" />
 
               {/* Icon with optional badge */}

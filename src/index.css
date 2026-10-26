@@ -1660,17 +1660,50 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 /* ============================================================
    UNIFIED MOBILE MOTION SYSTEM
    ============================================================ */
-/* ── Unified Tab Switch Animation (Home, Report, Alerts, History, Profile) ── */
+/* ── Directional Tab Switch Animations (Home, Report, Alerts, History, Profile) ── */
 .mobile-tab-view {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileTabSwitch 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  animation: mobileTabSlideRight 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mobile-tab-view.mobile-tab-slide-right {
+  animation: mobileTabSlideRight 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mobile-tab-view.mobile-tab-slide-left {
+  animation: mobileTabSlideLeft 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes mobileTabSlideRight {
+  0% {
+    opacity: 0;
+    transform: translate3d(24px, 0, 0) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes mobileTabSlideLeft {
+  0% {
+    opacity: 0;
+    transform: translate3d(-24px, 0, 0) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
 @keyframes mobileTabSwitch {
   0% {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px) scale(0.99);
   }
   100% {
     opacity: 1;
@@ -1683,35 +1716,37 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-subpage-forward {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  animation: mobileSubpageInRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Backward: returning to parent page from the left */
 .mobile-subpage-backward {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  animation: mobileSubpageInLeft 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes mobileSubpageInRight {
   0% {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translate3d(24px, 0, 0) scale(0.99);
   }
   100% {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes mobileSubpageInLeft {
   0% {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translate3d(-24px, 0, 0) scale(0.99);
   }
   100% {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -1719,7 +1754,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-section-transition {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileSubpageInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  animation: mobileSubpageInRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Unified Auth Screen Transition (Login, Signup, Forgot Password, Reset Password) ── */
@@ -1727,17 +1763,18 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .mobile-auth {
   width: 100%;
   min-height: 100dvh;
-  animation: mobileAuthFadeSlide 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  animation: mobileAuthFadeSlide 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes mobileAuthFadeSlide {
   0% {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translate3d(0, 12px, 0) scale(0.99);
   }
   100% {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -1749,22 +1786,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   100% {
     opacity: 1;
     transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mobile-tab-view,
-  .mobile-subpage-forward,
-  .mobile-subpage-backward,
-  .mobile-section-transition,
-  .mobile-auth-transition,
-  .mobile-auth,
-  .ml-form-card,
-  .ms-form-card,
-  .mf-form-card,
-  .mr-form-card {
-    animation: none !important;
-    transition: none !important;
   }
 }
 

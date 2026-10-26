@@ -1,13 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Smartphone, ArrowRight, Download, Share, PlusSquare, PhoneCall, CheckCircle2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { Smartphone, ArrowRight, Download, PhoneCall } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePwaInstall } from '../utils/usePwaInstall';
 
 export default function GetTheApp() {
   const navigate = useNavigate();
-  const { canInstall, deferredPromptAvailable, isInstalled, isNative, isIos, promptInstall, apkDownloadUrl } = usePwaInstall();
-  const [showIosGuide, setShowIosGuide] = useState(false);
-  const [installSuccess, setInstallSuccess] = useState(false);
+  const { isNative, apkDownloadUrl } = usePwaInstall();
 
   // If already running inside native Capacitor APK, proceed to home / login
   useEffect(() => {
@@ -15,20 +13,6 @@ export default function GetTheApp() {
       navigate('/mobile', { replace: true });
     }
   }, [isNative, navigate]);
-
-  const handleInstallClick = async () => {
-    if (deferredPromptAvailable) {
-      const outcome = await promptInstall();
-      if (outcome === 'accepted') {
-        setInstallSuccess(true);
-      }
-    } else if (isIos) {
-      setShowIosGuide(true);
-    } else {
-      // In browsers without deferred prompt support, inform user or navigate to app
-      navigate('/mobile');
-    }
-  };
 
   return (
     <div
@@ -82,19 +66,8 @@ export default function GetTheApp() {
           SendResQPls
         </h1>
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.82)', lineHeight: 1.55, margin: '0 0 24px' }}>
-          Instant disaster emergency reporting and response. Available as an installable Progressive Web App (PWA) and native Android APK.
+          Instant disaster emergency reporting and response. Access directly in your browser or download the official Android APK.
         </p>
-
-        {installSuccess ? (
-          <div style={{ background: 'rgba(34, 197, 94, 0.2)', border: '1px solid #22C55E', borderRadius: 14, padding: '16px', marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#4ADE80', fontWeight: 800, fontSize: 15 }}>
-              <CheckCircle2 size={20} /> App Installed Successfully!
-            </div>
-            <p style={{ fontSize: 12.5, color: '#FFFFFF', margin: '8px 0 0' }}>
-              Launch SendResQPls from your device home screen anytime.
-            </p>
-          </div>
-        ) : null}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
           {/* Primary Action 1: Open / Continue to Web App */}
@@ -121,32 +94,7 @@ export default function GetTheApp() {
             <Smartphone size={19} /> Open Web App <ArrowRight size={17} />
           </button>
 
-          {/* Action 2: Install PWA (if supported and not already standalone) */}
-          {!isInstalled && (canInstall || deferredPromptAvailable) && (
-            <button
-              onClick={handleInstallClick}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 10,
-                width: '100%',
-                padding: '13px 20px',
-                borderRadius: 14,
-                border: '1.5px solid rgba(147, 197, 253, 0.6)',
-                background: 'rgba(37, 99, 235, 0.25)',
-                color: '#FFFFFF',
-                fontSize: 14.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.18s',
-              }}
-            >
-              <PlusSquare size={18} color="#93C5FD" /> Install to Home Screen (PWA)
-            </button>
-          )}
-
-          {/* Action 3: Download Android APK */}
+          {/* Action 2: Download Android APK */}
           <a
             href={apkDownloadUrl}
             download="SendResQPls.apk"
@@ -172,31 +120,6 @@ export default function GetTheApp() {
             <Download size={17} /> Download Android APK (.apk)
           </a>
         </div>
-
-        {/* iOS Step-by-Step Instructions Modal / Accordion */}
-        {showIosGuide && (
-          <div
-            style={{
-              padding: '16px',
-              background: 'rgba(255, 255, 255, 0.12)',
-              borderRadius: 14,
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              marginBottom: 20,
-              textAlign: 'left',
-              fontSize: 13,
-              lineHeight: 1.6,
-            }}
-          >
-            <div style={{ fontWeight: 800, color: '#93C5FD', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Share size={15} /> How to Install on iOS (Safari):
-            </div>
-            <ol style={{ paddingLeft: 20, margin: 0, color: 'rgba(255,255,255,0.9)' }}>
-              <li>Tap the <strong>Share</strong> button at the bottom of Safari.</li>
-              <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
-              <li>Tap <strong>"Add"</strong> in the top right corner.</li>
-            </ol>
-          </div>
-        )}
 
         <div
           style={{
@@ -226,7 +149,7 @@ export default function GetTheApp() {
       </div>
 
       <div style={{ marginTop: 24, fontSize: 11, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>
-        &copy; 2026 MDRRMO Balayan &bull; SendResQPls v2 PWA &amp; APK
+        &copy; 2026 MDRRMO Balayan &bull; SendResQPls v2
       </div>
     </div>
   );
