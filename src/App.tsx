@@ -10,6 +10,8 @@ import MobileOnboarding, { shouldShowOnboarding } from './pages/mobile/MobileOnb
 import MobileForgotPassword from './pages/mobile/MobileForgotPassword';
 import MobileResetPassword from './pages/mobile/MobileResetPassword';
 import GetTheApp from './pages/GetTheApp';
+import WebBrowserBlocked from './components/WebBrowserBlocked';
+import { isAllowedPlatform } from './utils/platform';
 import BottomNav from './components/BottomNav';
 import { MobileToastProvider } from './components/MobileToastProvider';
 import { ConfirmProvider } from './contexts/ConfirmContext';
@@ -143,6 +145,11 @@ function AuthenticatedMobileLayout() {
 
 function AnimatedMobileRoutes() {
   const [onboardingDone, setOnboardingDone] = useState(!shouldShowOnboarding());
+
+  // Direct web browser access on the mobile link is restricted — only WPA and APK are permitted
+  if (!isAllowedPlatform()) {
+    return <WebBrowserBlocked />;
+  }
 
   return (
     <Routes>

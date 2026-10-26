@@ -59,14 +59,19 @@ export const isNativeApp = (): boolean => {
 };
 
 /**
- * Whether the web app is running in installed PWA standalone mode.
+ * Whether the web app is running in installed PWA/WPA standalone mode or with WPA flag.
  */
 export const isStandalonePwa = (): boolean => {
   if (typeof window === 'undefined') return false;
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: window-controls-overlay)').matches ||
     (navigator as any).standalone === true ||
-    document.referrer.includes('android-app://')
+    document.referrer.includes('android-app://') ||
+    window.location.search.includes('source=pwa') ||
+    window.location.search.includes('source=wpa') ||
+    window.location.search.includes('mode=pwa') ||
+    window.location.search.includes('mode=wpa')
   );
 };
 
@@ -82,9 +87,42 @@ export const isIosSafari = (): boolean => {
 };
 
 /**
+ * Checks if running on an Apple device (iPhone, iPad, iPod).
+ */
+export const isIosDevice = (): boolean => {
+  if (typeof navigator === 'undefined') return false;
+  return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+};
+
+/**
  * Determines whether access to the mobile directory is permitted.
- * Full PWA & open web access enabled for all platforms.
+ * - Allowed: Local development/LAN testing.
+ * - Allowed: Native Android / iOS APK.
+ * - Allowed: Installed WPA running in standalone mode (from Home Screen or launcher).
+ * - Allowed: Dedicated WPA domain / deployment (hostname contains 'wpa' or 'pwa', or VITE_IS_WPA=true).
+ * - Blocked: Standard web browser tab visiting the main SendResQPls mobile link.
  */
 export const isAllowedPlatform = (): boolean => {
-  return true;
+  // 1. Localhost / LAN development
+  if (isLocalNetwork()) return true;
+
+  // 2. Native mobile APK
+  if (isNativeApp()) return true;
+
+  // 3. Installed WPA in standalone mode
+  if (isStandalonePwa()) return true;
+
+  // 4. Dedicated WPA domain or explicit VITE_IS_WPA flag
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname.toLowerCase();
+    if (hostname.includes('wpa') || hostname.includes('pwa')) {
+      return true;
+    }
+  }
+  if (import.meta.env.VITE_IS_WPA === 'true' || import.meta.env.VITE_IS_PWA === 'true') {
+    return true;
+  }
+
+  // 5. Standard browser tab on main mobile link is blocked
+  return false;
 };

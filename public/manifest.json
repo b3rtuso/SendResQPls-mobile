@@ -3,7 +3,7 @@
   "short_name": "SendResQPls",
   "description": "Report emergencies instantly. AI-powered disaster incident reporting for MDRRMO Balayan.",
   "id": "/mobile",
-  "start_url": "/mobile",
+  "start_url": "/mobile?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

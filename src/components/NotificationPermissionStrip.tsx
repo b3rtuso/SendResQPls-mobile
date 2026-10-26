@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { FaBell } from 'react-icons/fa';
+import { Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   getWebNotificationPermission,
@@ -32,6 +33,13 @@ export default function NotificationPermissionStrip({ className, style }: Notifi
   if (Capacitor.isNativePlatform() || perm === 'granted' || perm === 'unsupported') {
     return null;
   }
+
+  const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = typeof window !== 'undefined' && (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as any).standalone === true
+  );
+  const isIosTab = isIos && !isStandalone;
 
   const handleEnable = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,41 +101,66 @@ export default function NotificationPermissionStrip({ className, style }: Notifi
               marginBottom: 2,
             }}
           >
-            {perm === 'denied' ? 'Browser notifications blocked' : 'Notification Center alerts off'}
+            {isIosTab
+              ? 'iPhone Notification Setup'
+              : perm === 'denied'
+              ? 'Browser notifications blocked'
+              : 'Notification Center alerts off'}
           </div>
           <div style={{ fontSize: 'clamp(10.5px, 2.8vw, 11.5px)', color: '#64748B', lineHeight: 1.4 }}>
-            {perm === 'denied'
+            {isIosTab
+              ? 'Apple requires adding to Home Screen: tap Share (↑) → "Add to Home Screen" to receive notifications.'
+              : perm === 'denied'
               ? 'Tap the tune/lock icon in Brave/Chrome address bar to allow Notifications.'
               : 'Tap to enable alerts in your phone Notification Center.'}
           </div>
         </div>
 
         {/* Action Button */}
-        {perm === 'default' && (
-          <Button
-            size="sm"
-            disabled={requesting}
-            onClick={handleEnable}
+        {isIosTab ? (
+          <div
             style={{
-              flexShrink: 0,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 5,
-              padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 12px)',
+              gap: 4,
+              padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 10px)',
               borderRadius: 8,
-              height: 'auto',
-              background: requesting ? '#1D4ED8' : '#2563EB',
-              border: 'none',
-              color: 'white',
-              fontSize: 'clamp(11px, 3vw, 12px)',
+              background: '#EFF6FF',
+              color: '#1D4ED8',
+              fontSize: 'clamp(10px, 2.8vw, 11px)',
               fontWeight: 700,
-              whiteSpace: 'nowrap' as const,
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
-              cursor: 'pointer',
+              flexShrink: 0,
             }}
           >
-            <FaBell size={12} /> Enable Alerts
-          </Button>
+            <Share size={12} /> Share &gt; Add
+          </div>
+        ) : (
+          perm === 'default' && (
+            <Button
+              size="sm"
+              disabled={requesting}
+              onClick={handleEnable}
+              style={{
+                flexShrink: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 12px)',
+                borderRadius: 8,
+                height: 'auto',
+                background: requesting ? '#1D4ED8' : '#2563EB',
+                border: 'none',
+                color: 'white',
+                fontSize: 'clamp(11px, 3vw, 12px)',
+                fontWeight: 700,
+                whiteSpace: 'nowrap' as const,
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
+                cursor: 'pointer',
+              }}
+            >
+              <FaBell size={12} /> Enable Alerts
+            </Button>
+          )
         )}
       </div>
     </div>

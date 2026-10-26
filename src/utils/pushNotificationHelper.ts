@@ -234,6 +234,13 @@ export async function showSystemNotification(options: SystemNotificationOptions)
     },
   };
 
+  // Apple iOS Safari dictionary sanitization: strip unsupported properties that cause silent drops in WebKit
+  if (typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    delete (notifPayload as any).vibrate;
+    delete (notifPayload as any).renotify;
+    delete (notifPayload as any).badge;
+  }
+
   // Primary Web Path: ServiceWorkerRegistration.showNotification()
   if ('serviceWorker' in navigator) {
     try {
