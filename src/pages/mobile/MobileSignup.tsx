@@ -5,7 +5,8 @@ import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { FiPhone } from 'react-icons/fi';
 import { SiGmail } from 'react-icons/si';
 import { App } from '@capacitor/app';
-import { register as apiRegister, sendVerificationCode, verifyCode } from '../../api/client';
+import { register as apiRegister, login as apiLogin, sendVerificationCode, verifyCode } from '../../api/client';
+import { setupPushNotifications } from '../../utils/pushNotificationHelper';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -253,13 +254,46 @@ export default function MobileSignup() {
         password: form.password,
         phoneNumber: phoneCheck.cleaned!,
       });
+
+      let token = res.data?.token;
+      let userData = res.data?.user || res.data;
+      let role = res.data?.role || userData?.role || 'CITIZEN';
+
+      // Fallback: If backend hasn't returned token directly, authenticate immediately
+      if (!token) {
+        try {
+          const loginRes = await apiLogin(form.email.trim(), form.password);
+          token = loginRes.data?.token;
+          userData = loginRes.data?.user || userData;
+          role = loginRes.data?.role || userData?.role || 'CITIZEN';
+        } catch {
+          // If login fallback throws, continue with user registration data
+        }
+      }
+
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      localStorage.setItem('userId', userData?.id || res.data?.id || '');
+      localStorage.setItem('userName', userData?.name || form.name.trim());
+      localStorage.setItem('userEmail', userData?.email || form.email.trim());
+      localStorage.setItem('userPhone', userData?.phoneNumber || phoneCheck.cleaned!);
+      localStorage.setItem('userRole', role);
       localStorage.setItem('srq_terms_accepted', '1');
-      localStorage.setItem('userId', res.data?.id || '');
-      localStorage.setItem('userName', form.name.trim());
-      localStorage.setItem('userEmail', form.email.trim());
-      localStorage.setItem('userPhone', phoneCheck.cleaned!);
-      toast({ type: 'success', priority: 'important', title: 'Account created!', message: 'Redirecting to login…' });
-      setTimeout(() => navigate('/mobile/login'), 1500);
+      localStorage.setItem('srq_onboarding_done', '1');
+
+      // Initiate push notifications setup immediately
+      setupPushNotifications().catch(err => console.warn('[Signup] Push notification setup failed:', err));
+
+      toast({
+        type: 'success',
+        priority: 'important',
+        title: 'Welcome to SendResQPls!',
+        message: `Account created! Welcome, ${form.name.trim()}!`,
+      });
+
+      // Directly enter the citizen mobile dashboard
+      navigate('/mobile');
     } catch (err: any) {
       const errorMsg = err.response?.data?.error || 'Failed to create account. Please try again.';
       setError(errorMsg);
