@@ -212,26 +212,36 @@ export default function MobileSignup() {
   };
 
   const handleSignup = async () => {
+    const notifyFail = (msg: string) => {
+      setError(msg);
+      toast({
+        type: 'warning',
+        priority: 'important',
+        title: 'Action Required',
+        message: msg,
+      });
+    };
+
     if (!termsAccepted) {
-      setError('You need to read and agree to the Terms and Conditions and Privacy Policy to create an account.');
+      notifyFail('You need to read and agree to the Terms and Conditions and Privacy Policy.');
       return;
     }
     if (!form.name.trim()) {
-      setError('Full name is required.');
+      notifyFail('Full name is required.');
       return;
     }
     const phoneCheck = validatePhilippineMobile(form.phone);
     if (!phoneCheck.valid) {
-      setError(phoneCheck.error || 'Invalid mobile number.');
+      notifyFail(phoneCheck.error || 'Invalid mobile number.');
       return;
     }
     if (!verified) {
-      setError('Please verify your email address first.');
+      notifyFail('Please verify your email address by clicking "Send Code" first.');
       return;
     }
     const passCheck = validatePassword(form.password);
     if (!passCheck.valid) {
-      setError(passCheck.error || 'Password does not meet security requirements.');
+      notifyFail(passCheck.error || 'Password does not meet security requirements.');
       return;
     }
     setLoading(true);
@@ -251,7 +261,9 @@ export default function MobileSignup() {
       toast({ type: 'success', priority: 'important', title: 'Account created!', message: 'Redirecting to login…' });
       setTimeout(() => navigate('/mobile/login'), 1500);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create account. Please try again.');
+      const errorMsg = err.response?.data?.error || 'Failed to create account. Please try again.';
+      setError(errorMsg);
+      toast({ type: 'error', priority: 'important', title: 'Registration Failed', message: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -274,6 +286,23 @@ export default function MobileSignup() {
           z-index: 2;
           animation: authCardEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
+        .ms-auth-btn {
+          width: 100%; padding: clamp(12px, 3.5vw, 16px);
+          background: linear-gradient(135deg, #2563EB, #1D4ED8);
+          color: white; border: none; border-radius: 14px;
+          font-size: clamp(13.5px, 3.8vw, 15px); font-weight: 700; font-family: inherit;
+          cursor: pointer; display: flex; align-items: center;
+          justifyContent: center; gap: 10px;
+          box-shadow: 0 4px 16px rgba(37,99,235,0.38);
+          transition: transform 0.18s, box-shadow 0.18s;
+          margin-top: 8px; letter-spacing: 0.01em;
+          min-height: clamp(44px, 6vh, 50px);
+        }
+        .ms-auth-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(37,99,235,0.46); }
+        .ms-auth-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        .ms-auth-btn:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
+        .ms-spin { width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:msspin .75s linear infinite; }
+        @keyframes msspin { to { transform: rotate(360deg); } }
         @media (min-width: 640px) {
           .ms-signup-header {
             border-radius: 0 0 32px 32px;
@@ -789,28 +818,37 @@ export default function MobileSignup() {
             </label>
           </div>
 
+          {error && (
+            <div className="col-span-1 sm:col-span-2" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 12px', marginTop: 4 }}>
+              <span style={{ fontSize: 13, color: '#B91C1C', fontWeight: 600 }}>{error}</span>
+            </div>
+          )}
+
           <div className="col-span-1 sm:col-span-2">
             <Button
               type="button"
-              className="auth-btn signup w-full"
+              className="ms-auth-btn w-full"
               onClick={handleSignup}
               disabled={loading}
-              style={{
-                marginTop: 8,
-                minHeight: 'clamp(44px, 6vh, 50px)',
-                padding: 'clamp(12px, 3.5vw, 16px)',
-                fontSize: 'clamp(13.5px, 3.8vw, 15px)',
-                fontWeight: 700,
-              }}
             >
-              {loading ? 'Creating...' : 'Create Account'}
+              {loading ? (
+                <><span className="ms-spin" /> Creating Account...</>
+              ) : (
+                'Create Account'
+              )}
             </Button>
           </div>
         </form>
 
-        <p className="auth-footer" style={{ marginTop: 24 }}>
+        <p style={{ textAlign: 'center', marginTop: 22, marginBottom: 0, fontSize: 13.5, color: '#64748B' }}>
           Already have an account?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/mobile/login'); }}>Log In</a>
+          <button
+            type="button"
+            onClick={() => navigate('/mobile/login')}
+            style={{ background: 'none', border: 'none', color: '#2563EB', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13.5, padding: 0 }}
+          >
+            Log In
+          </button>
         </p>
       </div>
       </main>
