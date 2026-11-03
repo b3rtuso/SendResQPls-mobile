@@ -583,25 +583,28 @@ export default function MobileForgotPassword() {
                       outline: 'none',
                       fontSize: 14,
                       color: '#0F172A',
-                      padding: '0 44px 0 46px',
+                      padding: '0 52px 0 46px',
+                      fontFamily: showNewPassword || !newPassword ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      letterSpacing: showNewPassword || !newPassword ? 'normal' : '0.12em',
                     }}
                   />
-                  <button
+                  {/* 44×44 tap target matching login & signup */}
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowNewPassword(!showNewPassword)}
+                    aria-label={showNewPassword ? 'Hide password' : 'Show password'}
                     style={{
                       position: 'absolute',
-                      right: 12,
-                      background: 'none',
-                      border: 'none',
+                      right: 4,
+                      width: 44,
+                      height: 44,
                       color: '#94A3B8',
-                      cursor: 'pointer',
-                      padding: 4,
-                      display: 'flex',
                     }}
                   >
-                    {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    {showNewPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </Button>
                 </div>
               </div>
 
@@ -670,25 +673,28 @@ export default function MobileForgotPassword() {
                       outline: 'none',
                       fontSize: 14,
                       color: '#0F172A',
-                      padding: '0 44px 0 46px',
+                      padding: '0 52px 0 46px',
+                      fontFamily: showConfirmPassword || !confirmPassword ? 'inherit' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      letterSpacing: showConfirmPassword || !confirmPassword ? 'normal' : '0.12em',
                     }}
                   />
-                  <button
+                  {/* 44×44 tap target matching login & signup */}
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                     style={{
                       position: 'absolute',
-                      right: 12,
-                      background: 'none',
-                      border: 'none',
+                      right: 4,
+                      width: 44,
+                      height: 44,
                       color: '#94A3B8',
-                      cursor: 'pointer',
-                      padding: 4,
-                      display: 'flex',
                     }}
                   >
-                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </Button>
                 </div>
               </div>
 

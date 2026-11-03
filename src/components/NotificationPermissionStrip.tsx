@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { FaBell } from 'react-icons/fa';
-import { Share } from 'lucide-react';
+import { Share, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   getWebNotificationPermission,
@@ -18,6 +18,13 @@ interface NotificationPermissionStripProps {
 export default function NotificationPermissionStrip({ className, style }: NotificationPermissionStripProps) {
   const [perm, setPerm] = useState<NotificationPermission | 'unsupported'>(() => getWebNotificationPermission());
   const [requesting, setRequesting] = useState(false);
+  const [dismissed, setDismissed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('srq_dismiss_notif_strip') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) return;
@@ -30,16 +37,26 @@ export default function NotificationPermissionStrip({ className, style }: Notifi
     };
   }, []);
 
-  if (Capacitor.isNativePlatform() || perm === 'granted' || perm === 'unsupported') {
+  if (dismissed || Capacitor.isNativePlatform() || perm === 'granted' || perm === 'unsupported') {
     return null;
   }
 
+  // Detect iOS and Standalone (Home Screen) mode
   const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = typeof window !== 'undefined' && (
     window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as any).standalone === true
+    (navigator as any).standalone === true ||
+    document.referrer.includes('homescreen')
   );
   const isIosTab = isIos && !isStandalone;
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDismissed(true);
+    try {
+      localStorage.setItem('srq_dismiss_notif_strip', 'true');
+    } catch {}
+  };
 
   const handleEnable = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -76,6 +93,7 @@ export default function NotificationPermissionStrip({ className, style }: Notifi
           alignItems: 'center',
           gap: 'clamp(8px, 2.5vw, 12px)',
           boxShadow: '0 2px 10px rgba(15, 23, 42, 0.06)',
+          position: 'relative',
         }}
       >
         {/* Status dot */}
@@ -116,52 +134,72 @@ export default function NotificationPermissionStrip({ className, style }: Notifi
           </div>
         </div>
 
-        {/* Action Button */}
-        {isIosTab ? (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 10px)',
-              borderRadius: 8,
-              background: '#EFF6FF',
-              color: '#1D4ED8',
-              fontSize: 'clamp(10px, 2.8vw, 11px)',
-              fontWeight: 700,
-              flexShrink: 0,
-            }}
-          >
-            <Share size={12} /> Share &gt; Add
-          </div>
-        ) : (
-          perm === 'default' && (
-            <Button
-              size="sm"
-              disabled={requesting}
-              onClick={handleEnable}
+        {/* Action Button & Dismiss */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {isIosTab ? (
+            <div
               style={{
-                flexShrink: 0,
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 5,
-                padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 12px)',
+                gap: 4,
+                padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 10px)',
                 borderRadius: 8,
-                height: 'auto',
-                background: requesting ? '#1D4ED8' : '#2563EB',
-                border: 'none',
-                color: 'white',
-                fontSize: 'clamp(11px, 3vw, 12px)',
+                background: '#EFF6FF',
+                color: '#1D4ED8',
+                fontSize: 'clamp(10px, 2.8vw, 11px)',
                 fontWeight: 700,
-                whiteSpace: 'nowrap' as const,
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
-                cursor: 'pointer',
               }}
             >
-              <FaBell size={12} /> Enable Alerts
-            </Button>
-          )
-        )}
+              <Share size={12} /> Share &gt; Add
+            </div>
+          ) : (
+            perm === 'default' && (
+              <Button
+                size="sm"
+                disabled={requesting}
+                onClick={handleEnable}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  padding: 'clamp(5px, 1.5vw, 7px) clamp(8px, 2.5vw, 12px)',
+                  borderRadius: 8,
+                  height: 'auto',
+                  background: requesting ? '#1D4ED8' : '#2563EB',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: 'clamp(11px, 3vw, 12px)',
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap' as const,
+                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
+                  cursor: 'pointer',
+                }}
+              >
+                <FaBell size={12} /> Enable Alerts
+              </Button>
+            )
+          )}
+
+          {/* Dismiss button */}
+          <button
+            type="button"
+            onClick={handleDismiss}
+            aria-label="Dismiss notification banner"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#94A3B8',
+              cursor: 'pointer',
+              padding: 4,
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={15} />
+          </button>
+        </div>
       </div>
     </div>
   );
