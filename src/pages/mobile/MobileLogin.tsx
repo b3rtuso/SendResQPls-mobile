@@ -4,7 +4,7 @@ import { login as apiLogin } from '../../api/client';
 import { setupPushNotifications } from '../../utils/pushNotificationHelper';
 import { useMobileToast } from '../../components/MobileToastProvider';
 import { Eye, EyeOff, AlertTriangle } from 'lucide-react';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaLock, FaUser } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -61,8 +61,7 @@ export default function MobileLogin() {
     // Field-level validation
     let valid = true;
     setEmailError(''); setPassError(''); setGlobalError('');
-    if (!email.trim()) { setEmailError('Please enter your email address.'); valid = false; }
-    else if (!/^[^@]+@[^@]+\.[^@]+$/.test(email.trim())) { setEmailError('Enter a valid email address.'); valid = false; }
+    if (!email.trim()) { setEmailError('Please enter your email, username, or full name.'); valid = false; }
     if (!password) { setPassError('Please enter your password.'); valid = false; }
     if (!valid) return;
 
@@ -88,7 +87,7 @@ export default function MobileLogin() {
       if (err?.response?.status === 401 || err?.response?.status === 400) {
         setEmailError('error');
         setPassError('error');
-        setGlobalError('Incorrect email or password. Please try again.');
+        setGlobalError(err?.response?.data?.error || 'Incorrect email, username, or password. Please try again.');
       } else if (!navigator.onLine || err?.code === 'ERR_NETWORK' || !err?.response) {
         setGlobalError('Hindi makakonek sa server. Pakisuri ang iyong internet koneksyon at subukan muli.');
       } else {
@@ -219,17 +218,17 @@ export default function MobileLogin() {
 
         {/* Email field */}
         <div style={{ marginBottom: emailError && emailError !== 'error' ? 6 : 14 }}>
-          <Label htmlFor="mobile-email" style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: emailError ? '#DC2626' : '#374151', marginBottom: 6, letterSpacing: '0.01em' }}>Email Address</Label>
+          <Label htmlFor="mobile-email" style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: emailError ? '#DC2626' : '#374151', marginBottom: 6, letterSpacing: '0.01em' }}>Email, Username, or Full Name</Label>
           <div style={wrapStyle('email', !!emailError)}>
             <span style={{ position: 'absolute', left: 14, color: emailError ? '#EF4444' : focusField === 'email' ? '#2563EB' : '#94A3B8', display: 'flex', transition: 'color 0.18s' }}>
-              <FaEnvelope size={15} />
+              <FaUser size={15} />
             </span>
             <Input
               id="mobile-email"
-              type="email"
+              type="text"
               className={emailError ? 'ml-input-error' : ''}
-              placeholder="juan@example.com"
-              autoComplete="email"
+              placeholder="juan@example.com or Juan Dela Cruz"
+              autoComplete="username"
               value={email}
               onChange={e => {
                 setEmail(e.target.value);
