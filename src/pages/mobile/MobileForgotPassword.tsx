@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, AlertTriangle, CheckCircle2, Send, ExternalLink } from 'lucide-react';
 import { SiGmail } from 'react-icons/si';
@@ -15,6 +15,22 @@ export default function MobileForgotPassword() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [focusField, setFocusField] = useState(false);
+  const [loadingSec, setLoadingSec] = useState(0);
+
+  useEffect(() => {
+    let timer: any = null;
+    if (loading) {
+      setLoadingSec(0);
+      timer = setInterval(() => {
+        setLoadingSec((s) => s + 1);
+      }, 1000);
+    } else {
+      setLoadingSec(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [loading]);
 
   const friendlyForgotError = (err: any): string => {
     const raw = err.response?.data?.error || err.message || '';
@@ -231,9 +247,27 @@ export default function MobileForgotPassword() {
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>
               Reset Link Sent!
             </h2>
-            <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 24px' }}>
-              We have sent a secure password reset link to <strong>{email}</strong>. Please check your inbox or spam folder. The link will expire in 30 minutes.
+            <p style={{ fontSize: 13.5, color: '#64748B', lineHeight: 1.6, margin: '0 0 16px' }}>
+              We have dispatched a secure password reset link to <strong>{email}</strong>.
             </p>
+
+            <div style={{
+              background: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: 14,
+              padding: '12px 14px',
+              margin: '0 0 20px',
+              textAlign: 'left',
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+            }}>
+              <AlertTriangle size={18} color="#D97706" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div style={{ fontSize: 12.5, color: '#92400E', lineHeight: 1.5 }}>
+                <strong style={{ color: '#78350F' }}>Don't see the email?</strong><br />
+                Please check your <strong>Spam</strong> or <strong>Junk</strong> folder. Depending on your email provider, incoming delivery may take 1–3 minutes. The link is valid for 30 minutes.
+              </div>
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <button
                 type="button"
@@ -352,7 +386,12 @@ export default function MobileForgotPassword() {
             <Button type="submit" className="mf-auth-btn" disabled={loading} style={{ minHeight: 'clamp(44px, 6vh, 50px)' }}>
               {loading ? (
                 <>
-                  <span className="mf-spin" /> Sending Link…
+                  <span className="mf-spin" />
+                  <span>
+                    {loadingSec > 6
+                      ? `Waking up secure server (${loadingSec}s)…`
+                      : 'Sending Reset Link…'}
+                  </span>
                 </>
               ) : (
                 <>

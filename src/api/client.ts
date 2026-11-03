@@ -82,13 +82,13 @@ export const register = (data: { name: string; email: string; password: string; 
 // Email-sending routes use a longer timeout (35s) because Brevo API
 // can be slow, especially when the backend is cold-starting from sleep mode.
 export const sendVerificationCode = (email: string) =>
-  api.post('/auth/send-code', { email }, { timeout: 35000 });
+  api.post('/auth/send-code', { email }, { timeout: 65000 });
 
 export const verifyCode = (email: string, code: string) =>
   api.post('/auth/verify-code', { email, code });
 
 export const forgotPassword = (email: string) =>
-  api.post('/auth/forgot-password', { email }, { timeout: 35000 });
+  api.post('/auth/forgot-password', { email }, { timeout: 65000 });
 
 export const resetPassword = (token: string, newPassword: string) =>
   api.post('/auth/reset-password', { token, newPassword });
