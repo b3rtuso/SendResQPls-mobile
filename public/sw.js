@@ -1,5 +1,5 @@
 // SendResQPls Service Worker — enables offline support, installability, and Notification Center alerts
-const CACHE_NAME = 'sendresqpls-v9';
+const CACHE_NAME = 'sendresqpls-v10';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',

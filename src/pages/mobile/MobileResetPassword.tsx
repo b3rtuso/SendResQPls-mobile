@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Lock, EyeOff, Eye, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { resetPassword } from '../../api/client';
 import { validatePassword, checkPasswordCriteria } from '../../utils/passwordValidator';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function MobileResetPassword() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
@@ -23,8 +24,10 @@ export default function MobileResetPassword() {
   const passCriteria = checkPasswordCriteria(newPass);
 
   useEffect(() => {
-    if (!token) setError('Invalid or expired reset link. Please request a new one.');
-  }, [token]);
+    if (!token) {
+      navigate('/mobile/forgot-password', { replace: true });
+    }
+  }, [token, navigate]);
 
   const handleReset = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

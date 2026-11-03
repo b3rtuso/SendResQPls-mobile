@@ -90,8 +90,15 @@ export const verifyCode = (email: string, code: string) =>
 export const forgotPassword = (email: string) =>
   api.post('/auth/forgot-password', { email }, { timeout: 65000 });
 
-export const resetPassword = (token: string, newPassword: string) =>
-  api.post('/auth/reset-password', { token, newPassword });
+export const resetPassword = (tokenOrEmail: string, newPassword: string, code?: string) => {
+  if (code) {
+    return api.post('/auth/reset-password', { email: tokenOrEmail, code, newPassword }, { timeout: 65000 });
+  }
+  return api.post('/auth/reset-password', { token: tokenOrEmail, newPassword }, { timeout: 65000 });
+};
+
+export const resetPasswordWithCode = (email: string, code: string, newPassword: string) =>
+  api.post('/auth/reset-password', { email, code, newPassword }, { timeout: 65000 });
 
 // === INCIDENTS ===
 export const reportIncident = (formData: FormData) =>
