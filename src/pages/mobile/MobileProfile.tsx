@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
@@ -118,18 +119,23 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 
 export default function MobileProfile() {
   const navigate = useNavigate();
-  const [section, setSection] = useState<Section>('main');
+  const [section, setSection] = useState<Section>(() => {
+    const s = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('srq_profile_section') : null;
+    return (s === 'account' || s === 'notifications' || s === 'help') ? (s as Section) : 'main';
+  });
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
 
   const openSection = (s: Section) => {
     setDirection('forward');
     setSection(s);
+    try { sessionStorage.setItem('srq_profile_section', s); } catch {}
   };
 
   const backToMain = () => {
     setNewPassClicked(false);
     setDirection('backward');
     setSection('main');
+    try { sessionStorage.setItem('srq_profile_section', 'main'); } catch {}
   };
 
   const { push: showToast, clearAll: clearToasts } = useMobileToast();
@@ -137,9 +143,9 @@ export default function MobileProfile() {
   const [saving, setSaving] = useState(false);
 
   const userId = localStorage.getItem('userId') || '';
-  const [name, setName] = useState(localStorage.getItem('userName') || 'User');
+  const [name, setName] = useState(() => (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('srq_draft_profile_name') : null) || localStorage.getItem('userName') || 'User');
   const [email, setEmail] = useState(localStorage.getItem('userEmail') || '');
-  const [phone, setPhone] = useState(localStorage.getItem('userPhone') || '');
+  const [phone, setPhone] = useState(() => (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('srq_draft_profile_phone') : null) || localStorage.getItem('userPhone') || '');
   const [originalProfile, setOriginalProfile] = useState(() => ({
     name: localStorage.getItem('userName') || 'User',
     email: localStorage.getItem('userEmail') || '',
@@ -489,9 +495,10 @@ export default function MobileProfile() {
       </div>
 
       {/* Logout Confirmation Modal matching Photo 3 */}
-      {showLogoutModal && (
+      {showLogoutModal && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowLogoutModal(false)}
+          onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
           style={{
             position: 'fixed',
             inset: 0,
@@ -629,7 +636,8 @@ export default function MobileProfile() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

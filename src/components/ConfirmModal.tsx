@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import { X, AlertTriangle, Trash2, CheckCircle2 } from 'lucide-react';
 import type { FieldChange } from '../utils/changeDetector';
@@ -94,8 +95,9 @@ export default function ConfirmModal({
 
   // ── 1. White Card Theme for Delete with Bright Red Confirm Button ──
   if (isDelete) {
-    return (
+    const deleteNode = (
       <div
+        onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
         style={{
           position: 'fixed',
           top: 0,
@@ -249,6 +251,7 @@ export default function ConfirmModal({
         </div>
       </div>
     );
+    return typeof document !== 'undefined' ? createPortal(deleteNode, document.body) : deleteNode;
   }
 
   // ── 2. White Card Theme for Update, Warning, Discard, Confirm, Modal ──
@@ -268,8 +271,9 @@ export default function ConfirmModal({
 
   const IconComponent = isWarning || isDiscard ? AlertTriangle : isUpdate ? CheckCircle2 : CheckCircle2;
 
-  return (
+  const standardNode = (
     <div
+      onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
       style={{
         position: 'fixed',
         top: 0,
@@ -499,4 +503,5 @@ export default function ConfirmModal({
       </div>
     </div>
   );
+  return typeof document !== 'undefined' ? createPortal(standardNode, document.body) : standardNode;
 }

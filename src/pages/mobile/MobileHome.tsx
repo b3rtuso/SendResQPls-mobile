@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Wind, ChevronDown, WifiOff } from 'lucide-react';
@@ -428,7 +429,7 @@ export default function MobileHome() {
 
 
       {/* ── Location Framework Modal (Screen-Centered Dialog) ── */}
-      {showLocModal && (
+      {showLocModal && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowLocModal(false)}
           style={{
@@ -640,7 +641,8 @@ export default function MobileHome() {
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

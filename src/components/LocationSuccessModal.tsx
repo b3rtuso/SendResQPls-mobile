@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useEffect, useRef } from 'react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { Check } from 'lucide-react';
@@ -41,9 +42,10 @@ export default function LocationSuccessModal() {
 
   if (!isOpen) return null;
 
-  return (
+  const node = (
     <div
       onClick={handleClose}
+      onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -175,4 +177,5 @@ export default function LocationSuccessModal() {
       </div>
     </div>
   );
+  return typeof document !== 'undefined' ? createPortal(node, document.body) : node;
 }

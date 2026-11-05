@@ -852,12 +852,6 @@ export default function MobileSignup() {
             </label>
           </div>
 
-          {error && (
-            <div className="col-span-1 sm:col-span-2" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 12px', marginTop: 4 }}>
-              <span style={{ fontSize: 13, color: '#B91C1C', fontWeight: 600 }}>{error}</span>
-            </div>
-          )}
-
           <div className="col-span-1 sm:col-span-2">
             <Button
               type="button"

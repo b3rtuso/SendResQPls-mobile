@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -40,7 +41,7 @@ export default function MobileReport() {
 
   const [photo, setPhoto] = useState<File | null>(() => cachedReportPhoto);
   const [preview, setPreview] = useState<string | null>(() => cachedReportPreview);
-  const [description, setDescription] = useState<string>(() => cachedReportDescription);
+  const [description, setDescription] = useState<string>(() => (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('srq_draft_report_desc') : null) || cachedReportDescription || '');
   const [compressing, setCompressing] = useState(false);
   const [sending, setSending] = useState(false);
   const [flushing, setFlushing] = useState(false);
@@ -52,12 +53,70 @@ export default function MobileReport() {
   const [detectedLocation, setDetectedLocation] = useState<{ lat: string; lng: string; barangay: string } | null>(null);
   const [resolvingLoc, setResolvingLoc] = useState(false);
   const [showManualBarangayModal, setShowManualBarangayModal] = useState(false);
-  const [selectedManualBrgy, setSelectedManualBrgy] = useState(BARANGAYS[0]?.name || 'Poblacion 1');
+  const [selectedManualBrgy, setSelectedManualBrgy] = useState(() => (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('srq_draft_report_brgy') : null) || BARANGAYS[0]?.name || 'Poblacion 1');
   const [submittedIncident, setSubmittedIncident] = useState<any | null>(null);
 
   // Real-time location state via useLocationChecker (framework: Phone GPS ON? -> Allowed? -> Continue)
   const { isLocationOn, status: locStatus, recheckLocation, requestLocation, requesting: locRequesting, openAppSettings } = useLocationChecker();
   const [showLocationGuideModal, setShowLocationGuideModal] = useState(false);
+
+  const savePhotoDraft = (file: File) => {
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        sessionStorage.setItem('srq_draft_report_photo', JSON.stringify({
+          dataUrl: base64,
+          name: file.name,
+          type: file.type,
+          lastModified: file.lastModified,
+        }));
+      };
+      reader.readAsDataURL(file);
+    } catch (e) {
+      console.warn('[Draft] Failed to serialize photo draft:', e);
+    }
+  };
+
+  const clearReportDraft = () => {
+    try {
+      sessionStorage.removeItem('srq_draft_report_desc');
+      sessionStorage.removeItem('srq_draft_report_brgy');
+      sessionStorage.removeItem('srq_draft_report_photo');
+    } catch {}
+    cachedReportPhoto = null;
+    cachedReportPreview = null;
+    cachedReportDescription = '';
+  };
+
+  // Hydrate photo draft from sessionStorage on reload
+  useEffect(() => {
+    if (photo || preview) return;
+    try {
+      const raw = sessionStorage.getItem('srq_draft_report_photo');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.dataUrl) {
+          fetch(parsed.dataUrl)
+            .then(res => res.blob())
+            .then(blob => {
+              const f = new File([blob], parsed.name || 'emergency-capture.jpg', {
+                type: parsed.type || 'image/jpeg',
+                lastModified: parsed.lastModified || Date.now(),
+              });
+              cachedReportPhoto = f;
+              cachedReportPreview = parsed.dataUrl;
+              setPhoto(f);
+              setPreview(parsed.dataUrl);
+            })
+            .catch(err => console.warn('[Draft] Failed to hydrate photo blob:', err));
+        }
+      }
+    } catch (e) {
+      console.warn('[Draft] Failed to parse photo draft:', e);
+    }
+  }, []);
+
 
   // ── Lock background scroll & gestures when any modal is open ──
   useEffect(() => {
@@ -246,6 +305,7 @@ export default function MobileReport() {
       cachedReportPreview = objectUrl;
       setPhoto(compressed);
       setPreview(objectUrl);
+      savePhotoDraft(compressed);
     } catch (err) {
       console.error('[Capture] Error:', err);
       showToast({ type: 'error', priority: 'normal', title: 'Capture Failed', message: 'Could not capture photo from camera.' });
@@ -273,9 +333,7 @@ export default function MobileReport() {
       setPhoto(null);
       setPreview(null);
       setDescription('');
-      cachedReportPhoto = null;
-      cachedReportPreview = null;
-      cachedReportDescription = '';
+      clearReportDraft();
           }
   };
 
@@ -292,9 +350,7 @@ export default function MobileReport() {
       setPhoto(null);
       setPreview(null);
       setDescription('');
-      cachedReportPhoto = null;
-      cachedReportPreview = null;
-      cachedReportDescription = '';
+      clearReportDraft();
           }
     navigate('/mobile');
   };
@@ -389,9 +445,7 @@ export default function MobileReport() {
 
         const newCount = getPendingCount();
         setPendingCount(newCount);
-        cachedReportPhoto = null;
-        cachedReportPreview = null;
-        cachedReportDescription = '';
+        clearReportDraft();
         setPhoto(null);
         setPreview(null);
         setDescription('');
@@ -420,9 +474,7 @@ export default function MobileReport() {
       const response = await reportIncident(formData);
       const { incident } = response.data;
 
-      cachedReportPhoto = null;
-      cachedReportPreview = null;
-      cachedReportDescription = '';
+      clearReportDraft();
       setPhoto(null);
       setPreview(null);
       setDescription('');
@@ -874,8 +926,10 @@ export default function MobileReport() {
                   maxLength={300}
                   value={description}
                   onChange={(e) => {
-                    setDescription(e.target.value);
-                    cachedReportDescription = e.target.value;
+                    const val = e.target.value;
+                    setDescription(val);
+                    cachedReportDescription = val;
+                    try { sessionStorage.setItem('srq_draft_report_desc', val); } catch {}
                   }}
                   placeholder="Briefly describe what you see (e.g. 2-car collision along highway, heavy smoke visible from 2nd floor, water rising near creek)..."
                   style={{
@@ -960,15 +1014,13 @@ export default function MobileReport() {
       </div>
 
       {/* ── Manual Barangay Selection Modal (Screen-Centered Dialog) ── */}
-      {showManualBarangayModal && (
+      {showManualBarangayModal && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowManualBarangayModal(false)}
+          onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             width: '100vw',
             height: '100dvh',
             zIndex: 100000,
@@ -1025,7 +1077,7 @@ export default function MobileReport() {
               <div style={{ position: 'relative' }}>
                 <select
                   value={selectedManualBrgy}
-                  onChange={e => setSelectedManualBrgy(e.target.value)}
+                  onChange={e => { setSelectedManualBrgy(e.target.value); try { sessionStorage.setItem('srq_draft_report_brgy', e.target.value); } catch {} }}
                   style={{
                     width: '100%', padding: '14px 16px', borderRadius: 14,
                     border: '1.5px solid #CBD5E1', background: '#F8FAFC',
@@ -1068,21 +1120,20 @@ export default function MobileReport() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       </div>
 
       {/* ── Pre-flight Review & Submit Modal (Screen-Centered Dialog) ── */}
-      {showReviewModal && detectedLocation && (
+      {showReviewModal && detectedLocation && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowReviewModal(false)}
+          onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             width: '100vw',
             height: '100dvh',
             zIndex: 100000,
@@ -1206,19 +1257,18 @@ export default function MobileReport() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── Location Framework Modal (Screen-Centered Dialog) ── */}
-      {showLocationGuideModal && (
+      {showLocationGuideModal && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowLocationGuideModal(false)}
+          onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             width: '100vw',
             height: '100dvh',
             zIndex: 100000,
@@ -1413,13 +1463,16 @@ export default function MobileReport() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── Success Screen Modal Overlay (Facebook-Style, No Icons) ── */}
-      {submittedIncident && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 100000,
+      {submittedIncident && typeof document !== 'undefined' && createPortal(
+        <div
+          onTouchMove={e => { if (e.target === e.currentTarget) e.preventDefault(); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100000,
           background: 'rgba(15, 23, 42, 0.85)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
@@ -1488,7 +1541,8 @@ export default function MobileReport() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
